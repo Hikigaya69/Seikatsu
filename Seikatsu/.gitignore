@@ -1,0 +1,15 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# ASP.NET
+**/bin/
+**/obj/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Logs
+*.log
