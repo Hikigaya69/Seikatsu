@@ -22,7 +22,8 @@ namespace Seikatsu.Backend.Controllers
     {
 
         [HttpPost("register")]
-
+        //actionreslut can be used in controller actions to return different types of responses such as success, bad request, not found etc.
+        //and should be used in controlles only.
         // here UserDTO is used to get the username and password from the client and as the success response it returns the User entity
         public async Task<ActionResult<User>> Register(UserDTO request)
         {

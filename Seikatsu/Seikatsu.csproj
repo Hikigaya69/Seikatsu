@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Folder Include="Backend\DataDB\" />
-    <Folder Include="Backend\Entity\" />
     <Folder Include="Backend\Models\" />
     <Folder Include="Backend\Middleware\" />
     <Folder Include="Backend\Services\" />
