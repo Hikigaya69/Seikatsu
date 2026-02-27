@@ -11,11 +11,12 @@ using System.Security.Claims;
 using System.Text;
 
 using Seikatsu.Backend.Services;
+using Microsoft.AspNetCore.Cors;
 
 namespace Seikatsu.Backend.Controllers
 
 {
-
+    [EnableCors("specificOrigins")]
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController(IAuthService authService) : Controller
