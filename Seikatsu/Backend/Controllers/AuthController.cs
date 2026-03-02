@@ -11,6 +11,7 @@ using System.Text;
 
 using Seikatsu.Backend.Services;
 using Microsoft.AspNetCore.Cors;
+using System.Security.Claims;
 
 namespace Seikatsu.Backend.Controllers
 
@@ -25,7 +26,7 @@ namespace Seikatsu.Backend.Controllers
         //actionreslut can be used in controller actions to return different types of responses such as success, bad request, not found etc.
         //and should be used in controlles only.
         // here UserDTO is used to get the username and password from the client and as the success response it returns the User entity
-        public async Task<ActionResult<User>> Register(UserDTO request)
+        public async Task<ActionResult<CustomerDTO>> Register(CustomerDTO request)
         {
 
             var user = await authService.RegisterAsync(request);
@@ -39,7 +40,7 @@ namespace Seikatsu.Backend.Controllers
 
         [HttpPost("login")]
 
-        public async Task<ActionResult<TokenResponseDto>> Login(UserDTO request)
+        public async Task<ActionResult<TokenResponseDto>> Login(CustomerDTO request)
         {
             var result = await authService.LoginAsync(request);
             if (result is null)
@@ -49,6 +50,26 @@ namespace Seikatsu.Backend.Controllers
             return Ok(result);
 
         }
+        [Authorize]
+        [HttpPost("logout")]
+
+        public async Task<ActionResult> Logout()
+        {
+            var userId=User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId==null)
+            {
+                return BadRequest("Logout failed.");
+            }
+            var result = await authService.LogoutAsync(Guid.Parse(userId));
+            if (!result)
+            {
+                return BadRequest("Logout failed.");
+            }
+            return Ok("Logged out successfully.");
+        }
+
+
+
         [Authorize]
         [HttpGet]
         public IActionResult AuthenticatedOnlyEndpoint()

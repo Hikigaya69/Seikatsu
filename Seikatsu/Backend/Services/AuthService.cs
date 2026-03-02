@@ -8,82 +8,99 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Identity.Client;
 
 
 namespace Seikatsu.Backend.Services
 {
     public class AuthService(Data.UserContext context, IConfiguration configuration) : IAuthService
     {
-        public async Task<TokenResponseDto> LoginAsync(UserDTO request)
+        public async Task<TokenResponseDto> LoginAsync(CustomerDTO request)
         { //login method which returns both access token and refresh token
 
-            var user = context.Users.FirstOrDefault(u => u.Username == request.Username);
-            if (user is null)
+            var customer = context.Customers.FirstOrDefault(u => u.FullName.ToLower() == request.FullName.ToLower() || u.Email.ToLower()    
+            == request.Email.ToLower());
+            if (customer is null)
             {
                 return null;
             }
             // check the passwordhash to verify the password    
-            if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password) == PasswordVerificationResult.Failed)
+            if (new PasswordHasher<Customer>().VerifyHashedPassword(customer, customer.PasswordHashed, request.Password) == PasswordVerificationResult.Failed)
             {
                 return null;
             }
             //method to create token response
-            return await CreateTokenResponse(user);
+            return await CreateTokenResponse(customer);
 
+        }
+
+        public async Task<bool>LogoutAsync(Guid userId)
+        {
+            var customer= await context.Customers.FindAsync(userId);
+
+            if(customer is null)
+            {
+                return false;
+            }
+            customer.RefreshToken = null;
+            customer.RefreshTokenExpiryTime = null;
+            await context.SaveChangesAsync();
+            return true;
         }
 
 
         //register method to create new user    
-        public async Task<User?> RegisterAsync(UserDTO request)
+        public async Task<Customer?> RegisterAsync(CustomerDTO request)
         {
-            if (await context.Users.AnyAsync(u=> u.Username == request.Username))
+            if (await context.Customers.AnyAsync(u=> u.FullName.ToLower() == request.FullName.ToLower()))
             {
                 return null;
             }
 
-            var user = new User();
-            var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
-            user.Username = request.Username;
-            user.PasswordHash = hashedPassword;
-            context.Users.Add(user);
+            var customer = new Customer();
+            var hashedPassword = new PasswordHasher<Customer>().HashPassword(customer, request.Password);
+            customer.FullName = request.FullName.ToLower();
+            customer.PasswordHashed = hashedPassword;
+            customer.Email = request.Email.ToLower();
+            context.Customers.Add(customer);
             await context.SaveChangesAsync();
 
-            return user;
+            return customer;
 
         }
 
         public async Task<TokenResponseDto?> RefreshTokenAsync(RequestTokenRefreshDto request)
         {
-            var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
+            var customer = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
 
-            if (user is null)
+            if (customer is null)
             {
                 return null;
             }
 
-            return await CreateTokenResponse(user);
+            return await CreateTokenResponse(customer);
         }
 
-        private async Task<TokenResponseDto?> CreateTokenResponse(User? user)
+        private async Task<TokenResponseDto?> CreateTokenResponse(Customer? customer)
         {
             return new TokenResponseDto
             {
 
-                AccessToken = CreateToken(user),
-                RefreshToken = await GenerateAndStoreRefreshToken(user)
+                AccessToken = CreateToken(customer),
+                RefreshToken = await GenerateAndStoreRefreshToken(customer)
             };
         }
 
-        private async Task<User?> ValidateRefreshTokenAsync(Guid userId,string refreshToken)
+        private async Task<Customer?> ValidateRefreshTokenAsync(Guid userId,string refreshToken)
         {
-            var user= await context.Users.FindAsync(userId);
+            var customer= await context.Customers.FindAsync(userId);
 
-            if(user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            if(customer is null || customer.RefreshToken != refreshToken || customer.RefreshTokenExpiryTime <= DateTime.UtcNow)
             {
                 return null;
             }
 
-            return user;
+            return customer;
         }
 
 
@@ -96,24 +113,25 @@ namespace Seikatsu.Backend.Services
             return Convert.ToBase64String(randomNumber);
         }
 
-        public async Task<string> GenerateAndStoreRefreshToken(User user)
+        public async Task<string> GenerateAndStoreRefreshToken(Customer customer)
         {
             var refreshToken = GenerateRefreshToken();
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            customer.RefreshToken = refreshToken;
+            customer.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await context.SaveChangesAsync();   
             return refreshToken;    
 
 
         }
 
-        private string CreateToken(User user)
+        private string CreateToken(Customer customer)
         {
             var clamis = new List<Claim>
             {
-                new Claim(ClaimTypes.Name,user.Username),
-                new Claim(ClaimTypes.NameIdentifier,user.ID.ToString()),
-                new Claim(ClaimTypes.Role,user.Roles)
+                new Claim(ClaimTypes.Name,customer.FullName.ToLower()),
+                new Claim(ClaimTypes.NameIdentifier,customer.Id.ToString()),
+                new Claim(ClaimTypes.Email,customer.Email.ToLower())
+              //  new Claim(ClaimTypes.Role,user.Roles)
             };
 
             var key = new SymmetricSecurityKey
