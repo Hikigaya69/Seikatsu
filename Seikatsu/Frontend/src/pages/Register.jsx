@@ -3,43 +3,40 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import "./Auth.css";
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "https://localhost:7115/api/Auth/login",
+      await axios.post(
+        "https://localhost:7115/api/Auth/register",
         { username, password }
       );
 
-      localStorage.setItem("accessToken", response.data.accessToken);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
-
-      navigate("/");
+      navigate("/login");
     } catch {
-      setError("Invalid username or password");
+      setError("User already exists");
     }
   };
 
   return (
     <div className="auth-container">
       <div className="auth-left">
-        <h1>Welcome Back</h1>
+        <h1>Create Account</h1>
         <p>
-          Continue your journey with Seikatsu.
-          Discover international groceries tailored for life in Japan.
+          Join Seikatsu and start exploring authentic
+          international groceries across Japan.
         </p>
       </div>
 
       <div className="auth-right">
-        <form className="auth-card" onSubmit={handleLogin}>
-          <h2>Login</h2>
+        <form className="auth-card" onSubmit={handleRegister}>
+          <h2>Register</h2>
 
           {error && <p className="error">{error}</p>}
 
@@ -59,12 +56,12 @@ export default function Login() {
             required
           />
 
-          <button type="submit">Login</button>
+          <button type="submit">Create Account</button>
 
           <div className="auth-link">
-            Don't have an account?{" "}
-            <Link to="/register">
-              <span>Create one</span>
+            Already have an account?{" "}
+            <Link to="/login">
+              <span>Login</span>
             </Link>
           </div>
         </form>
