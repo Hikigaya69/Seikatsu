@@ -28,7 +28,7 @@ namespace Seikatsu.Backend.Controllers
         // here UserDTO is used to get the username and password from the client and as the success response it returns the User entity
         public async Task<ActionResult<CustomerDTO>> Register(CustomerDTO request)
         {
-
+            //creating common reespone format is still pending... need to   work on the service layer toooo.
             var user = await authService.RegisterAsync(request);
             if (user is null)
             {

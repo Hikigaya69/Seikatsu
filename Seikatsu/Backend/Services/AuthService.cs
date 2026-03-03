@@ -18,8 +18,7 @@ namespace Seikatsu.Backend.Services
         public async Task<TokenResponseDto> LoginAsync(CustomerDTO request)
         { //login method which returns both access token and refresh token
 
-            var customer = context.Customers.FirstOrDefault(u => u.FullName.ToLower() == request.FullName.ToLower() || u.Email.ToLower()    
-            == request.Email.ToLower());
+            var customer = context.Customers.FirstOrDefault(u => u.Email.ToLower() == request.Email.ToLower());
             if (customer is null)
             {
                 return null;
