@@ -1,96 +1,59 @@
-import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "./FeaturedProducts.css";
+import fallbackImg from "../assets/products/ramen.jpg";
 
-import ramen from "../assets/products/ramen.jpg";
-import curry from "../assets/products/curry.jpg";
-import masala from "../assets/products/masala.jpg";
-import drinks from "../assets/products/drinks.jpg";
-import koreaSnack from "../assets/products/koreasnackbox.webp";
-import thai from "../assets/products/thaichillipaste.jpg";
+export default function FeaturedProducts() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-function FeaturedProducts() {
-  const scrollRef = useRef(null);
-  const navigate = useNavigate();
 
-  const scroll = (direction) => {
-    const { current } = scrollRef;
-    if (direction === "left") {
-      current.scrollBy({ left: -300, behavior: "smooth" });
-    } else {
-      current.scrollBy({ left: 300, behavior: "smooth" });
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(
+        "https://localhost:7115/api/Product/productforindex?count=10"
+      );
+
+      setProducts(response.data.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const products = [
-    {
-      name: "Instant Ramen Pack",
-      price: "¥850",
-      image: ramen,
-    },
-    {
-      name: "Premium Curry Sauce Box",
-      price: "¥1,200",
-      image: curry,
-    },
-    {
-      name: "Indian Spice Collection",
-      price: "¥1,800",
-      image: masala,
-    },
-    {
-      name: "Japanese Drink Pack",
-      price: "¥2,500",
-      image: drinks,
-    },
+  fetchProducts();
+}, []);
 
+ 
+ 
 
-    { name: "Korean Snack Box", price: "¥1,100", image: koreaSnack },
-  { name: "Thai Chili Paste", price: "¥900", image: thai },
-  { name: "Chinese Dumpling Kit", price: "¥1,600", image: thai },
-  { name: "Matcha Dessert Set", price: "¥2,200", image: koreaSnack },
-  ];
+  if (loading) {
+    return <div className="featured-section">Loading products...</div>;
+  }
 
   return (
     <section className="featured-section">
-      <div className="featured-header">
-        <h2>Featured Products</h2>
-        <p>Hand-picked favorites from our collection</p>
-      </div>
+      <h2>Featured Products</h2>
 
-      <div className="carousel-wrapper">
+      <div className="products-container">
+        {products.map((product) => (
+          <div className="product-card" key={product.id}>
+            <img
+              src={product.productImageUrl || fallbackImg}
+              alt={product.name}
+            />
 
-        <button className="arrow left" onClick={() => scroll("left")}>
-          ❮
-        </button>
-
-        <div className="product-container" ref={scrollRef}>
-          {products.map((product, index) => (
-            <div className="product-card" key={index}>
-              <img src={product.image} alt={product.name} />
-
-              <div className="product-info">
-                <h3>{product.name}</h3>
-                <p className="price">{product.price}</p>
-
-                <button
-                  className="cart-btn"
-                  onClick={() => navigate("/login")}
-                >
-                  Add to Cart
-                </button>
-              </div>
+            <div className="product-info">
+              <h3>{product.name}</h3>
+              <p>{product.description}</p>
+              <div className="price">¥{product.price}</div>
+              <button>Add to Cart</button>
             </div>
-          ))}
-        </div>
-
-        <button className="arrow right" onClick={() => scroll("right")}>
-          ❯
-        </button>
-
+          </div>
+        ))}
       </div>
     </section>
   );
 }
-
-export default FeaturedProducts;
