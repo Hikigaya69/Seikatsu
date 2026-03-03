@@ -33,7 +33,7 @@ namespace Seikatsu.Backend.Controllers
             {
                 Success = true,
                 Data = products,
-                Message = products.Any() ? null : "No products found."
+                Message = products.Any() ? "prodcuts are sent" : "No products found."
             };
             
             return Ok(response);

@@ -5,7 +5,7 @@ namespace Seikatsu.Backend.Services
 {
     public interface IAuthService
     {
-        Task<Customer?> RegisterAsync(CustomerDTO request);
+        Task<CustomerRegisterDTO?> RegisterAsync(CustomerDTO request);
         Task<TokenResponseDto?> LoginAsync(CustomerDTO request);
 
         Task<bool>LogoutAsync(Guid userId);     

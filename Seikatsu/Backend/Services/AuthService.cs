@@ -49,7 +49,7 @@ namespace Seikatsu.Backend.Services
 
 
         //register method to create new user    
-        public async Task<Customer?> RegisterAsync(CustomerDTO request)
+        public async Task<CustomerRegisterDTO?> RegisterAsync(CustomerDTO request)
         {
             if (await context.Customers.AnyAsync(u=> u.FullName.ToLower() == request.FullName.ToLower()))
             {
@@ -64,7 +64,12 @@ namespace Seikatsu.Backend.Services
             context.Customers.Add(customer);
             await context.SaveChangesAsync();
 
-            return customer;
+            return new CustomerRegisterDTO
+            {
+                
+                FullName = customer.FullName,
+                Email = customer.Email
+            };
 
         }
 
