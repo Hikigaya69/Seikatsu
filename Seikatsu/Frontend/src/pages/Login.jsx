@@ -5,7 +5,7 @@ import "./Auth.css";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -14,8 +14,8 @@ export default function Login() {
 
     try {
       const response = await axios.post(
-        "https://localhost:7115/api/Auth/login",
-        { username, password }
+          "https://localhost:7115/api/Auth/login",
+          { Email: email, Password: password }
       );
 
       localStorage.setItem("accessToken", response.data.accessToken);
@@ -45,9 +45,9 @@ export default function Login() {
 
           <input
             type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
             required
           />
 

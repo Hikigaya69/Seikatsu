@@ -1,0 +1,16 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Seikatsu.Backend.Models
+{
+    public class CustomerLoginDTO
+    {
+        [Required]
+        [EmailAddress]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@gmail\.com$",
+       ErrorMessage = "Only Gmail addresses allowed.")]
+        public string Email { get; set; } = string.Empty;
+        [Required]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters.")]
+        public string Password { get; set; } = string.Empty;
+    }
+}

@@ -4,9 +4,11 @@ import { useNavigate, Link } from "react-router-dom";
 import "./Auth.css";
 
 export default function Register() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
   const [error, setError] = useState("");
 
   const handleRegister = async (e) => {
@@ -14,8 +16,8 @@ export default function Register() {
 
     try {
       await axios.post(
-        "https://localhost:7115/api/Auth/register",
-        { username, password }
+          "https://localhost:7115/api/Auth/register",
+          { FullName: username, Password: password, Email: email }
       );
 
       navigate("/login");
@@ -46,7 +48,14 @@ export default function Register() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-          />
+                  />
+                  <input
+                      type="text"
+                      placeholder="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                  />
 
           <input
             type="password"

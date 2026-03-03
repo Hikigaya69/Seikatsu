@@ -40,7 +40,7 @@ namespace Seikatsu.Backend.Controllers
 
         [HttpPost("login")]
 
-        public async Task<ActionResult<TokenResponseDto>> Login(CustomerDTO request)
+        public async Task<ActionResult<TokenResponseDto>> Login(CustomerLoginDTO request)
         {
             var result = await authService.LoginAsync(request);
             if (result is null)

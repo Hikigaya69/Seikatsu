@@ -15,7 +15,7 @@ namespace Seikatsu.Backend.Services
 {
     public class AuthService(Data.UserContext context, IConfiguration configuration) : IAuthService
     {
-        public async Task<TokenResponseDto> LoginAsync(CustomerDTO request)
+        public async Task<TokenResponseDto> LoginAsync(CustomerLoginDTO request)
         { //login method which returns both access token and refresh token
 
             var customer = context.Customers.FirstOrDefault(u => u.Email.ToLower() == request.Email.ToLower());
