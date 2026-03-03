@@ -1,0 +1,49 @@
+.footer {
+  background: #0f172a;
+  color: white;
+  padding: 80px 40px;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.footer-left {
+  max-width: 400px;
+}
+
+.footer-left h3 {
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+.footer-left p {
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.footer-links h4,
+.footer-contact h4 {
+  margin-bottom: 20px;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: 10px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.footer-contact p {
+  color: #94a3b8;
+  margin-bottom: 8px;
+}

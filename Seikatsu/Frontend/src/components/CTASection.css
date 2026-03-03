@@ -1,0 +1,50 @@
+.cta-wrapper {
+  padding: 120px 20px;
+  display: flex;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.cta-card {
+  width: 100%;
+  max-width: 900px;
+  padding: 70px 40px;
+  text-align: center;
+  border-radius: 30px;
+  background: linear-gradient(
+    135deg,
+    #DC143C,
+    #B81130
+  );
+  color: white;
+  box-shadow: 0 40px 80px rgba(220,20,60,0.3);
+}
+
+.cta-card h2 {
+  font-size: 42px;
+  font-weight: 800;
+}
+
+.cta-card p {
+  margin-top: 20px;
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.cta-button {
+  margin-top: 40px;
+  padding: 16px 40px;
+  border: none;
+  border-radius: 999px;
+  background: white;
+  color: #DC143C;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.cta-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}

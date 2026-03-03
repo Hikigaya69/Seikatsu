@@ -1,0 +1,130 @@
+.hero-section {
+  position: relative;
+  padding: 140px 20px 100px;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Gradient Background */
+.hero-bg-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    #fff5f5,
+    #faf9f6,
+    #fff8f0
+  );
+  z-index: 0;
+}
+
+/* Faint Image Background */
+.hero-bg-image {
+  position: absolute;
+  inset: 0;
+  background: url("https://images.unsplash.com/photo-1562070416-acfd0b43db97")
+    center/cover no-repeat;
+  opacity: 0.08;
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  z-index: 2;
+}
+
+/* Badge */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 999px;
+  border: 1px solid rgba(220,20,60,0.2);
+  margin-bottom: 30px;
+}
+
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  background: #DC143C;
+  border-radius: 50%;
+}
+
+/* Heading */
+.hero-content h1 {
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #111827;
+}
+
+.highlight {
+  background: linear-gradient(to right, #DC143C, #FF6B6B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Subtext */
+.hero-content p {
+  margin-top: 30px;
+  font-size: 22px;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* Buttons */
+.hero-buttons {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.primary-btn {
+  padding: 16px 34px;
+  background: #DC143C;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.primary-btn:hover {
+  background: #B81130;
+  transform: scale(1.05);
+  box-shadow: 0 15px 35px rgba(220,20,60,0.3);
+}
+
+.secondary-btn {
+  padding: 16px 34px;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Stats */
+.hero-stats {
+  margin-top: 70px;
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+}
+
+.hero-stats h3 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.hero-stats span {
+  color: #6b7280;
+}
