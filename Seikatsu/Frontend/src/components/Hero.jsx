@@ -1,5 +1,5 @@
 import "./Hero.css";
-
+import { Link } from "react-router-dom";
 function Hero() {
   return (
     <section className="hero-section">
@@ -31,9 +31,13 @@ function Hero() {
             Explore Products
           </button>
 
-          <button className="secondary-btn">
-            Login
-          </button>
+<Link to="/login">
+  <button className="secondary-btn">
+    Login
+  </button>
+</Link>
+
+
         </div>
 
         <div className="hero-stats">

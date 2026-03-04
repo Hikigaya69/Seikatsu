@@ -16,7 +16,7 @@ function CTASection() {
 
         <button
           className="cta-button"
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/register")}
         >
           Create Free Account
         </button>
