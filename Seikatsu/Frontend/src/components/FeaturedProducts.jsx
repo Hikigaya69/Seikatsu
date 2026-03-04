@@ -37,7 +37,7 @@ useEffect(() => {
     <section className="featured-section">
       <h2>Featured Products</h2>
 
-      <div className="products-container">
+      <div className="product-container">
         {products.map((product) => (
           <div className="product-card" key={product.id}>
             <img
@@ -49,7 +49,7 @@ useEffect(() => {
               <h3>{product.name}</h3>
               <p>{product.description}</p>
               <div className="price">¥{product.price}</div>
-              <button>Add to Cart</button>
+              <button className="cart-btn">Add to Cart</button>
             </div>
           </div>
         ))}
