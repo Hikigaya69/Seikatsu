@@ -3,7 +3,7 @@
 namespace Seikatsu.Backend.Services
 
 {
-    public class ProductService (Data.UserContext context) : IProductService
+    public class ProductService(Data.UserContext context) : IProductService
     {
         public async Task<IEnumerable<Models.ProductDTOforIndexPage>> GetRandomProductsAsync(int count)
         {
@@ -23,5 +23,80 @@ namespace Seikatsu.Backend.Services
                 .ToListAsync();
             return products;
         }
+
+        public async Task<IEnumerable<Models.ProductDTO>> GetPrductbyIdAsync(Guid id)
+        {
+            var product = await context.Products
+                .Where(p => p.Id == id)
+                .Select(p => new Models.ProductDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    IsFood = p.IsFood,
+                    StorageType = p.StorageType,
+                    Category = p.Category!.CategoryName,
+                    CountryName = p.CountryName
+                })
+                .ToListAsync();
+            return product;
+        }
+
+        public async Task<IEnumerable<Models.ProductCountryDTO>> GetProductbyCountryAsync(string countyname)
+        {
+            var products = await context.Products.
+                Where(p => p.CountryName.ToLower() == countyname.ToLower()).
+                Select(p => new Models.ProductCountryDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    IsFood = p.IsFood,
+                    ProductImageUrl = p.ProductImageUrl,
+                    StorageType = p.StorageType,
+                    Category = p.Category!.CategoryName,
+                    CountryName = p.CountryName
+                }).ToListAsync();
+            return products;
+
+
+
+        }
+
+        public async Task<IEnumerable<Models.ProductSuggestionDTO>> GetProductSuggestionAsync(string query)
+        {
+            var suggestions = await context.Products
+                .Where(p => p.Name.ToLower().Contains(query.ToLower()))
+                .Select(p => new Models.ProductSuggestionDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+
+                })
+                .Take(8)// Limit the number of suggestions to 8
+                .ToListAsync();
+            return suggestions;
+        }
+
+        public async Task<IEnumerable<Models.ProductDTOforIndexPage>> GetProductsbySearchAsync(string query)
+        {
+            var products = await context.Products
+                .Where(p => p.Name.ToLower().Contains(query.ToLower()))
+                .Select(p => new Models.ProductDTOforIndexPage
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    ProductImageUrl = p.ProductImageUrl,
+                    Category = p.Category!.CategoryName,
+                    CountryName = p.CountryName
+                })
+                .ToListAsync();
+            return products;
+        }
+
     }
 }

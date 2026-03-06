@@ -18,7 +18,7 @@ namespace Seikatsu.Backend.Controllers
     [EnableCors("specificOrigins")]
     [ApiController]
     [Route("api/[controller]")]
-    public class ProductController (IProductService productService) : ControllerBase
+    public class ProductController(IProductService productService) : ControllerBase
     {
         [HttpGet("productforindex")]
         // This endpoint retrieves a list of random products for the index page. The client can specify the number of products
@@ -35,7 +35,65 @@ namespace Seikatsu.Backend.Controllers
                 Data = products,
                 Message = products.Any() ? "prodcuts are sent" : "No products found."
             };
-            
+
+            return Ok(response);
+        }
+
+        [HttpGet("productview/{id}")]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductbyID(Guid id)
+        {
+
+
+            var product = await productService.GetPrductbyIdAsync(id);
+            var response = new APIResponse<IEnumerable<ProductDTO>>
+            {
+                Success = true,
+                Data = product,
+                Message = product.Any() ? "prodcut detail is sent" : "No products found."
+            };
+
+            return Ok(response);
+
+        }
+
+        [HttpGet("productbycountry/{countryname}")]
+
+        public async Task<ActionResult<IEnumerable<ProductCountryDTO>>> GetProductbyCountry(string countryname)
+        {
+            var products = await productService.GetProductbyCountryAsync(countryname);
+            var response = new APIResponse<IEnumerable<ProductCountryDTO>>
+            {
+                Success = true,
+                Data = products,
+                Message = products.Any() ? "prodcuts for requested country are sent" : "No products found."
+            };
+            return Ok(response);
+
+        }
+        [HttpGet("suggestion/{query}")]
+        public async Task<ActionResult<IEnumerable<ProductSuggestionDTO>>> GetProductSuggestion(string query)
+        {
+            var suggestions = await productService.GetProductSuggestionAsync(query);
+            var response = new APIResponse<IEnumerable<ProductSuggestionDTO>>
+            {
+                Success = true,
+                Data = suggestions,
+                Message = suggestions.Any() ? "product suggestions are sent" : "No products found."
+            };
+            return Ok(response);
+
+
+        }
+        [HttpGet("search/{query}")]
+        public async Task<ActionResult<IEnumerable<ProductDTOforIndexPage>>> GetProductsbySearch(string query)
+        {
+            var products = await productService.GetProductsbySearchAsync(query);
+            var response = new APIResponse<IEnumerable<ProductDTOforIndexPage>>
+            {
+                Success = true,
+                Data = products,
+                Message = products.Any() ? "products matching search query are sent" : "No products found."
+            };
             return Ok(response);
         }
     }
