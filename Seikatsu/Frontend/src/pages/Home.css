@@ -1,0 +1,46 @@
+.hero-modern {
+  height: 450px;
+  background-image: url("https://images.unsplash.com/photo-1606787366850-de6330128bfc");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+}
+
+.hero-content-modern {
+  margin-left: 80px;
+  color: white;
+  background: rgba(15, 23, 42, 0.7);
+  padding: 40px;
+  border-radius: 10px;
+}
+
+.hero-content-modern h1 {
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.hero-content-modern p {
+  margin-top: 10px;
+}
+
+.hero-btn {
+  margin-top: 20px;
+  padding: 12px 26px;
+  background: #1e3a8a;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.category-card {
+  text-align: center;
+  padding: 40px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.category-card:hover {
+  transform: translateY(-6px);
+}
