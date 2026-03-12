@@ -32,18 +32,22 @@ namespace Seikatsu.Backend.Data
                 .HasForeignKey(a => a.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            
-            // Customer → Cart (1:M)
-            
-            modelBuilder.Entity<Cart>()
-                .HasOne(c => c.Customer)
-                .WithMany(cu => cu.Carts)
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade);
 
-          
+            // Customer → Cart (1:M)
+
+            modelBuilder.Entity<Cart>()
+       .HasOne(c => c.Customer)
+       .WithOne(cu => cu.Cart)
+       .HasForeignKey<Cart>(c => c.CustomerId)
+       .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Cart>()
+                .HasIndex(c => c.CustomerId)
+                .IsUnique();
+
+
             // Cart → CartItem (1:M)
-           
+
             modelBuilder.Entity<CartItem>()
                 .HasOne(ci => ci.Cart)
                 .WithMany(c => c.CartItems)
@@ -113,17 +117,21 @@ namespace Seikatsu.Backend.Data
                 .HasForeignKey(cl => cl.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-           
+
             // Customer → RestockCart (1:M)
-            
+
             modelBuilder.Entity<RestockCart>()
-                .HasOne(rc => rc.Customer)
-                .WithMany(c => c.RestockCarts)
-                .HasForeignKey(rc => rc.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade);
+    .HasOne(rc => rc.Customer)
+    .WithOne(c => c.RestockCart)
+    .HasForeignKey<RestockCart>(rc => rc.CustomerId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RestockCart>()
+    .HasIndex(rc => rc.CustomerId)
+    .IsUnique();
 
             // RestockCart → RestockCartItem (1:M)
-           
+
             modelBuilder.Entity<RestockCartItem>()
                 .HasOne(rci => rci.RestockCart)
                 .WithMany(rc => rc.RestockCartItems)
