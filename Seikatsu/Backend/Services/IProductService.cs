@@ -13,6 +13,8 @@ namespace Seikatsu.Backend.Services
 
         Task<IEnumerable<ProductDTOforIndexPage>> GetProductsbySearchAsync(string query);
 
+        Task<IEnumerable<ProductDTOforIndexPage>> GetProductbyCategoty(Guid categoryId);
+
 
     }
 }

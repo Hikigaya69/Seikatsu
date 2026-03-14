@@ -26,6 +26,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICategoryService,CategoryService>();
 builder.Services.AddDbContext<Seikatsu.Backend.Data.UserContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 

@@ -98,5 +98,23 @@ namespace Seikatsu.Backend.Services
             return products;
         }
 
+        public async Task<IEnumerable<Models.ProductDTOforIndexPage>> GetProductbyCategoty(Guid categoryId)
+        {
+            var products = await context.Products
+                .Where(p => p.CategoryId == categoryId)
+                .Select(p => new Models.ProductDTOforIndexPage
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    ProductImageUrl = p.ProductImageUrl,
+                    Category = p.Category!.CategoryName,
+                    CountryName = p.CountryName
+                })
+                .ToListAsync();
+            return products;
+
+        }
     }
 }

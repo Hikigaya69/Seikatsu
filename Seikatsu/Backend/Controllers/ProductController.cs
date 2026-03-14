@@ -96,5 +96,19 @@ namespace Seikatsu.Backend.Controllers
             };
             return Ok(response);
         }
+
+        [HttpGet("category/{categoryId}")]
+
+        public async Task<ActionResult<IEnumerable<ProductDTOforIndexPage>>> GetProductbyCategory([FromRoute] Guid categoryId)
+        {
+            var products = await productService.GetProductbyCategoty(categoryId);
+            var response = new APIResponse<IEnumerable<ProductDTOforIndexPage>>
+            {
+                Success = true,
+                Data = products,
+                Message = products.Any() ? "products for requested category are sent" : "No products found."
+            };
+            return Ok(response);
+        }
     }
 }
