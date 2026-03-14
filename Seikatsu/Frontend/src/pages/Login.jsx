@@ -15,11 +15,10 @@ export default function Login() {
     try {
       const response = await axios.post(
           "https://localhost:7115/api/Auth/login",
-          { Email: email, Password: password }
+          { Email: email, Password: password },
+          { withCredentials: true }
       );
 
-      localStorage.setItem("accessToken", response.data.accessToken);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
 
       navigate("/");
     } catch {

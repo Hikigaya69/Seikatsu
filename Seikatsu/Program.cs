@@ -1,4 +1,4 @@
-using Seikatsu.Backend.Services;
+﻿using Seikatsu.Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,7 +15,8 @@ builder.Services.AddCors(options =>
                       {
                           policy.WithOrigins("http://localhost:5173"
                                               ).AllowAnyHeader()
-      .AllowAnyMethod(); ;
+      .AllowAnyMethod()    
+                          .AllowCredentials();
                       });
 });
 // Add services to the container.
@@ -25,6 +26,8 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddHttpContextAccessor();        // needed by CookieService
+builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService,CategoryService>();
 builder.Services.AddDbContext<Seikatsu.Backend.Data.UserContext>(options =>
@@ -33,8 +36,7 @@ builder.Services.AddDbContext<Seikatsu.Backend.Data.UserContext>(options =>
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
-
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
@@ -42,9 +44,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["AppSettings:Audience"],
             ValidateLifetime = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)),
-            ValidateIssuerSigningKey = true
+            ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.Zero   // ← tokens expire exactly on time, no grace period
         };
 
+        // ← read JWT from cookie if Authorization header is absent
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Cookies["access_token"];
+                if (!string.IsNullOrEmpty(token))
+                    context.Token = token;
+                return Task.CompletedTask;
+            }
+        };
     });
 var app = builder.Build();
 
