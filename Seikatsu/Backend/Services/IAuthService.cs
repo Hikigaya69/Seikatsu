@@ -8,8 +8,7 @@ namespace Seikatsu.Backend.Services
         Task<CustomerRegisterDTO?> RegisterAsync(CustomerDTO request);
         Task<TokenResponseDto?> LoginAsync(CustomerLoginDTO request);
 
-        Task<bool>LogoutAsync(Guid userId);     
-
-        Task<TokenResponseDto?> RefreshTokenAsync(RequestTokenRefreshDto request);
+        Task<bool> LogoutAsync();                    
+        Task<TokenResponseDto?> RefreshTokenAsync();
     }
 }
