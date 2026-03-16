@@ -14,12 +14,14 @@ const countries = [
 function CountrySection() {
   return (
     <section className="country-section">
+      
       <div className="country-container">
 
         <h2>Shop by Country</h2>
         <p>
           Explore our diverse selection of international groceries
         </p>
+       
 
         <div className="country-grid">
           {countries.map((country, index) => (
