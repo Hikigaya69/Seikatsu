@@ -1,5 +1,4 @@
 ﻿
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -113,39 +112,42 @@ namespace Seikatsu.Backend.Services
 
 
         //  LOGOUT
-        public async Task<bool> LogoutAsync(Guid userId)
+        public async Task<bool> LogoutAsync()
         {
-            var customer = await context.Customers.FindAsync(userId);
-            if (customer is null)
-                return false;
+            var incomingRefreshToken = cookieService.GetRefreshToken();
+            if (incomingRefreshToken is null) return false;
 
-            // Invalidate refresh token in DB
+            var customerId = ExtractCustomerIdFromRefreshToken(incomingRefreshToken);
+            if (customerId is null) return false;
+
+            var customer = await context.Customers.FindAsync(customerId);
+            if (customer is null) return false;
+
             customer.RefreshToken = null;
             customer.RefreshTokenExpiryTime = null;
             await context.SaveChangesAsync();
 
-            // Clear both cookies from the browser
             cookieService.ClearTokenCookies();
             return true;
         }
 
 
         // REFRESH TOKEN 
-        public async Task<TokenResponseDto?> RefreshTokenAsync(RequestTokenRefreshDto request)
+        public async Task<TokenResponseDto?> RefreshTokenAsync()
         {
-            // Read refresh token from cookie (browser sends it automatically)
-            // Falls back to request body for mobile clients
-            var incomingRefreshToken = cookieService.GetRefreshToken()
-                                       ?? request.RefreshToken;
+            // Read refresh JWT from cookie — browser sends automatically
+            var incomingRefreshToken = cookieService.GetRefreshToken();
+            if (incomingRefreshToken is null) return null;
 
-            var customer = await context.Customers.FindAsync(request.UserId);
-            if (customer is null)
-                return null;
+            // Extract CustomerId from inside the refresh JWT
+            var customerId = ExtractCustomerIdFromRefreshToken(incomingRefreshToken);
+            if (customerId is null) return null;
 
-            // ── Reuse Detection ───────────────────────────────────────────────
-            // If incoming token doesn't match stored token, an old token is being
-            // replayed — assume theft and revoke everything immediately
-            if (customer.RefreshToken != incomingRefreshToken)
+            var customer = await context.Customers.FindAsync(customerId);
+            if (customer is null) return null;
+
+            // Compare hash — never compare plain text
+            if (customer.RefreshToken != HashToken(incomingRefreshToken))
             {
                 await RevokeRefreshToken(customer);
                 return null;
@@ -157,8 +159,6 @@ namespace Seikatsu.Backend.Services
 
             // Rotate — generate new access + refresh tokens
             var tokenResponse = await CreateTokenResponse(customer);
-
-            // Write rotated tokens back into cookies
             cookieService.SetTokenCookies(tokenResponse.AccessToken, tokenResponse.RefreshToken);
 
             return tokenResponse;
@@ -166,7 +166,7 @@ namespace Seikatsu.Backend.Services
 
 
         // PRIVATE HELPERS
-      
+
 
         private async Task<TokenResponseDto> CreateTokenResponse(Customer customer)
         {
@@ -186,21 +186,83 @@ namespace Seikatsu.Backend.Services
             cookieService.ClearTokenCookies();
         }
 
-        private static string GenerateRefreshToken()
-        {
-            var randomBytes = new byte[64];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomBytes);
-            return Convert.ToBase64String(randomBytes);
-        }
+        //private static string GenerateRefreshToken()
+        //{
+        //    var randomBytes = new byte[64];
+        //    using var rng = RandomNumberGenerator.Create();
+        //    rng.GetBytes(randomBytes);
+        //    return Convert.ToBase64String(randomBytes);
+        //}
 
         private async Task<string> GenerateAndStoreRefreshToken(Customer customer)
         {
-            var refreshToken = GenerateRefreshToken();
-            customer.RefreshToken = refreshToken;
+            var refreshToken = GenerateRefreshJwt(customer); // signed JWT with CustomerId inside
+            customer.RefreshToken = HashToken(refreshToken); // store only the hash in DB
             customer.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await context.SaveChangesAsync();
-            return refreshToken;
+            return refreshToken; // raw JWT goes into cookie
+        }
+
+   
+
+       
+       
+
+        
+        private Guid? ExtractCustomerIdFromRefreshToken(string token)
+        {
+            try
+            {
+                var key = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(
+                        configuration.GetValue<string>("AppSettings:Token")!));
+
+                var principal = new JwtSecurityTokenHandler()
+                    .ValidateToken(token, new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = key,
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true // refresh token expiry enforced here
+                    }, out _);
+
+                var idClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                return idClaim is null ? null : Guid.Parse(idClaim);
+            }
+            catch
+            {
+                return null; // tampered or expired
+            }
+        }
+
+
+        private string GenerateRefreshJwt(Customer customer)
+        {
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString())
+    };
+
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(
+                    configuration.GetValue<string>("AppSettings:Token")!));
+
+            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
+
+            var token = new JwtSecurityToken(
+                expires: DateTime.UtcNow.AddDays(7),
+                claims: claims,
+                signingCredentials: cred
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private static string HashToken(string token)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            return Convert.ToBase64String(bytes);
         }
 
         private string CreateToken(Customer customer)

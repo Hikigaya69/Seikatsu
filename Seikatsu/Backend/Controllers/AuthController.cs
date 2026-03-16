@@ -49,14 +49,9 @@ namespace Seikatsu.Backend.Controllers
         [HttpPost("logout")]
         public async Task<ActionResult> Logout()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId is null)
-                return BadRequest("Logout failed.");
-
-            var result = await authService.LogoutAsync(Guid.Parse(userId));
+            var result = await authService.LogoutAsync();
             if (!result)
-                return BadRequest("Logout failed.");
-
+                return Unauthorized("Logout failed.");
             return Ok(new { message = "Logged out successfully." });
         }
 
@@ -65,31 +60,18 @@ namespace Seikatsu.Backend.Controllers
         // No request body needed for browser clients.
         // Refresh token is read from cookie inside the service.
         // UserId is extracted here from the expired access token cookie.
+    
         [HttpPost("refresh-token")]
         public async Task<ActionResult<TokenResponseDto>> RefreshToken()
         {
-            // Read userId from the expired access token cookie
-            var accessToken = Request.Cookies["access_token"];
-            if (accessToken is null)
-                return Unauthorized("No access token found.");
-
-            var userId = GetUserIdFromExpiredToken(accessToken);
-            if (userId is null)
-                return Unauthorized("Invalid access token.");
-
-            // RefreshToken is read from cookie inside RefreshTokenAsync
-            var request = new RequestTokenRefreshDto { UserId = Guid.Parse(userId) };
-            var result = await authService.RefreshTokenAsync(request);
-
+            var result = await authService.RefreshTokenAsync();
             if (result is null)
                 return Unauthorized("Invalid or expired refresh token.");
-
-            // New cookies are already set inside the service
             return Ok(new { message = "Token refreshed." });
         }
 
 
-        // ── AUTHENTICATED ONLY 
+        // AUTHENTICATED ONLY 
         //[Authorize]
         //[HttpGet]
         //public IActionResult AuthenticatedOnlyEndpoint()
@@ -98,7 +80,7 @@ namespace Seikatsu.Backend.Controllers
         //}
 
 
-        // ── ADMIN ONLY 
+        // ADMIN ONLY 
         [Authorize(Roles = "Admin")]
         [HttpGet("admin-endpoint")]
         public IActionResult AdminOnlyEndpoint()
