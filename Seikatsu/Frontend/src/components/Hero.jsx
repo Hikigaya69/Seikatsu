@@ -20,6 +20,7 @@ function Hero() {
           <span className="highlight"> Supermarket </span>
           in Japan
         </h1>
+        
 
         <p>
           Discover authentic international groceries, from Indian spices

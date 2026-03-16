@@ -1,11 +1,13 @@
 ﻿import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import basicSsl from '@vitejs/plugin-basic-ssl'  // ← add this
+import basicSsl from '@vitejs/plugin-basic-ssl'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
     plugins: [
         react(),
-        basicSsl()    // ← add this ✅
+        basicSsl(),       // ← HTTPS ✅
+        tailwindcss()     // ← Tailwind ✅
     ],
     server: {
         https: true,
