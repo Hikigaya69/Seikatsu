@@ -13,7 +13,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:5173"
+                          policy.WithOrigins("https://localhost:5173"
                                               ).AllowAnyHeader()
       .AllowAnyMethod()    
                           .AllowCredentials();
@@ -24,12 +24,14 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+;
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddHttpContextAccessor();        // needed by CookieService
 builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService,CategoryService>();
+builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddDbContext<Seikatsu.Backend.Data.UserContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 

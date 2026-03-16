@@ -14,17 +14,20 @@ namespace Seikatsu.Backend.Services
 
     // CookieService — handles all HttpOnly cookie operations
 
-    public class CookieService(IHttpContextAccessor httpContextAccessor)
+    public class CookieService(IHttpContextAccessor httpContextAccessor, IHostEnvironment env)
     {
+
         private HttpResponse Response => httpContextAccessor.HttpContext!.Response;
         private HttpRequest Request => httpContextAccessor.HttpContext!.Request;
 
         public void SetTokenCookies(string accessToken, string refreshToken)
         {
+            
+
             Response.Cookies.Append("access_token", accessToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,                        // HTTPS only
+                Secure = env.IsProduction(),                        // HTTPS only
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddMinutes(15)
             });
@@ -32,7 +35,7 @@ namespace Seikatsu.Backend.Services
             Response.Cookies.Append("refresh_token", refreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
+                Secure = env.IsProduction(),
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddDays(7),
                 Path = "/api/auth/refresh-token"    // only sent to refresh endpoint
