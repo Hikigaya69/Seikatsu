@@ -10,7 +10,7 @@ export default function HeroBanner() {
       
       <div className="absolute inset-0 bg-black/40"></div>
 
-      {/* Content */}
+      
       <div className="relative max-w-7xl mx-auto px-6 text-white">
 
         <h1 className="text-5xl font-bold leading-tight">
@@ -22,7 +22,7 @@ export default function HeroBanner() {
           Delivered fresh to your doorstep anywhere in Japan.
         </p>
 
-        {/* Buttons */}
+        
         <div className="mt-6 flex gap-4">
 
           <button className="bg-[#284b63] px-6 py-3 rounded-lg font-medium hover:bg-[#1f3a4d] transition">

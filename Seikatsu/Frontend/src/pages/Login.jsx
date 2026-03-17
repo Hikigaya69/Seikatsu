@@ -20,7 +20,7 @@ export default function Login() {
       );
 
 
-      navigate("/");
+      navigate("/home");
     } catch {
       setError("Invalid username or password");
     }
