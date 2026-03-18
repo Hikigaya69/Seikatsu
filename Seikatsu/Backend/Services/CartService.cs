@@ -49,7 +49,7 @@ namespace Seikatsu.Backend.Services
     };
 
         }
-        public async Task<IEnumerable<AddItemtoCartDTO>> AddItemtoCartAysnc(Guid customerId, ItemAddFieldDTO request)
+        public async Task<AddItemtoCartDTO> AddItemtoCartAysnc(Guid customerId, ItemAddFieldDTO request)
         {
             var product = await context.Products.FindAsync(request.ProductId);
             var cart = await context.Carts
@@ -92,19 +92,17 @@ namespace Seikatsu.Backend.Services
 
             var addedItem = cart.CartItems.First(ci => ci.ProductId == request.ProductId);
 
-            return new List<AddItemtoCartDTO>
-    {
-        new AddItemtoCartDTO
-        {
-            CartId = cart.Id,
-            CustomerId = customerId,
-            ProductId = request.ProductId,
-            ProductName = product!.Name,
-            Quantity = addedItem.Quantity,
-            ItemTotal = addedItem.CartTotalPrice
-        }
-    };
-        }
+            return new AddItemtoCartDTO
+            {
+                CartId = cart.Id,
+                CustomerId = customerId,
+                ProductId = request.ProductId,
+                ProductName = product!.Name,
+                Quantity = addedItem.Quantity,
+                ItemTotal = addedItem.CartTotalPrice
+            };
+    
+    }
 
         public async Task<bool> DeleteItemFormCartAsync(Guid customerid, Guid cartitemid)
         {
@@ -149,6 +147,68 @@ namespace Seikatsu.Backend.Services
             cart.UpdatedAt = DateTime.UtcNow;
             await context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<UpdateCartResponseDTO> UpdateCartItemAysnc(Guid customerid, UpdateCartDTO request)
+        {
+            var cart=await context.Carts.Include(c => c.CartItems).
+                ThenInclude(ci => ci.Product).FirstOrDefaultAsync(c => c.CustomerId == customerid);
+            if(cart == null)
+            {
+                return null;
+            }
+
+            var cartItem = cart.CartItems.FirstOrDefault(ci => ci.Id == request.CartItemId);
+
+            if(cartItem == null)
+            {
+                return null;
+            }
+
+            if(request.Quantity <= 0)
+            {
+                context.CartItems.Remove(cartItem);
+            }
+            else
+            {
+                cartItem.Quantity = request.Quantity; 
+                cartItem.CartTotalPrice = cartItem.Product!.Price * request.Quantity;
+            }   
+
+            cart.TotalPrice = cart.CartItems.Sum(ci => ci.CartTotalPrice);
+            cart.UpdatedAt = DateTime.UtcNow;
+
+            await context.SaveChangesAsync();
+
+            return new UpdateCartResponseDTO
+            {
+                CartId = cart.Id,
+                CartItemId = cartItem.Id,
+                Quantity = cartItem.Quantity,
+                ItemTotal = cartItem.CartTotalPrice,
+                CartTotal = cart.TotalPrice
+            };
+
+
+        }
+
+        public async Task<CartSummaryDTO> GetCartSummaryAsync(Guid customerId)
+        {
+            var cart=await context.Carts
+                .Include(c => c.CartItems)
+              
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+
+            if(cart == null)
+            {
+                return null;
+            }
+
+            return new CartSummaryDTO
+            {
+                TotalItems = cart.CartItems.Count,
+                TotalPrice = cart.TotalPrice
+            };
         }
 
     }

@@ -27,16 +27,16 @@ namespace Seikatsu.Backend.Services
             Response.Cookies.Append("access_token", accessToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = env.IsProduction(),                        // HTTPS only
-                SameSite = SameSiteMode.Strict,
+                Secure = true,                        // HTTPS only
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddMinutes(15)
             });
 
             Response.Cookies.Append("refresh_token", refreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = env.IsProduction(),
-                SameSite = SameSiteMode.Strict,
+                Secure = true,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddDays(7),
                 Path = "/api/auth/refresh-token"    // only sent to refresh endpoint
             });

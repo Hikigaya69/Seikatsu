@@ -41,17 +41,17 @@ namespace Seikatsu.Backend.Controllers
 
         [Authorize]
         [HttpPost("additem")]
-        public async Task<ActionResult<IEnumerable<AddItemtoCartDTO>>> AddItemtoCart([FromBody]ItemAddFieldDTO request)
+        public async Task<ActionResult<AddItemtoCartDTO>> AddItemtoCart([FromBody] ItemAddFieldDTO request)
         {
             try
             {
                 var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 var result = await cartservice.AddItemtoCartAysnc(customerId, request);
-                var response = new APIResponse<IEnumerable<AddItemtoCartDTO>>
+                var response = new APIResponse<AddItemtoCartDTO>
                 {
                     Success = true,
                     Data = result,
-                    Message = result.Any() ? "prodcuts are sent" : "No products found."
+                    Message = result!=null ? "prodcuts are sent" : "No products found."
                 };
 
                 return Ok(response);
@@ -63,7 +63,7 @@ namespace Seikatsu.Backend.Controllers
         }
         [Authorize]
         [HttpDelete("items/{cartitemid:guid}")]
-        public async Task<ActionResult> DeleteitemFromCart([FromRoute]Guid cartitemid)
+        public async Task<ActionResult> DeleteitemFromCart([FromRoute] Guid cartitemid)
         {
             try
             {
@@ -97,5 +97,54 @@ namespace Seikatsu.Backend.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPatch("updatecart")]
+
+        public async Task<ActionResult<UpdateCartResponseDTO>> UpdateCartItem([FromBody] UpdateCartDTO request)
+        {
+            try
+            {
+                var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var result = await cartservice.UpdateCartItemAysnc(customerId, request);
+                if (result == null)
+                    return NotFound(new { message = "Cart or item not found." });
+                var response = new APIResponse<UpdateCartResponseDTO>
+                {
+                    Success = true,
+                    Data = result,
+                    Message = "Cart item updated successfully."
+                };
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
+
+        [Authorize]
+        [HttpGet("cartsummary")]
+        public async Task<ActionResult<CartSummaryDTO>> GetCartSummary()
+        {
+            try
+            {
+                var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var result = await cartservice.GetCartSummaryAsync(customerId);
+                if (result == null)
+                    return NotFound(new { message = "Cart not found." });
+                var response = new APIResponse<CartSummaryDTO>
+                {
+                    Success = true,
+                    Data = result,
+                    Message = "Cart summary retrieved successfully."
+                };
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

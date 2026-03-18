@@ -6,8 +6,11 @@ namespace Seikatsu.Backend.Services
     public interface ICartService
     {
         Task<IEnumerable<GetCartDTO>> GetCartAysnc(Guid customerid);
-        Task<IEnumerable<AddItemtoCartDTO>> AddItemtoCartAysnc(Guid customerid, ItemAddFieldDTO request);
+        Task<AddItemtoCartDTO> AddItemtoCartAysnc(Guid customerid, ItemAddFieldDTO request);
         Task<bool> DeleteItemFormCartAsync(Guid customerid, Guid cartitemid);
         Task<bool> ClearCartAsync(Guid customerId);
+        Task<UpdateCartResponseDTO> UpdateCartItemAysnc(Guid customerid, UpdateCartDTO request);
+        Task<CartSummaryDTO> GetCartSummaryAsync(Guid customerId);
+
     }
 }

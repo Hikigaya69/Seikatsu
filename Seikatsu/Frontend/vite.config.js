@@ -6,11 +6,16 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
     plugins: [
         react(),
-        basicSsl(),       // ← HTTPS ✅
-        tailwindcss()     // ← Tailwind ✅
+        basicSsl(),
+        tailwindcss()
     ],
     server: {
         https: true,
-        port: 5173
+        port: 5173,
+        hmr: {
+            protocol: 'wss',
+            host: 'localhost',
+            port: 5173
+        }
     }
 })
