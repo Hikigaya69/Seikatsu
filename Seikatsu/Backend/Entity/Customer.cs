@@ -15,6 +15,9 @@
         public string PhoneNumber { get; set; } = string.Empty; 
         public string? RefreshToken { get; set; }
 
+        public string? PasswordResetToken { get; set; }
+        public DateTime? PasswordResetTokenExpiry { get; set; }
+
         public Cart? Cart { get; set; }
 
         public RestockCart? RestockCart { get; set; }

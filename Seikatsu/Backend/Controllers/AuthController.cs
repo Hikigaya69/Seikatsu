@@ -89,8 +89,32 @@ namespace Seikatsu.Backend.Controllers
         }
 
 
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            await authService.ForgotPasswordAsync(dto);
+
+            // Always return same response — don't reveal if email exists
+            return Ok(new { message = "If this email is registered, a reset link has been sent." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var result = await authService.ResetPasswordAsync(dto);
+
+            if (!result)
+                return BadRequest(new { message = "Invalid or expired reset token." });
+
+            return Ok(new { message = "Password reset successful." });
+        }
+
         // PRIVATE HELPER
-       
+
 
         // Reads claims from an expired JWT without validating expiry.
         // Used only to extract UserId for the refresh flow.

@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Seikatsu.Backend.Entity;
@@ -22,7 +23,7 @@ namespace Seikatsu.Backend.Services
 
         public void SetTokenCookies(string accessToken, string refreshToken)
         {
-            
+
 
             Response.Cookies.Append("access_token", accessToken, new CookieOptions
             {
@@ -62,7 +63,8 @@ namespace Seikatsu.Backend.Services
     public class AuthService(
         Data.UserContext context,
         IConfiguration configuration,
-        CookieService cookieService
+        CookieService cookieService,
+        IEmailService emailService
     ) : IAuthService
     {
         // REGISTER
@@ -166,11 +168,99 @@ namespace Seikatsu.Backend.Services
 
             return tokenResponse;
         }
+        // FORGOT PASSWORD
+        public async Task<bool> ForgotPasswordAsync(ForgotPasswordDTO request)
+        {
+            var customer = await context.Customers
+                .FirstOrDefaultAsync(c => c.Email.ToLower() == request.Email.ToLower());
+
+            // Return true even if not found — prevents email enumeration
+            if (customer is null) return true;
+
+            // Generate raw token 
+            var rawToken = GenerateSecureToken();
+
+            // Store only hash in DB —
+            customer.PasswordResetToken = HashToken(rawToken);
+            customer.PasswordResetTokenExpiry = DateTime.UtcNow.AddMinutes(30);
+            await context.SaveChangesAsync();
+
+            // Encode for URL safety
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
+
+            // Read frontend URL from appsettings.json
+            var clientUrl = configuration.GetValue<string>("AppSettings:ClientUrl");
+            var resetLink = $"{clientUrl}/reset-password?email={request.Email}&token={encodedToken}";
+
+            try
+            {
+                await emailService.SendAsync(
+                    to: request.Email,
+                    subject: "Reset Your Password — Seikatsu",
+                    body: $@"<p>Hi {customer.FullName},</p>
+                     <p>Click the link below to reset your password. This link expires in 30 minutes.</p>
+                     <a href='{resetLink}'>Reset Password</a>
+                     <p>If you did not request this, ignore this email.</p>"
+                );
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+        // RESET PASSWORD
+        public async Task<bool> ResetPasswordAsync(ResetPasswordDTO request)
+        {
+            var customer = await context.Customers
+                .FirstOrDefaultAsync(c => c.Email.ToLower() == request.Email.ToLower());
+
+            if (customer is null) return false;
+
+            // No reset token exists
+            if (customer.PasswordResetToken is null) return false;
+
+            // Decode token from URL then hash it for comparison
+            var decodedToken = Encoding.UTF8.GetString(
+                                    WebEncoders.Base64UrlDecode(request.Token));
+
+            // Compare hash 
+            if (customer.PasswordResetToken != HashToken(decodedToken))
+                return false;
+
+            // Check expiry
+            if (customer.PasswordResetTokenExpiry <= DateTime.UtcNow)
+                return false;
+
+            // Hash new password — same PasswordHasher you use in RegisterAsync
+            customer.PasswordHashed = new PasswordHasher<Customer>()
+                                            .HashPassword(customer, request.NewPassword);
+
+            // Clear token — can't be reused
+            customer.PasswordResetToken = null;
+            customer.PasswordResetTokenExpiry = null;
+
+            await context.SaveChangesAsync();
+            return true;
+        }
+
+
 
 
         // PRIVATE HELPERS
 
-
+        // Generates a cryptographically secure random token
+        // Same logic as your commented out GenerateRefreshToken()
+        private static string GenerateSecureToken()
+        {
+            var randomBytes = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes);
+        }
         private async Task<TokenResponseDto> CreateTokenResponse(Customer customer)
         {
             return new TokenResponseDto
@@ -206,12 +296,12 @@ namespace Seikatsu.Backend.Services
             return refreshToken; // raw JWT goes into cookie
         }
 
-   
 
-       
-       
 
-        
+
+
+
+
         private Guid? ExtractCustomerIdFromRefreshToken(string token)
         {
             try
