@@ -31,6 +31,7 @@ builder.Services.AddHttpContextAccessor();        // needed by CookieService
 builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService,CategoryService>();
 builder.Services.AddScoped<IAddressService, AddressService>();

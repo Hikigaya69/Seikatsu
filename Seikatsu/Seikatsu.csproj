@@ -16,6 +16,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.16.0" />
+    <PackageReference Include="NETCore.MailKit" Version="2.1.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.12.46" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
@@ -23,7 +24,6 @@
 
   <ItemGroup>
     <Folder Include="Backend\DataDB\" />
-    <Folder Include="Backend\Middleware\" />
     <Folder Include="Frontend\" />
   </ItemGroup>
 
