@@ -26,7 +26,7 @@ namespace Seikatsu.Backend.Controllers
         // APIResponse object that indicates success and includes the data or an appropriate message if no products are found.
         //https://localhost:7115/api/Product/GetRandomProducts this is the endpoint which the frontend will call to get the random products for the index page.     
 
-        public async Task<ActionResult<IEnumerable<ProductDTOforIndexPage>>> GetRandomProducts(int count = 10)
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductDTOforIndexPage>>>> GetRandomProducts(int count = 10)
         {
             var products = await productService.GetRandomProductsAsync(count);
             var response = new APIResponse<IEnumerable<ProductDTOforIndexPage>>
@@ -40,7 +40,7 @@ namespace Seikatsu.Backend.Controllers
         }
 
         [HttpGet("productview/{id}")]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductbyID(Guid id)
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductDTO>>>> GetProductbyID(Guid id)
         {
 
 
@@ -58,7 +58,7 @@ namespace Seikatsu.Backend.Controllers
 
         [HttpGet("productbycountry/{countryname}")]
 
-        public async Task<ActionResult<IEnumerable<ProductCountryDTO>>> GetProductbyCountry(string countryname)
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductCountryDTO>>>>GetProductbyCountry(string countryname)
         {
             var products = await productService.GetProductbyCountryAsync(countryname);
             var response = new APIResponse<IEnumerable<ProductCountryDTO>>
@@ -71,7 +71,7 @@ namespace Seikatsu.Backend.Controllers
 
         }
         [HttpGet("suggestion/{query}")]
-        public async Task<ActionResult<IEnumerable<ProductSuggestionDTO>>> GetProductSuggestion(string query)
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductSuggestionDTO>>>> GetProductSuggestion(string query)
         {
             var suggestions = await productService.GetProductSuggestionAsync(query);
             var response = new APIResponse<IEnumerable<ProductSuggestionDTO>>
@@ -85,7 +85,7 @@ namespace Seikatsu.Backend.Controllers
 
         }
         [HttpGet("search/{query}")]
-        public async Task<ActionResult<IEnumerable<ProductDTOforIndexPage>>> GetProductsbySearch(string query)
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductDTOforIndexPage>>>> GetProductsbySearch(string query)
         {
             var products = await productService.GetProductsbySearchAsync(query);
             var response = new APIResponse<IEnumerable<ProductDTOforIndexPage>>
@@ -99,7 +99,7 @@ namespace Seikatsu.Backend.Controllers
 
         [HttpGet("category/{categoryId}")]
 
-        public async Task<ActionResult<IEnumerable<ProductDTOforIndexPage>>> GetProductbyCategory([FromRoute] Guid categoryId)
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductDTOforIndexPage>>>> GetProductbyCategory([FromRoute] Guid categoryId)
         {
             var products = await productService.GetProductbyCategoty(categoryId);
             var response = new APIResponse<IEnumerable<ProductDTOforIndexPage>>

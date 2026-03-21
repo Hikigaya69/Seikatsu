@@ -1,13 +1,14 @@
 ﻿
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+using Seikatsu.Backend.CommonAPIRespone;
 using Seikatsu.Backend.Entity;
 using Seikatsu.Backend.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Cors;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
 using Seikatsu.Backend.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Seikatsu.Backend.Controllers
 {
@@ -18,13 +19,16 @@ namespace Seikatsu.Backend.Controllers
     {
         // REGISTER 
         [HttpPost("register")]
-        public async Task<ActionResult<CustomerRegisterDTO>> Register(CustomerDTO request)
+        public async Task<ActionResult<APIResponse<CustomerRegisterDTO>>> Register(CustomerDTO request)
         {
             var user = await authService.RegisterAsync(request);
-            if (user is null)
-                return BadRequest("User already exists.");
 
-            return Ok(user);
+            return Ok(new APIResponse<CustomerRegisterDTO>
+            {
+                Success = true,
+                Data = user,       // user is already CustomerRegisterDTO — no mapping needed
+                Message = "Registration successful."
+            });
         }
 
 
@@ -32,13 +36,18 @@ namespace Seikatsu.Backend.Controllers
         // Tokens are written to HttpOnly cookies inside the service.
         // Response body returns only a message — tokens are NOT exposed to JS.
         [HttpPost("login")]
-        public async Task<ActionResult> Login(CustomerLoginDTO request)
+        public async Task<ActionResult<APIResponse<object>>> Login(CustomerLoginDTO request)
         {
             var result = await authService.LoginAsync(request);
-            if (result is null)
-                return BadRequest("Invalid username or password.");
 
-            return Ok(new { message = "Login successful." });
+            return Ok(new APIResponse<object>
+            {
+                Success = true,
+                Data = null,       
+                Message = "Login successful."
+            });
+
+           
         }
 
 
@@ -47,12 +56,17 @@ namespace Seikatsu.Backend.Controllers
         // via OnMessageReceived in Program.cs
         [Authorize]
         [HttpPost("logout")]
-        public async Task<ActionResult> Logout()
+        public async Task<ActionResult<APIResponse<object>>> Logout()
         {
-            var result = await authService.LogoutAsync();
-            if (!result)
-                return Unauthorized("Logout failed.");
-            return Ok(new { message = "Logged out successfully." });
+            var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+             await authService.LogoutAsync(customerId);
+
+            return Ok(new APIResponse<object>
+            {
+                Success = true,
+                Data = null,
+                Message = "Logout successful."
+            });
         }
 
 
@@ -62,12 +76,16 @@ namespace Seikatsu.Backend.Controllers
         // UserId is extracted here from the expired access token cookie.
     
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<TokenResponseDto>> RefreshToken()
+        public async Task<ActionResult<APIResponse<object>>> RefreshToken()
         {
-            var result = await authService.RefreshTokenAsync();
-            if (result is null)
-                return Unauthorized("Invalid or expired refresh token.");
-            return Ok(new { message = "Token refreshed." });
+             await authService.RefreshTokenAsync();
+            return Ok(new APIResponse<object>
+            {
+                Success = true,
+                Data = null,       // user is already CustomerRegisterDTO — no mapping needed
+                Message = "Token refreshed successful."
+            });
+
         }
 
 
@@ -90,48 +108,54 @@ namespace Seikatsu.Backend.Controllers
 
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
+        public async Task<ActionResult<APIResponse<object>>> ForgotPassword([FromBody] ForgotPasswordDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            
 
             await authService.ForgotPasswordAsync(dto);
+            await authService.ForgotPasswordAsync(dto);
+            return Ok(new APIResponse<object>
+            {
+                Success = true,
+                Data = null,
+                Message = "If this email is registered, a reset link has been sent."
+            });
+            
 
-            // Always return same response — don't reveal if email exists
-            return Ok(new { message = "If this email is registered, a reset link has been sent." });
         }
 
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+        public async Task<ActionResult<APIResponse<object>>> ResetPassword([FromBody] ResetPasswordDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            await authService.ResetPasswordAsync(dto);
+            return Ok(new APIResponse<object>
+            {
+                Success = true,
+                Data = null,
+                Message = "Password reset successful."
+            });
 
-            var result = await authService.ResetPasswordAsync(dto);
-
-            if (!result)
-                return BadRequest(new { message = "Invalid or expired reset token." });
-
-            return Ok(new { message = "Password reset successful." });
         }
 
         // PRIVATE HELPER
 
 
         // Reads claims from an expired JWT without validating expiry.
-        // Used only to extract UserId for the refresh flow.
-        private static string? GetUserIdFromExpiredToken(string token)
-        {
-            try
-            {
-                var handler = new JwtSecurityTokenHandler();
-                var jwt = handler.ReadJwtToken(token);
-                return jwt.Claims
-                          .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                          ?.Value;
-            }
-            catch
-            {
-                return null;
-            }
-        }
+        //// Used only to extract UserId for the refresh flow.
+        //private static string? GetUserIdFromExpiredToken(string token)
+        //{
+        //    try
+        //    {
+        //        var handler = new JwtSecurityTokenHandler();
+        //        var jwt = handler.ReadJwtToken(token);
+        //        return jwt.Claims
+        //                  .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+        //                  ?.Value;
+        //    }
+        //    catch
+        //    {
+        //        return null;
+        //    }
+        //}
     }
 }

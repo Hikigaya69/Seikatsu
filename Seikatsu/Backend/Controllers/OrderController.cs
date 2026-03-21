@@ -19,9 +19,7 @@ namespace Seikatsu.Backend.Controllers
         [HttpPost("initiateorder")]
         public async Task<ActionResult<CreateOrderResponseDTO>> IntitateOrder(CreateOrderDTO request)
         {
-            try
-            {
-                var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 var result = await orderService.CreateOrderAsync(customerId, request);
                 var response = new APIResponse<CreateOrderResponseDTO>
                 {
@@ -31,25 +29,13 @@ namespace Seikatsu.Backend.Controllers
                 };
                 return Ok(response);
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while creating the order.", details = ex.Message });
-            }
-        }
+            
+        
         [Authorize]
         [HttpGet("orderhistory")]
-        public async Task<ActionResult<IEnumerable<OrderItemsResponseDTO>>> GetOrdersByCustomerId()
+        public async Task<ActionResult<APIResponse<IEnumerable<OrderItemsResponseDTO>>>> GetOrdersByCustomerId()
         {
-            try
-            {
+           
                 var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 var result = await orderService.GetOrdersByCustomerIdAsync(customerId);
                 var response = new APIResponse<IEnumerable<OrderItemsResponseDTO>>
@@ -60,18 +46,13 @@ namespace Seikatsu.Backend.Controllers
                 };
                 return Ok(response);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while retrieving orders.", details = ex.Message });
-            }
-        }
+          
 
         [Authorize]
         [HttpGet("orderhistory/{year}")]
-        public async Task<ActionResult<IEnumerable<OrderItemsResponseDTO>>> GetOrderByYear([FromRoute] int year)
+        public async Task<ActionResult<APIResponse<IEnumerable<OrderItemsResponseDTO>>>> GetOrderByYear([FromRoute] int year)
         {
-            try
-            {
+            
                 var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 var result = await orderService.GetOrderByYearAsync(customerId, year);
                 var response = new APIResponse<IEnumerable<OrderItemsResponseDTO>>
@@ -82,19 +63,15 @@ namespace Seikatsu.Backend.Controllers
                 };
                 return Ok(response);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while retrieving orders.", details = ex.Message });
-            }
-        }
+            
+        
 
         [Authorize]
         [HttpGet("ordersummary")]
 
-        public async Task<ActionResult<OrderSummaryResponseDTO>> GetOrderSummary([FromQuery] Guid addressId)
+        public async Task<ActionResult<APIResponse<OrderSummaryResponseDTO>>> GetOrderSummary([FromQuery] Guid addressId)
         {
-            try
-            {
+            
                 var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 var result = await orderService.GetOrderSummaryAsync(customerId, addressId);
                 var response = new APIResponse<OrderSummaryResponseDTO>
@@ -105,21 +82,13 @@ namespace Seikatsu.Backend.Controllers
                 };
                 return Ok(response);
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while retrieving the order summary.", details = ex.Message });
-            }
-        }
+           
+        
         [Authorize]
         [HttpGet("ordersummarybyOrderId")]
-        public async Task<ActionResult<OrderSummaryResponseDTO>> GetOrderSummaryByOrderId([FromQuery] Guid orderId)
+        public async Task<ActionResult<APIResponse<OrderSummaryResponseDTO>>> GetOrderSummaryByOrderId([FromQuery] Guid orderId)
         {
-            try
-            {
+            
                 var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 var result = await orderService.GetOrderSummaryByOrderIdAsync(customerId, orderId);
                 var response = new APIResponse<OrderSummaryResponseDTO>
@@ -130,21 +99,13 @@ namespace Seikatsu.Backend.Controllers
                 };
                 return Ok(response);
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while retrieving the order summary.", details = ex.Message });
-            }
-        }
+           
+  
         [Authorize]
         [HttpGet("detailedview")]
-        public async Task<ActionResult<DetailOrderItemViewDTO>> GetDetailedViewofProductbyOrderId([FromQuery] DetailedViewDTO request)
+        public async Task<ActionResult<APIResponse<DetailOrderItemViewDTO>>> GetDetailedViewofProductbyOrderId([FromQuery] DetailedViewDTO request)
         {
-            try
-            {
+           
                 var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 var result = await orderService.GetDetailedViewofProductbyOrderIdAsync(customerId, request);
                 var response = new APIResponse<DetailOrderItemViewDTO>
@@ -155,22 +116,14 @@ namespace Seikatsu.Backend.Controllers
                 };
                 return Ok(response);
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while retrieving the detailed view of the product.", details = ex.Message });
-            }
-        }
+            
+        
         [Authorize]
         [HttpPost("verifyorder")]
 
         public async Task<ActionResult> VerifyPayment(VerifyPaymentDTO request)
         {
-            try
-            {
+           
                 var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 var isPaymentValid = await orderService.VerifyPaymentAsync(customerId, request);
                 if (isPaymentValid)
@@ -182,14 +135,7 @@ namespace Seikatsu.Backend.Controllers
                     return BadRequest(new { message = "Payment verification failed." });
                 }
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while verifying the payment.", details = ex.Message });
-            }
-        }
+           
+        
     }
 }

@@ -22,11 +22,10 @@ namespace Seikatsu.Backend.Controllers
 
         [Authorize]
         [HttpGet("getalladdress")]
-        public async Task<ActionResult<IEnumerable<AddressResponseDTO>>> GetAllAddress()
+        public async Task<ActionResult<APIResponse<IEnumerable<AddressResponseDTO>>>> GetAllAddress()
         {
             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            try
-            {
+            
                 var result = await addressService.GetAllAddressAysnc(customerId);
                 var response = new APIResponse<IEnumerable<AddressResponseDTO>>
                 {
@@ -35,21 +34,17 @@ namespace Seikatsu.Backend.Controllers
                     Message = result.Any() ? "all address are sent" : "No address found."
                 };
                 return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            
+           
         }
 
         [Authorize]
         [HttpGet("getDefaultAddress")]
 
-        public async Task<ActionResult<IEnumerable<AddressResponseDTO>>> GetDefaultAddress()
+        public async Task<ActionResult<APIResponse<IEnumerable<AddressResponseDTO>>>> GetDefaultAddress()
         {
             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            try
-            {
+            
                 var result = await addressService.GetDefaultAddressAysnc(customerId);
                 var response = new APIResponse<IEnumerable<AddressResponseDTO>>
                 {
@@ -58,19 +53,16 @@ namespace Seikatsu.Backend.Controllers
                     Message = result.Any() ? "Default address is sent" : "No defaultadrress found."
                 };
                 return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-
-
         }
+         
+
+
+        
 
         [Authorize]
         [HttpPost("addAddress")]
 
-        public async Task<ActionResult<AddressResponseDTO>> AddAddress([FromBody] AddAddressDTO request)
+        public async Task<ActionResult<APIResponse<AddressResponseDTO>>> AddAddress([FromBody] AddAddressDTO request)
         {
             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             try
@@ -92,34 +84,29 @@ namespace Seikatsu.Backend.Controllers
 
         [Authorize]
         [HttpDelete("deleteAddress{id}")]
-        public async Task<ActionResult> DeleteAddress([FromRoute] Guid id)
+        public async Task<ActionResult<APIResponse<object>>> DeleteAddress([FromRoute] Guid id)
         {
             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            try
+           
+               await addressService.DeleteAddressAsync(customerId, id);
+            return Ok(new APIResponse<object>
             {
-                var result = await addressService.DeleteAddressAsync(customerId, id);
-                if (!result)
-                    return NotFound(new { message = "Address not found." });
-                return Ok(new { message = "Address deleted successfully." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+                Success = true,
+                Data = null,
+                Message = "Address deleted successfully."
+            });
 
         }
 
         [Authorize]
         [HttpPut("updateAddress{addressId}")]
 
-        public async Task<ActionResult<UpdateAddressDTO>> UpdateAddress([FromRoute] Guid addressId, [FromBody] UpdateAddressDTO request)
+        public async Task<ActionResult<APIResponse<UpdateAddressDTO>>> UpdateAddress([FromRoute] Guid addressId, [FromBody] UpdateAddressDTO request)
         {
             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            try
-            {
+            
                 var result = await addressService.UpdateAddressAsync(customerId, request, addressId);
-                if (result is null)
-                    return NotFound(new { message = "Address not found." });
+              
                 var response = new APIResponse<UpdateAddressDTO>
                 {
                     Success = true,
@@ -128,10 +115,6 @@ namespace Seikatsu.Backend.Controllers
                 };
                 return Ok(response);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+         
     }
 }

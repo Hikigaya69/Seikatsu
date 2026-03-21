@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Seikatsu.Backend.Exceptions;
 
 namespace Seikatsu.Backend.Services
 {
@@ -32,6 +33,11 @@ namespace Seikatsu.Backend.Services
                        IsDefault = a.IsDefault
                    }).ToListAsync();
 
+            if (address == null)
+            {
+               throw new NotFoundException("Address not found for the given customer ID.");
+            }
+
             return address;
         }
         public async Task<IEnumerable<AddressResponseDTO>> GetDefaultAddressAysnc(Guid customerID)
@@ -50,6 +56,10 @@ namespace Seikatsu.Backend.Services
                          Country = a.Country,
                          IsDefault = a.IsDefault
                      }).ToListAsync();
+            if (defaultAdress == null)
+            {
+                throw new NotFoundException("Default Address not found for the given customer ID.");
+            }
             return defaultAdress;
 
 
@@ -102,7 +112,7 @@ namespace Seikatsu.Backend.Services
             var address = await context.Addresses.FirstOrDefaultAsync(a => a.Id == addressID && a.CustomerId == customerID);
             if (address == null)
             {
-                return false;
+              throw new NotFoundException("Address not found for the given customer ID and address ID.");
             }
             context.Addresses.Remove(address);
             await context.SaveChangesAsync();
@@ -116,7 +126,7 @@ namespace Seikatsu.Backend.Services
         .Include(a => a.Customer)
         .FirstOrDefaultAsync(a => a.Id == addressID
             && a.CustomerId == customerID);
-            if (address == null) { return null; }
+            if (address == null) { throw new NotFoundException("Address not found for the given customer ID and address ID."); }
             address.Id = addressID;
             address.Customer!.FullName = request.FullName;
             address.AddressLine1 = request.AddressLine1;

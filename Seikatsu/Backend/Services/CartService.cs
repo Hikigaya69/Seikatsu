@@ -8,6 +8,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using MimeKit.Encodings;
+using Seikatsu.Backend.Exceptions;
 
 namespace Seikatsu.Backend.Services
 
@@ -24,7 +26,7 @@ namespace Seikatsu.Backend.Services
 
             if (cart == null)
             {
-                return new List<GetCartDTO>();
+                throw new NotFoundException("Cart not found for the specified customer.");
             }
 
             return new List<GetCartDTO>
@@ -109,14 +111,14 @@ namespace Seikatsu.Backend.Services
             var cart = await context.Carts.FirstOrDefaultAsync(c => c.CustomerId == customerid);
             if (cart == null)
             {
-                return false;
+                throw new NotFoundException("Cart not found for the specified customer.");
             }
 
             var cartItem = await context.CartItems
            .FirstOrDefaultAsync(ci => ci.Id == cartitemid && ci.CartId == cart.Id);
 
             if (cartItem == null)
-            { return false;
+            { throw new NotFoundException("Cart item not found in the customer's cart.");
             }
 
 
@@ -140,7 +142,7 @@ namespace Seikatsu.Backend.Services
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
 
             if (cart == null)
-                return false;
+               throw new NotFoundException("Cart not found for the specified customer.");
 
             context.CartItems.RemoveRange(cart.CartItems);
             cart.TotalPrice = 0;
@@ -155,14 +157,13 @@ namespace Seikatsu.Backend.Services
                 ThenInclude(ci => ci.Product).FirstOrDefaultAsync(c => c.CustomerId == customerid);
             if(cart == null)
             {
-                return null;
+               throw new NotFoundException("Cart not found for the specified customer.");
             }
 
             var cartItem = cart.CartItems.FirstOrDefault(ci => ci.Id == request.CartItemId);
 
             if(cartItem == null)
-            {
-                return null;
+            {throw new NotFoundException("Cart item not found in the customer's cart.");
             }
 
             if(request.Quantity <= 0)
@@ -201,7 +202,7 @@ namespace Seikatsu.Backend.Services
 
             if(cart == null)
             {
-                return null;
+                throw new NotFoundException("Cart not found for the specified customer.");  
             }
 
             return new CartSummaryDTO

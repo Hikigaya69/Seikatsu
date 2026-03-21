@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Seikatsu.Backend.Entity;
+using Seikatsu.Backend.Exceptions;
 using Seikatsu.Backend.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Seikatsu.Backend.Services
 {
@@ -38,8 +40,8 @@ namespace Seikatsu.Backend.Services
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Expires = DateTime.UtcNow.AddDays(7),
-                Path = "/api/auth/refresh-token"    // only sent to refresh endpoint
+                Expires = DateTime.UtcNow.AddDays(7)
+                   //  sent to all refresh endpoint
             });
         }
 
@@ -70,9 +72,33 @@ namespace Seikatsu.Backend.Services
         // REGISTER
         public async Task<CustomerRegisterDTO?> RegisterAsync(CustomerDTO request)
         {
+            // 1. validate fields first — collect all errors together
+            var errors = new Dictionary<string, string>();
+
+            if (string.IsNullOrWhiteSpace(request.FullName))
+                errors["fullName"] = "Full name is required.";
+
+            if (string.IsNullOrWhiteSpace(request.Email))
+                errors["email"] = "Email is required.";
+            else if (!request.Email.Contains("@"))
+                errors["email"] = "Email is not valid.";
+
+            if (string.IsNullOrWhiteSpace(request.Password))
+                errors["password"] = "Password is required.";
+            else if (request.Password.Length < 8)
+                errors["password"] = "Password must be at least 8 characters.";
+
+            // if any field failed — throw all errors at once
+            if (errors.Any())
+                throw new BadRequestException(errors);
             if (await context.Customers.AnyAsync(
-                    u => u.FullName.ToLower() == request.FullName.ToLower()))
-                return null;
+            u => u.FullName.ToLower() == request.FullName.ToLower()))
+                throw new ConflictException($"Full name '{request.FullName}' is already taken.");
+
+            // 3. check if email already taken
+            if (await context.Customers.AnyAsync(
+                    u => u.Email.ToLower() == request.Email.ToLower()))
+                throw new ConflictException($"Email '{request.Email}' is already registered.");
 
             var customer = new Customer();
             var hashedPassword = new PasswordHasher<Customer>()
@@ -96,16 +122,39 @@ namespace Seikatsu.Backend.Services
         // LOGIN 
         public async Task<TokenResponseDto?> LoginAsync(CustomerLoginDTO request)
         {
+            var exsistingToken = cookieService.GetAccessToken();
+            if (exsistingToken != null)
+            {
+               var validatedToken= ValidateJwtToken(exsistingToken);
+                if (validatedToken != null)
+                {
+                    throw new ConflictException("User is already logged in.");
+                }
+            }
+            var errors = new Dictionary<string, string>();
+            if (string.IsNullOrWhiteSpace(request.Email))
+                errors["email"] = "Email is required.";
+            else if (!request.Email.Contains("@"))
+                errors["email"] = "Email is not valid.";
+
+            if (string.IsNullOrWhiteSpace(request.Password))
+                errors["password"] = "Password is required.";
+            else if (request.Password.Length < 8)
+                errors["password"] = "Password must be at least 8 characters.";
+
+            // if any field failed — throw all errors at once
+            if (errors.Any())
+                throw new BadRequestException(errors);
             var customer = context.Customers
                 .FirstOrDefault(u => u.Email.ToLower() == request.Email.ToLower());
-
             if (customer is null)
-                return null;
+                throw new UnauthorizedException("Invalid email or password.");
+
 
             if (new PasswordHasher<Customer>()
                     .VerifyHashedPassword(customer, customer.PasswordHashed, request.Password)
                     == PasswordVerificationResult.Failed)
-                return null;
+                throw new UnauthorizedException("Invalid email or password.");
 
             var tokenResponse = await CreateTokenResponse(customer);
 
@@ -117,16 +166,10 @@ namespace Seikatsu.Backend.Services
 
 
         //  LOGOUT
-        public async Task<bool> LogoutAsync()
+        public async Task<bool> LogoutAsync(Guid customerID)
         {
-            var incomingRefreshToken = cookieService.GetRefreshToken();
-            if (incomingRefreshToken is null) return false;
-
-            var customerId = ExtractCustomerIdFromRefreshToken(incomingRefreshToken);
-            if (customerId is null) return false;
-
-            var customer = await context.Customers.FindAsync(customerId);
-            if (customer is null) return false;
+            var customer = await context.Customers.FindAsync(customerID)
+          ?? throw new NotFoundException("Customer not found.");
 
             customer.RefreshToken = null;
             customer.RefreshTokenExpiryTime = null;
@@ -138,37 +181,30 @@ namespace Seikatsu.Backend.Services
 
 
         // REFRESH TOKEN called when the access token is expired after 15mins
-        public async Task<TokenResponseDto?> RefreshTokenAsync()
+        public async Task RefreshTokenAsync()
         {
-            // Read refresh JWT from cookie — browser sends automatically
-            var incomingRefreshToken = cookieService.GetRefreshToken();
-            if (incomingRefreshToken is null) return null;
+            var incomingRefreshToken = cookieService.GetRefreshToken()
+                ?? throw new UnauthorizedException("No session found.");        
 
-            // Extract CustomerId from inside the refresh JWT
-            var customerId = ExtractCustomerIdFromRefreshToken(incomingRefreshToken);
-            if (customerId is null) return null;
+            var customerId = ExtractCustomerIdFromRefreshToken(incomingRefreshToken)
+                ?? throw new UnauthorizedException("Invalid refresh token.");   
 
-            var customer = await context.Customers.FindAsync(customerId);
-            if (customer is null) return null;
+            var customer = await context.Customers.FindAsync(customerId)
+                ?? throw new NotFoundException("Customer not found.");          
 
-            // Compare hash — never compare plain text
             if (customer.RefreshToken != HashToken(incomingRefreshToken))
             {
                 await RevokeRefreshToken(customer);
-                return null;
+                throw new UnauthorizedException("Token reuse detected. Please log in again."); 
             }
 
-            // Check expiry
             if (customer.RefreshTokenExpiryTime <= DateTime.UtcNow)
-                return null;
+                throw new UnauthorizedException("Session expired. Please log in again.");      
 
-            // Rotate — generate new access + refresh tokens
             var tokenResponse = await CreateTokenResponse(customer);
             cookieService.SetTokenCookies(tokenResponse.AccessToken, tokenResponse.RefreshToken);
-
-            return tokenResponse;
-        }
-        // FORGOT PASSWORD
+            
+        }     // FORGOT PASSWORD
         public async Task<bool> ForgotPasswordAsync(ForgotPasswordDTO request)
         {
             var customer = await context.Customers
@@ -215,13 +251,28 @@ namespace Seikatsu.Backend.Services
         // RESET PASSWORD
         public async Task<bool> ResetPasswordAsync(ResetPasswordDTO request)
         {
+             var errors = new Dictionary<string, string>(); 
+            if (string.IsNullOrWhiteSpace(request.NewPassword))
+                errors["newPassword"] = "New password is required.";
+            else if (request.NewPassword.Length < 8)
+                errors["newPassword"] = "New password must be at least 8 characters.";
+            if (string.IsNullOrWhiteSpace(request.Email))
+                errors["email"] = "Email is required.";
+            else if (!request.Email.Contains("@"))
+                errors["email"] = "Email is not valid.";
+            // if any field failed — throw all errors at once
+            if (errors.Any())
+                throw new BadRequestException(errors);
+
+
+
             var customer = await context.Customers
                 .FirstOrDefaultAsync(c => c.Email.ToLower() == request.Email.ToLower());
 
-            if (customer is null) return false;
+            if (customer is null) throw new NotFoundException("Customer not found.");
 
             // No reset token exists
-            if (customer.PasswordResetToken is null) return false;
+            if (customer.PasswordResetToken is null) throw new UnauthorizedException("Unauthorized token");
 
             // Decode token from URL then hash it for comparison
             var decodedToken = Encoding.UTF8.GetString(
@@ -229,11 +280,11 @@ namespace Seikatsu.Backend.Services
 
             // Compare hash 
             if (customer.PasswordResetToken != HashToken(decodedToken))
-                return false;
+                throw new  UnauthorizedException("Unauthorized token");
 
             // Check expiry
             if (customer.PasswordResetTokenExpiry <= DateTime.UtcNow)
-                return false;
+                throw new UnauthorizedException("Expired token");
 
             // Hash new password — same PasswordHasher  used in RegisterAsync
             customer.PasswordHashed = new PasswordHasher<Customer>()
@@ -253,7 +304,7 @@ namespace Seikatsu.Backend.Services
         // PRIVATE HELPERS
 
         // Generates a cryptographically secure random token
-        // Same logic as your commented out GenerateRefreshToken()
+       
         private static string GenerateSecureToken()
         {
             var randomBytes = new byte[64];
@@ -295,11 +346,6 @@ namespace Seikatsu.Backend.Services
             await context.SaveChangesAsync();
             return refreshToken; // raw JWT goes into cookie
         }
-
-
-
-
-
 
 
         private Guid? ExtractCustomerIdFromRefreshToken(string token)
@@ -384,5 +430,45 @@ namespace Seikatsu.Backend.Services
 
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
+
+        private ClaimsPrincipal? ValidateJwtToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+
+                var key = Encoding.UTF8.GetBytes(
+                    configuration.GetValue<string>("AppSettings:Token")!
+                );
+
+                var parameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = configuration.GetValue<string>("AppSettings:Issuer"),
+                    ValidAudience = configuration.GetValue<string>("AppSettings:Audience"),
+
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+
+                    ClockSkew = TimeSpan.Zero 
+                };
+
+                var principal = tokenHandler.ValidateToken(token, parameters, out SecurityToken validatedToken);
+
+              
+
+                return principal; 
+            }
+            catch
+            {
+                return null; 
+            }
+        }
+
+
     }
+
 }

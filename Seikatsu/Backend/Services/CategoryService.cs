@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Seikatsu.Backend.Exceptions;
 namespace Seikatsu.Backend.Services
 {
     public class CategoryService(Data.UserContext context):ICategoryService
@@ -13,6 +14,11 @@ namespace Seikatsu.Backend.Services
                     
                 })
                 .ToListAsync();
+
+            if (categories is null  )
+            {
+                throw new NotFoundException("Category not found");
+            }
             return categories;
         }
     }

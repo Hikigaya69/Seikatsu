@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Seikatsu.Backend.Exceptions;
 
 namespace Seikatsu.Backend.Services
 
@@ -21,6 +22,10 @@ namespace Seikatsu.Backend.Services
                     CountryName = p.CountryName
                 })
                 .ToListAsync();
+            if(products.Count == 0)
+            {
+                throw new NotFoundException("products are not found.");
+            }
             return products;
         }
 
@@ -40,6 +45,10 @@ namespace Seikatsu.Backend.Services
                     CountryName = p.CountryName
                 })
                 .ToListAsync();
+            if(product is null)
+            {
+                throw new NotFoundException("product is not found.");   
+            }
             return product;
         }
 
@@ -59,6 +68,10 @@ namespace Seikatsu.Backend.Services
                     Category = p.Category!.CategoryName,
                     CountryName = p.CountryName
                 }).ToListAsync();
+            if(products.Count == 0)
+            {
+                throw new NotFoundException($"products are not found for  {countyname}.");
+            }
             return products;
 
 
@@ -77,6 +90,7 @@ namespace Seikatsu.Backend.Services
                 })
                 .Take(8)// Limit the number of suggestions to 8
                 .ToListAsync();
+
             return suggestions;
         }
 
@@ -113,6 +127,10 @@ namespace Seikatsu.Backend.Services
                     CountryName = p.CountryName
                 })
                 .ToListAsync();
+            if(products.Count == 0)
+            {
+                throw new NotFoundException($"products are not found for category.");
+            }
             return products;
 
         }

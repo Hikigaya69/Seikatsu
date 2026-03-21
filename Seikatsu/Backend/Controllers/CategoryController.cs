@@ -12,7 +12,7 @@ namespace Seikatsu.Backend.Controllers
     public class CategoryController(ICategoryService categoryService) : ControllerBase
     {
         [HttpGet("getallcategories")]
-        public async Task<ActionResult<IEnumerable<Models.CategoryResponseDTO>>> GetAllCategories()
+        public async Task<ActionResult<APIResponse<IEnumerable<Models.CategoryResponseDTO>>>> GetAllCategories()
         {
             var categories = await categoryService.GetAllCategoriesAsync();
             var response = new APIResponse<IEnumerable<CategoryResponseDTO>>

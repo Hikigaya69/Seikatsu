@@ -1,9 +1,9 @@
-﻿using Seikatsu.Backend.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
-
+using Seikatsu.Backend.Middleware;
+using Seikatsu.Backend.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +25,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 ;
+builder.Services.AddTransient<GlobalExceptionHandler>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddHttpContextAccessor();        // needed by CookieService
@@ -32,7 +33,7 @@ builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+
 builder.Services.AddScoped<ICategoryService,CategoryService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddDbContext<Seikatsu.Backend.Data.UserContext>(options =>
@@ -73,13 +74,13 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
-
+app.UseMiddleware<GlobalExceptionHandler>();
 app.UseHttpsRedirection();
 
 app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseMiddleware<GlobalExceptionHandler>();
 app.MapControllers();
 
 app.Run();

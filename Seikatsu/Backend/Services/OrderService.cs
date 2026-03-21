@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MimeKit.Encodings;
 using Razorpay.Api;
 using Seikatsu.Backend.Entity;
+using Seikatsu.Backend.Exceptions;
 using Seikatsu.Backend.Models;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
@@ -21,12 +22,12 @@ namespace Seikatsu.Backend.Services
 
             if (cart == null)
             {
-                throw new KeyNotFoundException("Cart not found.");
+                throw new NotFoundException("cart not found for the customer.");
             }
 
             if (!cart.CartItems.Any())
             {
-                throw new InvalidOperationException("Cart is empty.");
+                throw new BadRequestException("cart is empty. Please add items to cart before placing an order.");
             }
 
             var address = await context.Addresses
@@ -35,7 +36,7 @@ namespace Seikatsu.Backend.Services
                                    && a.CustomerId == customerId);
 
             if (address == null)
-                throw new KeyNotFoundException("Address not found.");
+                throw new NotFoundException("address not found for the customer.");
 
             var addressSnapshot = JsonSerializer.Serialize(new AddressSnapshotDTO
             {
@@ -149,6 +150,8 @@ namespace Seikatsu.Backend.Services
                     OrderedDate = o.CreatedAt
                 })
                 .ToListAsync();
+            if (!orders.Any())
+                throw new NotFoundException("No orders found in the last 5 months.");
             return orders;
         }
         //get all orders of a customer in a specific year, sorted by order date desc.
@@ -172,6 +175,8 @@ namespace Seikatsu.Backend.Services
                     OrderedDate = o.CreatedAt
                 })
                 .ToListAsync();
+            if (!orders.Any())
+                throw new NotFoundException($"No orders found in the {year}.");
             return orders;
         }
         //before placing the order, we can show the summary of the order to the user,
@@ -185,10 +190,10 @@ namespace Seikatsu.Backend.Services
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
 
             if (cart == null)
-                throw new KeyNotFoundException("Cart not found.");
+                throw new NotFoundException("Cart not found for the customer.");
 
             if (!cart.CartItems.Any())
-                throw new InvalidOperationException("Cart is empty.");
+                throw new BadRequestException("Cart is empty. Please add items to cart before placing an order.");
 
             // 2. fetch address
             var address = await context.Addresses
@@ -197,7 +202,7 @@ namespace Seikatsu.Backend.Services
                                        && a.CustomerId == customerId);
 
             if (address == null)
-                throw new KeyNotFoundException("Address not found.");
+                throw new NotFoundException("Address not found for the customer.");
 
             // 3. build items
             var items = cart.CartItems.Select(ci => new OrderSummaryItemDTO
@@ -209,6 +214,9 @@ namespace Seikatsu.Backend.Services
                 UnitPrice = ci.Product!.Price,
                 LineTotal = ci.Quantity * ci.Product!.Price
             }).ToList();
+
+            if (!items.Any())
+                throw new BadRequestException("Cart is empty. Please add items to cart before placing an order.");
 
             // 4. bill split
             var subTotal = items.Sum(i => i.LineTotal);
@@ -249,7 +257,7 @@ namespace Seikatsu.Backend.Services
                 .FirstOrDefaultAsync();
 
             if (order == null)
-                throw new KeyNotFoundException("Order not found.");
+                throw new NotFoundException("Order not found for the customer.");   
 
             var items = order.OrderItems.Select(oi => new OrderSummaryItemDTO
             {
@@ -260,6 +268,9 @@ namespace Seikatsu.Backend.Services
                 UnitPrice = oi.PriceAtPurchase,   // use snapshotted price
                 LineTotal = oi.Quantity * oi.PriceAtPurchase
             }).ToList();
+
+            if(!items.Any())
+                throw new BadRequestException("Order has no items.");
 
             var subTotal = items.Sum(i => i.LineTotal);
             var deliveryCharge = subTotal > 500 ? 0m : 49m;
@@ -292,7 +303,7 @@ namespace Seikatsu.Backend.Services
 
             if (orderItem == null)
             {
-                throw new KeyNotFoundException("Order item not found.");
+                throw new NotFoundException("Order item not found for the customer.");
             }
 
             var order = orderItem.Order!;
@@ -327,8 +338,8 @@ namespace Seikatsu.Backend.Services
                 p.Order!.CustomerId == customerId);
 
             if (payment == null)
-                throw new KeyNotFoundException("Payment not found.");
-            
+                throw new NotFoundException("Payment record not found for the customer.");
+
             var razrorpayscretet = configuration["Razorpay:KeySecret"];
 
             try {
