@@ -137,7 +137,7 @@ namespace Seikatsu.Backend.Services
         }
 
 
-        // REFRESH TOKEN 
+        // REFRESH TOKEN called when the access token is expired after 15mins
         public async Task<TokenResponseDto?> RefreshTokenAsync()
         {
             // Read refresh JWT from cookie — browser sends automatically
@@ -235,7 +235,7 @@ namespace Seikatsu.Backend.Services
             if (customer.PasswordResetTokenExpiry <= DateTime.UtcNow)
                 return false;
 
-            // Hash new password — same PasswordHasher you use in RegisterAsync
+            // Hash new password — same PasswordHasher  used in RegisterAsync
             customer.PasswordHashed = new PasswordHasher<Customer>()
                                             .HashPassword(customer, request.NewPassword);
 
