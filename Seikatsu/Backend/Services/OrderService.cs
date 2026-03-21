@@ -1,6 +1,7 @@
 ﻿using MailKit.Search;
 using Microsoft.EntityFrameworkCore;
 using MimeKit.Encodings;
+using Razorpay.Api;
 using Seikatsu.Backend.Entity;
 using Seikatsu.Backend.Models;
 using System.Reflection.Metadata.Ecma335;
@@ -8,15 +9,15 @@ using System.Text.Json;
 
 namespace Seikatsu.Backend.Services
 {
-    public class OrderService(Data.UserContext context) : IOrderService
+    public class OrderService(Data.UserContext context, IConfiguration configuration) : IOrderService
     {
         public async Task<CreateOrderResponseDTO> CreateOrderAsync(Guid customerId, CreateOrderDTO request)
         {
 
             var cart = await context.Carts
-                 .Include(c => c.CartItems)
-                 .ThenInclude(ci => ci.Product)
-                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+      .Include(c => c.CartItems)
+      .ThenInclude(ci => ci.Product)
+      .FirstOrDefaultAsync(c => c.Id == request.CartId && c.CustomerId == customerId);
 
             if (cart == null)
             {
@@ -58,24 +59,54 @@ namespace Seikatsu.Backend.Services
                 PriceAtPurchase = ci.Product!.Price
             }).ToList();
 
-            var order = new Order
+            var subTotal = orderItems.Sum(i => i.Quantity * i.PriceAtPurchase);
+            var deliveryCharge = subTotal > 500 ? 0m : 49m;
+            var tax = Math.Round(subTotal * 0.18m, 2);
+            var grandTotal = subTotal + deliveryCharge + tax;
+
+            // --- Razorpay ---
+            var keyId = configuration["Razorpay:KeyId"]!;
+            var keySecret = configuration["Razorpay:KeySecret"]!;
+
+            var razorpayClient = new RazorpayClient(keyId, keySecret);
+            var razorpayOptions = new Dictionary<string, object>
+    {
+        { "amount",   (int)(grandTotal * 100) },
+        { "currency", "INR" },
+        { "receipt",  orderId.ToString() }
+    };
+
+            var razorpayOrder = razorpayClient.Order.Create(razorpayOptions);
+            var razorpayOrderId = razorpayOrder["id"].ToString();
+
+
+            var order = new Entity.Order
             {
                 Id = orderId,
                 CustomerId = customerId,
                 AddressSnapshot = addressSnapshot,
-                TotalAmount = orderItems.Sum(i => i.Quantity * i.PriceAtPurchase),
+                TotalAmount = grandTotal,
                 OrderStatus = "Pending",
                 CreatedAt = DateTime.UtcNow,
                 OrderItems = orderItems
+            };
 
-
-
+            var payment = new Entity.Payment
+            {
+                Id = Guid.NewGuid(),
+                OrderId = orderId,
+                RazorpayOrderId = razorpayOrderId,
+                Amount = grandTotal,
+                Currency = "INR",
+                Status = "Created",
+                CreatedAt = DateTime.UtcNow
             };
 
             await using var transaction = await context.Database.BeginTransactionAsync();
             try
             {
                 context.Orders.Add(order);
+                context.Payments.Add(payment);
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
@@ -87,7 +118,12 @@ namespace Seikatsu.Backend.Services
 
             return new CreateOrderResponseDTO
             {
-                OrderId = order.Id
+                OrderId = order.Id,
+                RazorpayOrderId = razorpayOrderId,
+                Amount = payment.Amount,
+                Currency = payment.Currency,
+                KeyId = keyId
+
             };
 
 
@@ -117,9 +153,9 @@ namespace Seikatsu.Backend.Services
         }
         //get all orders of a customer in a specific year, sorted by order date desc.
         //This will be used in order history page when user clicks on a specific year.
-        public async Task<IEnumerable<OrderItemsResponseDTO>> GetOrderByYearAsync(Guid customerId,int year)
+        public async Task<IEnumerable<OrderItemsResponseDTO>> GetOrderByYearAsync(Guid customerId, int year)
         {
-            
+
 
             var orders = await context.Orders
                 .Where(o => o.CustomerId == customerId && o.CreatedAt.Year == year)
@@ -194,9 +230,9 @@ namespace Seikatsu.Backend.Services
                 Items = items,
                 SubTotal = subTotal,
                 DeliveryCharge = deliveryCharge,
-                
+
                 Tax = tax,
-                TotalAmount = subTotal + deliveryCharge  + tax,
+                TotalAmount = subTotal + deliveryCharge + tax,
                 EstimatedDelivery = DateTime.UtcNow.AddDays(5)
             };
         }
@@ -227,7 +263,7 @@ namespace Seikatsu.Backend.Services
 
             var subTotal = items.Sum(i => i.LineTotal);
             var deliveryCharge = subTotal > 500 ? 0m : 49m;
-      
+
             var tax = Math.Round(subTotal * 0.18m, 2);
             var payment = order.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
 
@@ -247,19 +283,19 @@ namespace Seikatsu.Backend.Services
 
         public async Task<DetailOrderItemViewDTO> GetDetailedViewofProductbyOrderIdAsync(Guid customerId, DetailedViewDTO request)
         {
-            var orderItem= await context.OrderItems.Where(oi=>oi.Id==request.OrderItemId && oi.OrderId == request.OrderId &&
+            var orderItem = await context.OrderItems.Where(oi => oi.Id == request.OrderItemId && oi.OrderId == request.OrderId &&
             oi.Order!.CustomerId == customerId)
-                .Include(oi=>oi.Product)
-                .Include(oi=>oi.Order)
-                    .ThenInclude(o=>o.Payments)
+                .Include(oi => oi.Product)
+                .Include(oi => oi.Order)
+                    .ThenInclude(o => o.Payments)
                 .FirstOrDefaultAsync();
 
-            if(orderItem == null)
+            if (orderItem == null)
             {
                 throw new KeyNotFoundException("Order item not found.");
             }
 
-            var order= orderItem.Order!;
+            var order = orderItem.Order!;
             var payment = order.Payments.FirstOrDefault();
 
 
@@ -276,10 +312,59 @@ namespace Seikatsu.Backend.Services
                 PriceAtPurchase = orderItem.PriceAtPurchase,
                 OrderedDate = order.CreatedAt,
                 ProductName = orderItem.Product!.Name,
-                ProductImageUrl = orderItem.Product!.ProductImageUrl,   
-                DeliveryAddress = deliveryAddress 
+                ProductImageUrl = orderItem.Product!.ProductImageUrl,
+                DeliveryAddress = deliveryAddress
 
             };
+        }
+
+        public async Task<bool> VerifyPaymentAsync(Guid customerId, VerifyPaymentDTO request)
+        {
+            var payment = await context.Payments
+             .Include(p => p.Order)
+             .FirstOrDefaultAsync(p =>
+               p.RazorpayOrderId == request.RazorpayOrderId &&
+                p.Order!.CustomerId == customerId);
+
+            if (payment == null)
+                throw new KeyNotFoundException("Payment not found.");
+            
+            var razrorpayscretet = configuration["Razorpay:KeySecret"];
+
+            try {
+                Dictionary<string, string> options = new Dictionary<string, string>();
+                options.Add("razorpay_order_id", request.RazorpayOrderId);
+                options.Add("razorpay_payment_id", request.RazorpayPaymentId);
+                options.Add("razorpay_signature", request.RazorpaySignature);
+
+
+                Utils.verifyPaymentSignature(options);
+            }
+            catch
+            {
+                payment.Status = "Failed";
+                await context.SaveChangesAsync();
+                throw new InvalidOperationException("Payment verification failed. Invalid signature.");
+            }
+            payment.RazorpayPaymentId = request.RazorpayPaymentId;
+            payment.RazorpaySignature = request.RazorpaySignature;
+            payment.Status = "Captured";
+            payment.PaidAt = DateTime.UtcNow;
+
+            // 4. confirm order
+            payment.Order!.OrderStatus = "Confirmed";
+
+            // 5. clear cart
+            var cart = await context.Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+
+            if (cart != null)
+                context.CartItems.RemoveRange(cart.CartItems);
+
+            await context.SaveChangesAsync();
+            return true;
+
         }
     }
 }

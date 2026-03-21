@@ -164,5 +164,32 @@ namespace Seikatsu.Backend.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving the detailed view of the product.", details = ex.Message });
             }
         }
+        [Authorize]
+        [HttpPost("verifyorder")]
+
+        public async Task<ActionResult> VerifyPayment(VerifyPaymentDTO request)
+        {
+            try
+            {
+                var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var isPaymentValid = await orderService.VerifyPaymentAsync(customerId, request);
+                if (isPaymentValid)
+                {
+                    return Ok(new { message = "Payment verified successfully." });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Payment verification failed." });
+                }
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while verifying the payment.", details = ex.Message });
+            }
+        }
     }
 }

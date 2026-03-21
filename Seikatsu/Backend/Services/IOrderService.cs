@@ -12,5 +12,6 @@ namespace Seikatsu.Backend.Services
         Task<OrderSummaryResponseDTO> GetOrderSummaryByOrderIdAsync(Guid customerId, Guid orderId);
 
         Task<DetailOrderItemViewDTO> GetDetailedViewofProductbyOrderIdAsync(Guid customerId, DetailedViewDTO request);
+        Task<bool> VerifyPaymentAsync(Guid customerId, VerifyPaymentDTO request);
     }
 }
