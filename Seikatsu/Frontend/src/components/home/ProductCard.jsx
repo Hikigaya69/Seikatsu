@@ -1,11 +1,18 @@
+import { useNavigate } from "react-router-dom";
+
 export default function ProductCard({ product }) {
+
+  const navigate = useNavigate();
 
   return (
 
-    <div className="bg-white shadow rounded-lg p-4 hover:shadow-lg transition">
+    <div
+      onClick={() => navigate(`/product/${product.id}`)}
+      className="bg-white shadow rounded-lg p-4 hover:shadow-lg transition cursor-pointer"
+    >
 
       <img
-        src={product.productImageUrl}
+        src={product.productImageUrl || "/ramen.jpg"}
         className="h-48 w-full object-cover rounded"
       />
 

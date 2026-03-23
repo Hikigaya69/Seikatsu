@@ -1,6 +1,31 @@
-import { ShoppingCart, User } from "lucide-react";
+import { ShoppingCart, User,LogOut } from "lucide-react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function HomeNavbar() {
+  const navigate = useNavigate();
+
+const handleLogout = async () => {
+
+  try {
+
+    await axios.post(
+      "https://localhost:7115/api/Auth/logout",
+      {},
+      {
+        withCredentials: true
+      }
+    );
+
+    navigate("/login");
+
+  } catch (err) {
+
+    console.error(err);
+
+  }
+
+};
   return (
     <div className="bg-white border-b p-2 shadow-sm">
 
@@ -24,6 +49,13 @@ export default function HomeNavbar() {
           <User className="cursor-pointer" />
 
           <ShoppingCart className="cursor-pointer" />
+          <button
+  onClick={handleLogout}
+  className="flex items-center gap-2 border border-gray-300 px-3 py-1 rounded-lg shadow-sm hover:bg-gray-100 transition"
+>
+  <LogOut size={18} />
+  Logout
+</button>
 
         </div>
 
