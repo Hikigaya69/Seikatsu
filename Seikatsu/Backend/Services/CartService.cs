@@ -16,7 +16,21 @@ namespace Seikatsu.Backend.Services
 {
     public class CartService(Data.UserContext context) : ICartService
     {
-        public async Task<IEnumerable<GetCartDTO>> GetCartAysnc(Guid customerid)
+
+        public async Task<bool> CreateCartAsync(Guid customerId)
+        {
+          var cart= new Cart
+          {
+              Id = Guid.NewGuid(),
+              CustomerId = customerId,
+              TotalPrice = 0,
+              UpdatedAt = DateTime.UtcNow
+          };
+            context.Carts.Add(cart);
+            await context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<GetCartDTO> GetCartAysnc(Guid customerid)
         {
 
             var cart = await context.Carts
@@ -29,28 +43,30 @@ namespace Seikatsu.Backend.Services
                 throw new NotFoundException("Cart not found for the specified customer.");
             }
 
-            return new List<GetCartDTO>
-    {
-        new GetCartDTO
-        {
-            Cartid = cart.Id,
-            TotalPrice = cart.CartItems.Sum(ci => ci.CartTotalPrice),
-            Items = cart.CartItems
-                .Select(ci => new CartItemDTO
-                {
-                    CartItemId = ci.Id,
-                    ProductId = ci.ProductId,
-                    ProductName = ci.Product!.Name,
-                    ProductImageUrl = ci.Product.ProductImageUrl,
-                    Price = ci.Product.Price,
-                    Quantity = ci.Quantity,
-                    ItemTotal = ci.CartTotalPrice
-                })
-                .ToList()
-        }
-    };
+
+
+            return new GetCartDTO
+            {
+                Cartid = cart.Id,
+                TotalPrice = cart.CartItems.Sum(ci => ci.CartTotalPrice),
+                Items = cart.CartItems
+                    .Select(ci => new CartItemDTO
+                    {
+                        CartItemId = ci.Id,
+                        ProductId = ci.ProductId,
+                        ProductName = ci.Product!.Name,
+                        ProductImageUrl = ci.Product.ProductImageUrl,
+                        Price = ci.Product.Price,
+                        Quantity = ci.Quantity,
+                        ItemTotal = ci.CartTotalPrice
+                    })
+                    .ToList()
+            };
+
 
         }
+
+
         public async Task<AddItemtoCartDTO> AddItemtoCartAysnc(Guid customerId, ItemAddFieldDTO request)
         {
             var product = await context.Products.FindAsync(request.ProductId);
@@ -59,17 +75,7 @@ namespace Seikatsu.Backend.Services
                 .ThenInclude(ci => ci.Product)
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
 
-            if (cart == null)
-            {
-                cart = new Cart
-                {
-                    Id = Guid.NewGuid(),
-                    CustomerId = customerId,
-                    CartItems = new List<CartItem>()
-                };
-                context.Carts.Add(cart);
-            }
-
+          
             var existingItem = cart.CartItems.FirstOrDefault(ci => ci.ProductId == request.ProductId);
             if (existingItem != null)
             {
@@ -97,7 +103,6 @@ namespace Seikatsu.Backend.Services
             return new AddItemtoCartDTO
             {
                 CartId = cart.Id,
-                CustomerId = customerId,
                 ProductId = request.ProductId,
                 ProductName = product!.Name,
                 Quantity = addedItem.Quantity,

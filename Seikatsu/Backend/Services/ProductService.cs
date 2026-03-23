@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Seikatsu.Backend.Exceptions;
+using Seikatsu.Backend.Models;
 
 namespace Seikatsu.Backend.Services
 
@@ -29,11 +30,11 @@ namespace Seikatsu.Backend.Services
             return products;
         }
 
-        public async Task<IEnumerable<Models.ProductDTO>> GetPrductbyIdAsync(Guid id)
+        public async Task<ProductDTO> GetPrductbyIdAsync(Guid id)
         {
             var product = await context.Products
                 .Where(p => p.Id == id)
-                .Select(p => new Models.ProductDTO
+                .Select(p => new ProductDTO
                 {
                     Id = p.Id,
                     Name = p.Name,
@@ -44,11 +45,9 @@ namespace Seikatsu.Backend.Services
                     Category = p.Category!.CategoryName,
                     CountryName = p.CountryName
                 })
-                .ToListAsync();
-            if(product is null)
-            {
-                throw new NotFoundException("product is not found.");   
-            }
+                .FirstOrDefaultAsync()
+                ?? throw new NotFoundException("Product not found.");
+
             return product;
         }
 

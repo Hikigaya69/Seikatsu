@@ -28,6 +28,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddTransient<GlobalExceptionHandler>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IRestockCartService,RestockCartService>();
 builder.Services.AddHttpContextAccessor();        // needed by CookieService
 builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<IEmailService, EmailService>();

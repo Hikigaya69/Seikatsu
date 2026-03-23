@@ -138,8 +138,12 @@ namespace Seikatsu.Backend.Data
                 .HasForeignKey(rci => rci.RestockCartId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+
+            modelBuilder.Entity<RestockCartItem>()
+                .Property(r => r.Frequency)
+                .HasConversion<string>();
             // Decimal precision for pricing
-           
+
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");

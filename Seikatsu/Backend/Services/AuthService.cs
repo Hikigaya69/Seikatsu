@@ -66,7 +66,9 @@ namespace Seikatsu.Backend.Services
         Data.UserContext context,
         IConfiguration configuration,
         CookieService cookieService,
-        IEmailService emailService
+        IEmailService emailService,
+        ICartService cartService,
+        IRestockCartService restockCartService
     ) : IAuthService
     {
         // REGISTER
@@ -91,9 +93,9 @@ namespace Seikatsu.Backend.Services
             // if any field failed — throw all errors at once
             if (errors.Any())
                 throw new BadRequestException(errors);
-            if (await context.Customers.AnyAsync(
-            u => u.FullName.ToLower() == request.FullName.ToLower()))
-                throw new ConflictException($"Full name '{request.FullName}' is already taken.");
+            //if (await context.Customers.AnyAsync(
+            //u => u.FullName.ToLower() == request.FullName.ToLower()))
+            //    throw new ConflictException($"Full name '{request.FullName}' is already taken.");
 
             // 3. check if email already taken
             if (await context.Customers.AnyAsync(
@@ -110,6 +112,8 @@ namespace Seikatsu.Backend.Services
 
             context.Customers.Add(customer);
             await context.SaveChangesAsync();
+            await cartService.CreateCartAsync(customer.Id);
+            await restockCartService.CreateRestockCartAsync(customer.Id);
 
             return new CustomerRegisterDTO
             {

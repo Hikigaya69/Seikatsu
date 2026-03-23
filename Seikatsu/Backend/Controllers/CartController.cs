@@ -18,16 +18,16 @@ namespace Seikatsu.Backend.Controllers
     {
         [Authorize]
         [HttpPost("getcart")]
-        public async Task<ActionResult<APIResponse<IEnumerable<GetCartDTO>>>> GetCart()
+        public async Task<ActionResult<APIResponse<GetCartDTO>>> GetCart()
         {
             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             
                 var result = await cartservice.GetCartAysnc(customerId);
-                var response = new APIResponse<IEnumerable<GetCartDTO>>
+                var response = new APIResponse<GetCartDTO>
                 {
                     Success = true,
                     Data = result,
-                    Message = result.Any() ? "prodcuts are sent" : "No products found."
+                    Message = "cart with/without products is sent"
                 };
 
                 return Ok(response);

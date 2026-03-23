@@ -40,16 +40,16 @@ namespace Seikatsu.Backend.Controllers
         }
 
         [HttpGet("productview/{id}")]
-        public async Task<ActionResult<APIResponse<IEnumerable<ProductDTO>>>> GetProductbyID(Guid id)
+        public async Task<ActionResult<APIResponse<ProductDTO>>> GetProductbyID(Guid id)
         {
 
 
             var product = await productService.GetPrductbyIdAsync(id);
-            var response = new APIResponse<IEnumerable<ProductDTO>>
+            var response = new APIResponse<ProductDTO>
             {
                 Success = true,
                 Data = product,
-                Message = product.Any() ? "prodcut detail is sent" : "No products found."
+                Message ="prodcut detail is sent" 
             };
 
             return Ok(response);
