@@ -5,11 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import axios from "axios";
 
+
 export default function ProductDetails() {
 
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const navigate = useNavigate();
+  const [addedMessage, setAddedMessage] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const increaseQty = () => {
   setQuantity((prev) => prev + 1);
@@ -21,17 +23,26 @@ const decreaseQty = () => {
   }
 };
    ; const addToCart = async () => {
-        try {
-            const res = await axios.post(
-                "/api/Cart/additem",        
-                { productId: product.id, quantity },
-                { withCredentials: true }   
-            );
-            console.log("Response:", res.data);
-        } catch (err) {
-            console.error("Error response:", err.response?.data);
-        }
-    };
+
+  try {
+
+    await axios.post(
+      "/api/Cart/additem",
+      { productId: product.id, quantity },
+      { withCredentials: true }
+    );
+
+    setAddedMessage(true);
+
+    
+
+  } catch (err) {
+
+    console.error("Error response:", err.response?.data);
+
+  }
+
+};
   useEffect(() => {
 
     const fetchProduct = async () => {
@@ -155,10 +166,16 @@ const decreaseQty = () => {
   {/* Cart button */}
   <button
   onClick={addToCart}
-  className="flex-1 bg-[#3c6e71] text-white px-6 py-3 rounded-lg hover:bg-[#2f5557] transition"
+  disabled={addedMessage}
+  className="flex-1 bg-[#3c6e71] text-white px-6 py-3 rounded-lg hover:bg-[#2f5557] transition disabled:opacity-60"
 >
   Add to Cart
 </button>
+{addedMessage && (
+  <p className="text-green-600 mt-3">
+    ✅ Item added to cart successfully
+  </p>
+)}
 
 
 </div>
