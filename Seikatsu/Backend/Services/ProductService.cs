@@ -42,6 +42,7 @@ namespace Seikatsu.Backend.Services
                     Price = p.Price,
                     IsFood = p.IsFood,
                     StorageType = p.StorageType,
+                    ProductImageUrl = p.ProductImageUrl,
                     Category = p.Category!.CategoryName,
                     CountryName = p.CountryName
                 })

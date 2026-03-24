@@ -1,4 +1,4 @@
-import { ShoppingCart, User,LogOut } from "lucide-react";
+﻿import { ShoppingCart, User,LogOut } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -7,16 +7,12 @@ export default function HomeNavbar() {
 
 const handleLogout = async () => {
 
-  try {
-
-    await axios.post(
-      "https://localhost:7115/api/Auth/logout",
-      {},
-      {
-        withCredentials: true
-      }
-    );
-
+    try {
+        await axios.post(
+            "/api/Auth/logout", 
+            {},
+            { withCredentials: true }
+        );
     navigate("/login");
 
   } catch (err) {

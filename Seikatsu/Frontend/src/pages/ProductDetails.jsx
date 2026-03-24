@@ -20,25 +20,18 @@ const decreaseQty = () => {
     setQuantity((prev) => prev - 1);
   }
 };
-const addToCart = async () => {
-
-  const token = localStorage.getItem("token");
-
-  await axios.post(
-    "https://localhost:7115/api/Cart/additem",
-    {
-      productId: product.id,
-      quantity: quantity
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
-  );
-
-};
-
+   ; const addToCart = async () => {
+        try {
+            const res = await axios.post(
+                "/api/Cart/additem",        
+                { productId: product.id, quantity },
+                { withCredentials: true }   
+            );
+            console.log("Response:", res.data);
+        } catch (err) {
+            console.error("Error response:", err.response?.data);
+        }
+    };
   useEffect(() => {
 
     const fetchProduct = async () => {
@@ -46,10 +39,12 @@ const addToCart = async () => {
       try {
 
         const res = await axios.get(
-          `https://localhost:7115/api/Product/productview/${id}`
-        );
+            `https://localhost:7115/api/Product/productview/${id}`
 
-        setProduct(res.data.data[0]);
+          );
+          console.log("API Response:", res.data);
+
+        setProduct(res.data.data);
 
       } catch (err) {
         console.error(err);

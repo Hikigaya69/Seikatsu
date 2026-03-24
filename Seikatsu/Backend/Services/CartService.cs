@@ -70,12 +70,14 @@ namespace Seikatsu.Backend.Services
         public async Task<AddItemtoCartDTO> AddItemtoCartAysnc(Guid customerId, ItemAddFieldDTO request)
         {
             var product = await context.Products.FindAsync(request.ProductId);
+            if (product == null) throw new Exception("Product not found");
+
             var cart = await context.Carts
                 .Include(c => c.CartItems)
-                .ThenInclude(ci => ci.Product)
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId);
 
-          
+            if (cart == null) throw new Exception("Cart not found");
+
             var existingItem = cart.CartItems.FirstOrDefault(ci => ci.ProductId == request.ProductId);
             if (existingItem != null)
             {
@@ -84,32 +86,34 @@ namespace Seikatsu.Backend.Services
             }
             else
             {
-                cart.CartItems.Add(new CartItem
+                var newItem = new CartItem
                 {
                     Id = Guid.NewGuid(),
                     CartId = cart.Id,
                     ProductId = request.ProductId,
                     Quantity = request.Quantity,
                     CartTotalPrice = product.Price * request.Quantity
-                });
+                };
+                context.CartItems.Add(newItem); 
             }
 
-            cart.TotalPrice = cart.CartItems.Sum(ci => ci.CartTotalPrice);
+            cart.TotalPrice = cart.CartItems.Sum(ci => ci.CartTotalPrice)
+                            + (existingItem == null ? product.Price * request.Quantity : 0);
             cart.UpdatedAt = DateTime.UtcNow;
-            await context.SaveChangesAsync();
 
-            var addedItem = cart.CartItems.First(ci => ci.ProductId == request.ProductId);
+            await context.SaveChangesAsync(); 
+            var addedItem = await context.CartItems
+                .FirstAsync(ci => ci.CartId == cart.Id && ci.ProductId == request.ProductId); 
 
             return new AddItemtoCartDTO
             {
                 CartId = cart.Id,
                 ProductId = request.ProductId,
-                ProductName = product!.Name,
+                ProductName = product.Name,
                 Quantity = addedItem.Quantity,
                 ItemTotal = addedItem.CartTotalPrice
             };
-    
-    }
+        }
 
         public async Task<bool> DeleteItemFormCartAsync(Guid customerid, Guid cartitemid)
         {

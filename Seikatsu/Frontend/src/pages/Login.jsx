@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import "./Auth.css";
@@ -12,18 +12,20 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post(
-          "https://localhost:7115/api/Auth/login",
-          { Email: email, Password: password },
-          { withCredentials: true }
-      );
-
-
-      navigate("/home");
-    } catch {
-      setError("Invalid username or password");
-    }
+      try {
+          const response = await axios.post(
+              "/api/Auth/login",         
+              { Email: email, Password: password }
+              
+          );
+          if (response.data.success) {
+              navigate("/home");           
+          } else {
+              setError("Invalid username or password");
+          }
+      } catch {
+          setError("Invalid username or password");
+      }
   };
 
   return (

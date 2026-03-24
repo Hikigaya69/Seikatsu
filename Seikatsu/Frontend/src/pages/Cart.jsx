@@ -12,7 +12,7 @@ export default function Cart() {
     fetchCart();
   }, []);
 
-  const token = localStorage.getItem("token");
+
 
   const fetchCart = async () => {
 
@@ -20,13 +20,11 @@ export default function Cart() {
       "https://localhost:7115/api/Cart/getcart",
       {},
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+          withCredentials: true
       }
     );
 
-    setCart(res.data.data[0]);
+    setCart(res.data.data);
 
   };
 const clearCart = async () => {
@@ -34,9 +32,7 @@ const clearCart = async () => {
   await axios.delete(
     "https://localhost:7115/api/Cart/clearcart",
     {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+        withCredentials: true
     }
   );
 
@@ -55,9 +51,7 @@ const clearCart = async () => {
         quantity
       },
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+          withCredentials: true
       }
     );
 
@@ -71,9 +65,7 @@ const clearCart = async () => {
     await axios.delete(
       `https://localhost:7115/api/Cart/items/${cartItemId}`,
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+          withCredentials: true
       }
     );
 

@@ -47,7 +47,14 @@ namespace Seikatsu.Backend.Services
 
         public void ClearTokenCookies()
         {
-            Response.Cookies.Delete("access_token");
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,               // match your login cookie options
+                SameSite = SameSiteMode.None,  // match your login cookie options
+              
+            };
+            Response.Cookies.Delete("access_token", cookieOptions);
             Response.Cookies.Delete("refresh_token", new CookieOptions
             {
                 Path = "/api/auth/refresh-token"

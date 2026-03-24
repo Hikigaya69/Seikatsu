@@ -14,7 +14,7 @@ const navigate = useNavigate();
 
   const fetchCart = async () => {
 
-    const token = localStorage.getItem("token");
+   
 
     try {
 
@@ -22,13 +22,11 @@ const navigate = useNavigate();
         "https://localhost:7115/api/Cart/getcart",
         {},
         {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+            withCredentials: true
         }
       );
 
-      setCart(res.data.data[0]);
+      setCart(res.data.data);
 
     } catch (err) {
       console.error(err);
