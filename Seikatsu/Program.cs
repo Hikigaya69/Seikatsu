@@ -34,7 +34,7 @@ builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<ICategoryService,CategoryService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddDbContext<Seikatsu.Backend.Data.UserContext>(options =>

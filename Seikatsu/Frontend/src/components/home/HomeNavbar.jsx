@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 export default function HomeNavbar() {
   const navigate = useNavigate();
-const [setCartCount] = useState(0);
+    const [cartCount, setCartCount] = useState(0);
 useEffect(() => {
 
   const fetchCartSummary = async () => {
@@ -69,10 +69,11 @@ const handleLogout = async () => {
 
           <User className="cursor-pointer" />
 
-          <ShoppingCart
-  className="cursor-pointer"
-  onClick={() => navigate("/cart")}
-/>
+                  <ShoppingCart
+                      className="cursor-pointer"
+                      onClick={() => navigate("/cart")}
+                  />
+                  <span>{cartCount}</span>
           <button
   onClick={handleLogout}
   className="flex items-center gap-2 border border-gray-300 px-3 py-1 rounded-lg shadow-sm hover:bg-gray-100 transition"
