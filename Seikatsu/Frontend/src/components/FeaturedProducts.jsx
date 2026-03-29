@@ -14,7 +14,7 @@ useEffect(() => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "https://localhost:7115/api/Product/productforindex?count=10"
+        "https://seikatsu-api.onrender.com/api/Product/productforindex?count=10"
       );
 
       setProducts(response.data.data);

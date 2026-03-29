@@ -15,7 +15,7 @@ export default function Home() {
   useEffect(() => {
 
     axios
-      .get("https://localhost:7115/api/Product/productforindex")
+        .get("https://seikatsu-api.onrender.com/api/Product/productforindex")
       .then((res) => {
 
         setProducts(res.data.data);

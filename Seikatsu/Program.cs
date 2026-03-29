@@ -13,8 +13,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:5173"
-                                              ).AllowAnyHeader()
+                          policy.WithOrigins(
+    "http://localhost:5173",
+    "https://seikatsu-api.onrender.com",
+    "https://seikastu-frontend.vercel.app"
+).AllowAnyHeader()
       .AllowAnyMethod()    
                           .AllowCredentials();
                       });
@@ -68,15 +71,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 var app = builder.Build();
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+
 app.UseMiddleware<GlobalExceptionHandler>();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();
