@@ -1,77 +1,38 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api"; // ← replace axios import
 import StoreLayout from "../layouts/StoreLayout";
 import { ArrowLeft } from "lucide-react";
+
 export default function Cart() {
+    const [cart, setCart] = useState(null);
+    const navigate = useNavigate();
 
-  const [cart, setCart] = useState(null);
-  const navigate = useNavigate();
+    useEffect(() => {
+        fetchCart();
+    }, []);
 
-  useEffect(() => {
-    fetchCart();
-  }, []);
+    const fetchCart = async () => {
+        const res = await api.post("/Cart/getcart", {});
+        setCart(res.data.data);
+    };
 
+    const clearCart = async () => {
+        await api.delete("/Cart/clearcart");
+        fetchCart();
+    };
 
+    const updateQuantity = async (cartItemId, quantity) => {
+        if (quantity < 1) return;
+        await api.patch("/Cart/updatecart", { cartItemId, quantity });
+        fetchCart();
+    };
 
-  const fetchCart = async () => {
+    const removeItem = async (cartItemId) => {
+        await api.delete(`/Cart/items/${cartItemId}`);
+        fetchCart();
+    };
 
-    const res = await axios.post(
-      "https://localhost:7115/api/Cart/getcart",
-      {},
-      {
-          withCredentials: true
-      }
-    );
-
-    setCart(res.data.data);
-
-  };
-const clearCart = async () => {
-
-  await axios.delete(
-    "https://localhost:7115/api/Cart/clearcart",
-    {
-        withCredentials: true
-    }
-  );
-
-  fetchCart();
-
-};
-  // UPDATE QUANTITY
-  const updateQuantity = async (cartItemId, quantity) => {
-
-    if (quantity < 1) return;
-
-    await axios.patch(
-      "https://localhost:7115/api/Cart/updatecart",
-      {
-        cartItemId,
-        quantity
-      },
-      {
-          withCredentials: true
-      }
-    );
-
-    fetchCart(); 
-
-  };
-
-  // REMOVE ITEM
-  const removeItem = async (cartItemId) => {
-
-    await axios.delete(
-      `https://localhost:7115/api/Cart/items/${cartItemId}`,
-      {
-          withCredentials: true
-      }
-    );
-
-    fetchCart();
-
-  };
 
   if (!cart || cart.items.length === 0) {
   return (

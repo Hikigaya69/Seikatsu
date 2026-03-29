@@ -1,32 +1,33 @@
 ﻿import { useState } from "react";
-import axios from "axios";
+
+import api from "../utils/api"; // ← replace axios import
 import { useNavigate, Link } from "react-router-dom";
 import "./Auth.css";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+    const navigate = useNavigate();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await api.post(
+                "/Auth/login", // ← relative URL
+                { Email: email, Password: password }
+            );
+            if (response.data.success) {
+                navigate("/home");
+            } else {
+                setError("Invalid username or password");
+            }
+        } catch {
+            setError("Invalid username or password");
+        }
+    };
 
-      try {
-          const response = await axios.post(
-              "/api/Auth/login",         
-              { Email: email, Password: password }
-              
-          );
-          if (response.data.success) {
-              navigate("/home");           
-          } else {
-              setError("Invalid username or password");
-          }
-      } catch {
-          setError("Invalid username or password");
-      }
-  };
+// ... rest of JSX stays exactly the same
 
   return (
     <div className="auth-container">

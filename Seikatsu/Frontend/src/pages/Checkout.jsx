@@ -19,7 +19,7 @@ const navigate = useNavigate();
     try {
 
       const res = await axios.post(
-        "https://localhost:7115/api/Cart/getcart",
+        "https://seikatsu-api.onrender.com/api/Cart/getcart",
         {},
         {
             withCredentials: true

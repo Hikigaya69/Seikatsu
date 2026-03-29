@@ -27,7 +27,7 @@ const decreaseQty = () => {
   try {
 
     await axios.post(
-      "/api/Cart/additem",
+      "https://seikatsu-api.onrender.com/api/Cart/additem",
       { productId: product.id, quantity },
       { withCredentials: true }
     );
@@ -50,7 +50,7 @@ const decreaseQty = () => {
       try {
 
         const res = await axios.get(
-            `https://localhost:7115/api/Product/productview/${id}`
+            `https://seikatsu-api.onrender.com/api/Product/productview/${id}`
 
           );
           console.log("API Response:", res.data);

@@ -16,7 +16,7 @@ export default function Register() {
 
     try {
       await axios.post(
-          "https://localhost:7115/api/Auth/register",
+          "https://seikatsu-api.onrender.com/api/Auth/register",
           { FullName: username, Password: password, Email: email }
       );
 
