@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 
-import api from "../utils/api"; // ← replace axios import
+import api from "../Utils/api"; // ← replace axios import
 import { useNavigate, Link } from "react-router-dom";
 import "./Auth.css";
 

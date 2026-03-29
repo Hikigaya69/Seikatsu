@@ -1,52 +1,34 @@
-﻿import { ShoppingCart, User,LogOut } from "lucide-react";
-import axios from "axios";
+﻿import { ShoppingCart, User, LogOut } from "lucide-react";
+import api from "../../Utils/api"; // ← replace axios import
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 export default function HomeNavbar() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
     const [cartCount, setCartCount] = useState(0);
-useEffect(() => {
 
-  const fetchCartSummary = async () => {
+    useEffect(() => {
+        const fetchCartSummary = async () => {
+            try {
+                const res = await api.get("/Cart/cartsummary");
+                setCartCount(res.data.data.totalItems);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchCartSummary();
+    }, []);
 
-    try {
+    const handleLogout = async () => {
+        try {
+            await api.post("/Auth/logout", {});
+            navigate("/login");
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
-      const res = await axios.get(
-        "/api/Cart/cartsummary",
-        { withCredentials: true }
-      );
-
-      setCartCount(res.data.data.totalItems);
-
-    } catch (err) {
-
-      console.error(err);
-
-    }
-
-  };
-
-  fetchCartSummary();
-
-}, []);
-const handleLogout = async () => {
-
-    try {
-        await axios.post(
-            "/api/Auth/logout", 
-            {},
-            { withCredentials: true }
-        );
-    navigate("/login");
-
-  } catch (err) {
-
-    console.error(err);
-
-  }
-
-};
+// ... rest of JSX stays exactly the same
   return (
     <div className="bg-white border-b p-2 shadow-sm">
 

@@ -1,38 +1,28 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../Utils/api"; // ← replace axios import
 import StoreLayout from "../layouts/StoreLayout";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 export default function Checkout() {
 
-  const [cart, setCart] = useState(null);
-const navigate = useNavigate();
-  useEffect(() => {
-    fetchCart();
-  }, []);
+    const [cart, setCart] = useState(null);
+    const navigate = useNavigate();
 
-  const fetchCart = async () => {
+    useEffect(() => {
+        fetchCart();
+    }, []);
 
-   
-
-    try {
-
-      const res = await axios.post(
-        "https://seikatsu-api.onrender.com/api/Cart/getcart",
-        {},
-        {
-            withCredentials: true
+    const fetchCart = async () => {
+        try {
+            const res = await api.post("/Cart/getcart", {});
+            setCart(res.data.data);
+        } catch (err) {
+            console.error(err);
         }
-      );
+    };
 
-      setCart(res.data.data);
-
-    } catch (err) {
-      console.error(err);
-    }
-
-  };
+// ... rest of JSX stays exactly the same
 
   if (!cart) {
     return (

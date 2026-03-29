@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../utils/api"; // ← replace axios import
+import api from "../Utils/api"; // ← replace axios import
 import StoreLayout from "../layouts/StoreLayout";
 import { ArrowLeft } from "lucide-react";
 

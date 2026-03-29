@@ -1,71 +1,45 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import StoreLayout from "../layouts/StoreLayout";
-import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import axios from "axios";
-
+import axios from "axios"; // public endpoint still uses axios
+import api from "../Utils/api"; // protected endpoint uses api
 
 export default function ProductDetails() {
 
-  const { id } = useParams();
-  const [product, setProduct] = useState(null);
-  const navigate = useNavigate();
-  const [addedMessage, setAddedMessage] = useState(false);
-  const [quantity, setQuantity] = useState(1);
-  const increaseQty = () => {
-  setQuantity((prev) => prev + 1);
-};
+    const { id } = useParams();
+    const [product, setProduct] = useState(null);
+    const navigate = useNavigate();
+    const [addedMessage, setAddedMessage] = useState(false);
+    const [quantity, setQuantity] = useState(1);
 
-const decreaseQty = () => {
-  if (quantity > 1) {
-    setQuantity((prev) => prev - 1);
-  }
-};
-   ; const addToCart = async () => {
+    const increaseQty = () => setQuantity((prev) => prev + 1);
+    const decreaseQty = () => { if (quantity > 1) setQuantity((prev) => prev - 1); };
 
-  try {
-
-    await axios.post(
-      "https://seikatsu-api.onrender.com/api/Cart/additem",
-      { productId: product.id, quantity },
-      { withCredentials: true }
-    );
-
-    setAddedMessage(true);
-
-    
-
-  } catch (err) {
-
-    console.error("Error response:", err.response?.data);
-
-  }
-
-};
-  useEffect(() => {
-
-    const fetchProduct = async () => {
-
-      try {
-
-        const res = await axios.get(
-            `https://seikatsu-api.onrender.com/api/Product/productview/${id}`
-
-          );
-          console.log("API Response:", res.data);
-
-        setProduct(res.data.data);
-
-      } catch (err) {
-        console.error(err);
-      }
-
+    const addToCart = async () => {
+        try {
+            await api.post("/Cart/additem", { productId: product.id, quantity });
+            setAddedMessage(true);
+        } catch (err) {
+            console.error("Error response:", err.response?.data);
+        }
     };
 
-    fetchProduct();
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                // 
+                const res = await axios.get(
+                    `https://seikatsu-api.onrender.com/api/Product/productview/${id}`
+                );
+                setProduct(res.data.data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchProduct();
+    }, [id]);
 
-  }, [id]);
 
   if (!product) {
   return (
@@ -173,7 +147,7 @@ const decreaseQty = () => {
 </button>
 {addedMessage && (
   <p className="text-green-600 mt-3">
-    ✅ Item added to cart successfully
+     Item added to cart successfully
   </p>
 )}
 
