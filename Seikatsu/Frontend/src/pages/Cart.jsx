@@ -147,3 +147,27 @@ export default function Cart() {
                         <h2 className="text-lg font-semibold mb-4">Cart Summary</h2>
 
                         <div className="flex justify-between mb-2">
+                            <span>Total Price</span>
+                            <span className="font-bold">₹{cart.totalPrice}</span>
+                        </div>
+
+                        <button
+                            onClick={clearCart}
+                            className="mt-2 w-full border border-red-400 text-red-500 py-2 rounded-lg hover:bg-red-50"
+                        >
+                            Clear Cart
+                        </button>
+
+                        <button
+                            onClick={() => navigate("/checkout")}
+                            className="mt-4 w-full bg-[#284b63] text-white py-3 rounded-lg"
+                        >
+                            Checkout
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </StoreLayout>
+    );
+}

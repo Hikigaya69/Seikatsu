@@ -72,12 +72,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 var app = builder.Build();
 app.MapOpenApi();
-app.MapScalarApiReference();
+app.MapScalarApiReference(options =>
+{
+    options.WithTitle("Seikatsu API");
+    options.AddServer("https://seikatsu-api.onrender.com");
+});
 
 // Configure the HTTP request pipeline.
 
 app.UseMiddleware<GlobalExceptionHandler>();
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();

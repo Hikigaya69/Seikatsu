@@ -1,7 +1,7 @@
 ﻿import { ShoppingCart, User, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import api from "../Utils/api";
+import api from "../../Utils/api";
 
 export default function HomeNavbar() {
     const navigate = useNavigate();
