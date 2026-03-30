@@ -25,20 +25,28 @@ export default function ProductDetails() {
         }
     };
 
-    useEffect(() => {
-        const fetchProduct = async () => {
-            try {
-                // 
-                const res = await axios.get(
-                    `https://seikatsu-api.onrender.com/api/Product/productview/${id}`
-                );
-                setProduct(res.data.data);
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchProduct();
-    }, [id]);
+};
+  useEffect(() => {
+
+    const fetchProduct = async () => {
+
+      try {
+
+        const res = await axios.get(
+            `/api/Product/productview/${id}`
+
+          );
+          console.log("API Response:", res.data);
+
+        setProduct(res.data.data);
+
+      } catch (err) {
+        console.error(err);
+      }
+
+    };
+
+    fetchProduct();
 
 
   if (!product) {
