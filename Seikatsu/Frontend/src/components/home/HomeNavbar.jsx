@@ -1,7 +1,7 @@
 ﻿import { ShoppingCart, User, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../Utils/api";
 
 export default function HomeNavbar() {
     const navigate = useNavigate();
@@ -10,9 +10,7 @@ export default function HomeNavbar() {
     useEffect(() => {
         const fetchCartSummary = async () => {
             try {
-                const res = await axios.get("/api/Cart/cartsummary", {
-                    withCredentials: true
-                });
+                const res = await api.get("/Cart/cartsummary");
                 setCartCount(res.data.data.totalItems);
             } catch (err) {
                 console.error(err);
@@ -23,9 +21,7 @@ export default function HomeNavbar() {
 
     const handleLogout = async () => {
         try {
-            await axios.post("/api/Auth/logout", {}, {
-                withCredentials: true
-            });
+            await api.post("/Auth/logout", {});
             navigate("/login");
         } catch (err) {
             console.error(err);
@@ -36,13 +32,11 @@ export default function HomeNavbar() {
         <div className="bg-white border-b p-2 shadow-sm">
             <div className="max-w-7xl mx-auto flex items-center justify-between p-5">
                 <h1 className="text-2xl font-bold text-[#284b63]">Seikatsu</h1>
-
                 <input
                     type="text"
                     placeholder="Search product"
                     className="w-125 px-4 py-2 border rounded-lg"
                 />
-
                 <div className="flex gap-6 items-center">
                     <User className="cursor-pointer" />
                     <div className="relative cursor-pointer" onClick={() => navigate("/cart")}>
