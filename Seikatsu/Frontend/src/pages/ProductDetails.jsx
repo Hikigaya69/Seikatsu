@@ -50,7 +50,7 @@ const decreaseQty = () => {
       try {
 
         const res = await axios.get(
-            `https://localhost:7115/api/Product/productview/${id}`
+            `/api/Product/productview/${id}`
 
           );
           console.log("API Response:", res.data);

@@ -17,7 +17,7 @@ export default function Cart() {
   const fetchCart = async () => {
 
     const res = await axios.post(
-      "https://localhost:7115/api/Cart/getcart",
+      "/api/Cart/getcart",
       {},
       {
           withCredentials: true
@@ -30,7 +30,7 @@ export default function Cart() {
 const clearCart = async () => {
 
   await axios.delete(
-    "https://localhost:7115/api/Cart/clearcart",
+    "/api/Cart/clearcart",
     {
         withCredentials: true
     }
@@ -45,7 +45,7 @@ const clearCart = async () => {
     if (quantity < 1) return;
 
     await axios.patch(
-      "https://localhost:7115/api/Cart/updatecart",
+      "/api/Cart/updatecart",
       {
         cartItemId,
         quantity
@@ -63,7 +63,7 @@ const clearCart = async () => {
   const removeItem = async (cartItemId) => {
 
     await axios.delete(
-      `https://localhost:7115/api/Cart/items/${cartItemId}`,
+      `/api/Cart/items/${cartItemId}`,
       {
           withCredentials: true
       }
