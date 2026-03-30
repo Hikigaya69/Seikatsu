@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <Folder Include="Backend\DataDB\" />
-    <Folder Include="Frontend\" />
   </ItemGroup>
 
 </Project>
