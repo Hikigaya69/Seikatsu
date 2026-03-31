@@ -35,7 +35,12 @@ export default function HomeNavbar() {
     return (
         <div className="bg-white border-b p-2 shadow-sm">
             <div className="max-w-7xl mx-auto flex items-center justify-between p-5">
-                <h1 className="text-2xl font-bold text-[#284b63]">Seikatsu</h1>
+                <h1
+  onClick={() => navigate("/home")}
+  className="text-2xl font-bold text-[#284b63] cursor-pointer hover:opacity-80 transition"
+>
+  Seikatsu
+</h1>
 
                 <input
                     type="text"
@@ -44,7 +49,7 @@ export default function HomeNavbar() {
                 />
 
                 <div className="flex gap-6 items-center">
-                    <User className="cursor-pointer" />
+                    <User className="cursor-pointer" onClick={() => navigate("/profile")} />
                     <div className="relative cursor-pointer" onClick={() => navigate("/cart")}>
                         <ShoppingCart />
                         {cartCount > 0 && (
