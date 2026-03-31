@@ -38,7 +38,7 @@ export default function HomeNavbar() {
                     className="w-125 px-4 py-2 border rounded-lg"
                 />
                 <div className="flex gap-6 items-center">
-                    <User className="cursor-pointer" />
+                    <User className="cursor-pointer" onClick={() => navigate("/profile")} />
                     <div className="relative cursor-pointer" onClick={() => navigate("/cart")}>
                         <ShoppingCart />
                         {cartCount > 0 && (

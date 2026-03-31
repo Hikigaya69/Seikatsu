@@ -16,7 +16,9 @@ function App() {
                  <Route path="/home" element={<Home />} />
                  <Route path="/product/:id" element={<ProductDetails />} />
                  <Route path="/cart" element={<Cart />} />
-                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/order-summary/:orderId" element={<OrderSummary />} />
             </Routes>
         </BrowserRouter>
     );

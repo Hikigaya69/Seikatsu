@@ -108,7 +108,7 @@ export default function Cart() {
                                     />
                                     <div>
                                         <h3 className="font-semibold">{item.productName}</h3>
-                                        <p className="text-gray-500">₹{item.price}</p>
+                                        <p className="text-gray-500">¥{item.price}</p>
                                     </div>
                                 </div>
 
@@ -148,7 +148,7 @@ export default function Cart() {
 
                         <div className="flex justify-between mb-2">
                             <span>Total Price</span>
-                            <span className="font-bold">₹{cart.totalPrice}</span>
+                            <span className="font-bold">¥{cart.totalPrice}</span>
                         </div>
 
                         <button
