@@ -81,7 +81,7 @@ export default function ProductDetails() {
                         <p className="text-gray-500 mb-4">{product.description}</p>
 
                         <div className="text-2xl font-bold text-[#284b63] mb-6">
-                            ₹{product.price}
+                            ¥{product.price}
                         </div>
 
                         <div className="mb-2 text-sm text-gray-600">
