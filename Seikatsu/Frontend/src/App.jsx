@@ -6,6 +6,8 @@ import Home from "./pages/Home";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import Profile from "./pages/Profile";
+import OrderSummary from "./pages/OrderSummary";
 function App() {
     return (
         <BrowserRouter>

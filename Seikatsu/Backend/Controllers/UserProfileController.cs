@@ -16,7 +16,7 @@ namespace Seikatsu.Backend.Controllers
     {
         [Authorize]
         [HttpGet("getprofile")]
-        public async Task<ActionResult<APIResponse<UserProfileResponseDTO>>>GetUserProfile(Guid userId)
+        public async Task<ActionResult<APIResponse<UserProfileResponseDTO>>>GetUserProfile()
         {
             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -33,7 +33,7 @@ namespace Seikatsu.Backend.Controllers
 
         [Authorize]
         [HttpPost("updateprofile")]
-        public async Task<ActionResult<APIResponse<UserProfileResponseDTO>>> GetUserProfile(Guid userId, [FromBody] UserProfileUpdateDTO request)
+        public async Task<ActionResult<APIResponse<UserProfileResponseDTO>>> GetUserProfile([FromBody] UserProfileUpdateDTO request)
         {
             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -50,7 +50,7 @@ namespace Seikatsu.Backend.Controllers
 
         [Authorize]
         [HttpGet("getorderview")]
-        public async Task<ActionResult<APIResponse<OrderOverviewDTO>>> GetOrderView(Guid userId)
+        public async Task<ActionResult<APIResponse<OrderOverviewDTO>>> GetOrderView()
         {
             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 

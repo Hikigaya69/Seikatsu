@@ -29,10 +29,10 @@ namespace Seikatsu.Backend.Services
                 Email = customer.Email,
                 PhoneNumber = customer.PhoneNumber,
                 AddressLine1 = address?.AddressLine1 ?? string.Empty,
-                AddressLine2 = address?.AddressLine2,
-                City = address.City,
-                PostalCode = address.PostalCode,
-                Country = address.Country
+                AddressLine2 = address?.AddressLine2 ?? string.Empty,
+                City = address?.City ?? string.Empty,
+                PostalCode = address?.PostalCode ?? string.Empty,
+                Country = address?.Country ?? string.Empty
             };
         }
 
@@ -41,15 +41,16 @@ namespace Seikatsu.Backend.Services
             var customer = await context.Customers
                 .Include(c => c.Addresses)
                 .FirstOrDefaultAsync(c => c.Id == userId);
+            if (customer == null)
+            {
+                throw new NotFoundException("Customer not found.");
+            }
 
             var address = customer.Addresses
                 .FirstOrDefault(a => a.IsDefault)
                 ?? customer.Addresses.FirstOrDefault();
 
-            if (customer == null)
-            {
-                throw new NotFoundException("Customer not found.");
-            }
+           
 
             customer.FullName = request.FullName;
             customer.PhoneNumber = request.PhoneNumber;

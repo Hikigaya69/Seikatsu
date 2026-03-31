@@ -18,11 +18,11 @@ export default function Profile() {
 
             const profileRes = await api.get(
                 "UserProfile/getprofile",
-               { }
+                { withCredentials: true }
             );
 
             const overviewRes = await api.get(
-                "UserProfile/getorderview",
+                "UserProfile/getorderview", { withCredentials: true }
                 
             );
 
@@ -145,7 +145,7 @@ function OverviewTab({ data }) {
         <div className="grid grid-cols-4 gap-6">
 
             <Stat title="Total Orders" value={data.totalOrders} />
-            <Stat title="Total Spent" value={`₹${data.totalAmountSpent}`} />
+            <Stat title="Total Spent" value={`¥${data.totalAmountSpent}`} />
             <Stat title="Pending" value={data.pendingOrders} />
             <Stat title="Delivered" value={data.deliveredOrders} />
 
