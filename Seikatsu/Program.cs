@@ -80,6 +80,12 @@ app.MapScalarApiReference(options =>
 });
 
 // Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<Seikatsu.Backend.Data.UserContext>();
+    db.Database.Migrate();
+}
+
 
 app.UseMiddleware<GlobalExceptionHandler>();
 app.UseHttpsRedirection();
