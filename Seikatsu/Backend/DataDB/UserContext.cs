@@ -108,13 +108,17 @@ namespace Seikatsu.Backend.Data
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasColumnType("decimal(18,2)");
-
-            // Customer → CheckList (1:M)
-            
             modelBuilder.Entity<CheckList>()
-                .HasOne(cl => cl.Customer)
-                .WithMany(c => c.CheckLists)
-                .HasForeignKey(cl => cl.CustomerId)
+                 .HasOne(cl => cl.Customer)
+                 .WithOne(c => c.CheckList)
+                 .HasForeignKey<CheckList>(cl => cl.CustomerId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+            // CheckList → CheckListItem (1:M)
+            modelBuilder.Entity<CheckListItem>()
+                .HasOne(i => i.CheckList)
+                .WithMany(cl => cl.Items)
+                .HasForeignKey(i => i.CheckListId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 
@@ -183,6 +187,7 @@ namespace Seikatsu.Backend.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<CheckList> CheckLists { get; set; }
+        public DbSet<CheckListItem> CheckListItems { get; set; }
         public DbSet<RestockCart> RestockCarts { get; set; }
         public DbSet<RestockCartItem> RestockCartItems { get; set; }
     }

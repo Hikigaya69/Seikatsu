@@ -75,7 +75,8 @@ namespace Seikatsu.Backend.Services
         CookieService cookieService,
         IEmailService emailService,
         ICartService cartService,
-        IRestockCartService restockCartService
+        IRestockCartService restockCartService,
+        IChecklistService checklistService
     ) : IAuthService
     {
         // REGISTER
@@ -121,6 +122,7 @@ namespace Seikatsu.Backend.Services
             await context.SaveChangesAsync();
             await cartService.CreateCartAsync(customer.Id);
             await restockCartService.CreateRestockCartAsync(customer.Id);
+            await checklistService.CreateChecklistAsync(customer.Id);
 
             return new CustomerRegisterDTO
             {

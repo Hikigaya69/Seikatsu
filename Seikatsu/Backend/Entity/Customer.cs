@@ -30,8 +30,8 @@
 
         public ICollection<Order> Orders { get; set; } = new List<Order>();
 
-        public ICollection<CheckList> CheckLists { get; set; } = new List<CheckList>();
+        public CheckList? CheckList { get; set; }
 
-        
+
     }
 }

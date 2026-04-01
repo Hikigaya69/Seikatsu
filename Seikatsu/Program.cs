@@ -37,6 +37,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<ICategoryService,CategoryService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IChecklistService, ChecklistService>();
 builder.Services.AddDbContext<Seikatsu.Backend.Data.UserContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
