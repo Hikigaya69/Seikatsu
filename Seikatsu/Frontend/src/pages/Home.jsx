@@ -6,7 +6,7 @@ import HeroBanner from "../components/home/HeroBanner";
 import CategoryFilter from "../components/home/CategoryFilter";
 import ProductGrid from "../components/home/ProductGrid";
 import Footer from "../components/Footer";
-
+import api from "../Utils/api";
 export default function Home() {
 
   const [products, setProducts] = useState([]);
@@ -14,8 +14,8 @@ export default function Home() {
 
   useEffect(() => {
 
-    axios
-        .get("https://seikatsu-api.onrender.com/api/Product/productforindex")
+    api
+        .get("Product/productforindex")
       .then((res) => {
 
         setProducts(res.data.data);

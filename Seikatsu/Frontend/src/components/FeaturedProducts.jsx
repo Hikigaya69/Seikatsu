@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+
 import "./FeaturedProducts.css";
 import fallbackImg from "../assets/products/ramen.jpg";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import SeasonLoader from "@/components/SeasonLoader/SeasonLoader";
 import { Button } from "@/components/ui/button";
+import api from "../Utils/api"; 
 export default function FeaturedProducts() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(
-                    "api/Product/productforindex?count=10"
+                const response = await api.get(
+                    "/Product/productforindex?count=10"
                 );
                 setProducts(response.data.data);
             } catch (error) {
