@@ -13,9 +13,9 @@ const countries = [
 
 function CountrySection() {
   return (
-    <section className="country-section">
+      <section className="country-section  bg-gradient-to-r from-[#fce4ec] via-[#e8f5e9] via-[#fff3e0] to-[#e3f2fd]">
       
-      <div className="country-container">
+          <div className="country-container">
 
         <h2>Shop by Country</h2>
         <p>

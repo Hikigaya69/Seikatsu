@@ -4,7 +4,8 @@ import "./FeaturedProducts.css";
 import fallbackImg from "../assets/products/ramen.jpg";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-
+import SeasonLoader from "@/components/SeasonLoader/SeasonLoader";
+import { Button } from "@/components/ui/button";
 export default function FeaturedProducts() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -26,11 +27,16 @@ export default function FeaturedProducts() {
 
 
     if (loading) {
-        return <div className="featured-section">Loading products...</div>;
+        return (
+            <SeasonLoader />
+        );
+
     }
     return (
-        <section className="featured-section">
-            <h2>Featured Products</h2>
+        <section className="featured-section ">
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-10">
+                Featured <span className="text-red-500">Products</span>
+            </h2>
             <Swiper
                 spaceBetween={20}
                 slidesPerView={4}
@@ -46,7 +52,14 @@ export default function FeaturedProducts() {
                                 <h3>{product.name}</h3>
                                 <p>{product.description}</p>
                                 <div className="price">¥{product.price}</div>
-                                <button className="cart-btn">Add to Cart</button>
+                                <Button variant="outline" className="px-10 py-6 text-lg text-white rounded-xl border-gray-300 bg-rose-500
+    shadow-[0_6px_0_rgba(0,0,0,0.2)]
+    hover:shadow-[0_10px_20px_rgba(0,0,0,0.2)]
+    hover:-translate-y-1
+    active:translate-y-1 active:shadow-[0_2px_0_rgba(0,0,0,0.2)]
+    transition-all duration-1500">
+                                    Add to Cart
+                                </Button>
                             </div>
                         </div>
                     </SwiperSlide>
