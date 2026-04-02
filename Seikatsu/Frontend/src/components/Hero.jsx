@@ -1,5 +1,6 @@
 import "./Hero.css";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 function Hero() {
   return (
     <section className="hero-section">
@@ -32,11 +33,11 @@ function Hero() {
             Explore Products
           </button>
 
-<Link to="/login">
-  <button className="secondary-btn">
-    Login
-  </button>
-</Link>
+                  <Link to="/login">
+                      <Button variant="outline" className="px-10 py-6 text-lg rounded-xl border-gray-300 hover:bg-gray-300 transition">
+                          Login
+                      </Button>
+                  </Link>
 
 
         </div>
