@@ -158,8 +158,8 @@ namespace Seikatsu.Backend.Services
             // if any field failed — throw all errors at once
             if (errors.Any())
                 throw new BadRequestException(errors);
-            var customer = context.Customers
-                .FirstOrDefault(u => u.Email.ToLower() == request.Email.ToLower());
+            var customer = await context.Customers
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
             if (customer is null)
                 throw new UnauthorizedException("Invalid email or password.");
 
