@@ -17,6 +17,11 @@ namespace Seikatsu.Backend.Controllers
     [Route("api/[controller]")]
     public class AuthController(IAuthService authService) : Controller
     {
+        [Authorize]
+        [HttpGet("check")]
+        public IActionResult Check() {
+            return Ok(new { success = true });
+        }
         // REGISTER 
         [HttpPost("register")]
         public async Task<ActionResult<APIResponse<CustomerRegisterDTO>>> Register(CustomerDTO request)
