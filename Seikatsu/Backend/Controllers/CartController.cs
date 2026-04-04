@@ -17,7 +17,7 @@ namespace Seikatsu.Backend.Controllers
         configuration) : ControllerBase
     {
         [Authorize]
-        [HttpPost("getcart")]
+        [HttpGet("getcart")]
         public async Task<ActionResult<APIResponse<GetCartDTO>>> GetCart()
         {
             var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

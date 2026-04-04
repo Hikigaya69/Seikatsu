@@ -4,6 +4,7 @@ import StoreLayout from "../layouts/StoreLayout";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import axios from "axios";
+import api from "../lib/api";
 
 
 export default function ProductDetails() {
@@ -26,7 +27,7 @@ const decreaseQty = () => {
 
   try {
 
-    await axios.post(
+      await api.post(
       "/api/Cart/additem",
       { productId: product.id, quantity },
       { withCredentials: true }

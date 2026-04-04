@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import StoreLayout from "../layouts/StoreLayout";
 import { ArrowLeft } from "lucide-react";
+import api from "../lib/api";
 export default function Cart() {
 
   const [cart, setCart] = useState(null);
@@ -16,7 +17,7 @@ export default function Cart() {
 
   const fetchCart = async () => {
 
-    const res = await axios.post(
+      const res = await api.get(
       "/api/Cart/getcart",
       {},
       {

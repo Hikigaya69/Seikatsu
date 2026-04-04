@@ -1,79 +1,4 @@
-﻿//import { useState } from "react";
-//import axios from "axios";
-//import { useNavigate, Link } from "react-router-dom";
-//import "./Auth.css";
-
-//export default function Login() {
-//  const navigate = useNavigate();
-//  const [email, setEmail] = useState("");
-//  const [password, setPassword] = useState("");
-//  const [error, setError] = useState("");
-
-//  const handleLogin = async (e) => {
-//    e.preventDefault();
-
-//      try {
-//          const response = await axios.post(
-//              "/api/Auth/login",
-//              { Email: email, Password: password }
-
-//          );
-//          if (response.data.success) {
-//              navigate("/home");
-//          } else {
-//              setError("Invalid username or password");
-//          }
-//      } catch {
-//          setError("Invalid username or password");
-//      }
-//  };
-
-//  return (
-//    <div className="auth-container">
-//      <div className="auth-left">
-//        <h1>Welcome Back</h1>
-//        <p>
-//          Continue your journey with Seikatsu.
-//          Discover international groceries tailored for life in Japan.
-//        </p>
-//      </div>
-
-//      <div className="auth-right">
-//        <form className="auth-card" onSubmit={handleLogin}>
-//          <h2>Login</h2>
-
-//          {error && <p className="error">{error}</p>}
-
-//          <input
-//            type="text"
-//                      placeholder="Email"
-//                      value={email}
-//                      onChange={(e) => setEmail(e.target.value)}
-//            required
-//          />
-
-//          <input
-//            type="password"
-//            placeholder="Password"
-//            value={password}
-//            onChange={(e) => setPassword(e.target.value)}
-//            required
-//          />
-
-//          <button type="submit">Login</button>
-
-//          <div className="auth-link">
-//            Don't have an account?{" "}
-//            <Link to="/register">
-//              <span>Create one</span>
-//            </Link>
-//          </div>
-//        </form>
-//      </div>
-//    </div>
-//  );
-//}
-
+﻿
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
@@ -90,7 +15,7 @@ export default function Login() {
     useEffect(() => {
         axios.get("/api/Auth/check", {
             withCredentials: true
-        }) // Removed the semicolon here
+        }) 
             .then(res => {
                 // Axios stores the HTTP status code in 'res.status'
                 if (res.status === 200) {
@@ -98,8 +23,7 @@ export default function Login() {
                 }
             })
             .catch(() => {
-                // If the server returns 401, 404, or 500, it ends up here.
-                // We do nothing, which allows the 'finally' block to show the login form.
+               //
             })
             .finally(() => {
                 setChecking(false);

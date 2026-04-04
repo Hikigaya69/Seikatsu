@@ -3,6 +3,7 @@ import axios from "axios";
 import StoreLayout from "../layouts/StoreLayout";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, CheckCircle } from "lucide-react";
+import api from "../lib/api";
 
 
 const loadRazorpayScript = () => {
@@ -34,7 +35,7 @@ export default function Checkout() {
 
     const fetchCart = async () => {
         try {
-            const res = await axios.post(
+            const res = await api.get(
                 `/api/Cart/getcart`,
                 {},
                 { withCredentials: true }
@@ -47,7 +48,7 @@ export default function Checkout() {
 
     const fetchAddresses = async () => {
         try {
-            const res = await axios.get(
+            const res = await api.get(
                 `/api/Address/getalladdress`,
                 { withCredentials: true }
             );
@@ -87,7 +88,7 @@ export default function Checkout() {
             }
 
             // create order on backend
-            const orderRes = await axios.post(
+            const orderRes = await api.post(
                 `/api/Order/initiateorder`,
                 {
                     CartId: cart.cartid,
@@ -111,7 +112,7 @@ export default function Checkout() {
                 //  on success — verify with backend
                 handler: async function (response) {
                     try {
-                        const verifyRes = await axios.post(
+                        const verifyRes = await api.post(
                             `/api/Order/verifyorder`,
                             {
                                 razorpayOrderId: response.razorpay_order_id,

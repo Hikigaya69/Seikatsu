@@ -2,6 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../../lib/api";
 
 export default function HomeNavbar() {
     const navigate = useNavigate();
@@ -10,7 +11,7 @@ export default function HomeNavbar() {
     useEffect(() => {
         const fetchCartSummary = async () => {
             try {
-                const res = await axios.get("/api/Cart/cartsummary", {
+                const res = await api.get("/api/Cart/cartsummary", {
                     withCredentials: true
                 });
                 setCartCount(res.data.data.totalItems);
@@ -23,7 +24,7 @@ export default function HomeNavbar() {
 
     const handleLogout = async () => {
         try {
-            await axios.post("/api/Auth/logout", {}, {
+            await api.post("/api/Auth/logout", {}, {
                 withCredentials: true
             });
             navigate("/login");

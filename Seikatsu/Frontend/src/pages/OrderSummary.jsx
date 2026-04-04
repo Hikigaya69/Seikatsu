@@ -4,6 +4,7 @@ import axios from "axios";
 import StoreLayout from "../layouts/StoreLayout";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import api from "../lib/api";
 
 export default function OrderSummary() {
 
@@ -15,7 +16,7 @@ export default function OrderSummary() {
 
     const fetchSummary = async () => {
 
-      const res = await axios.get(
+      const res = await api.get(
         `/api/Order/ordersummarybyOrderId?orderId=${orderId}`,
         { withCredentials: true }
       );

@@ -19,8 +19,7 @@ export default function Register() {
           "/api/Auth/register",
           { FullName: username, Password: password, Email: email }
       );
-
-      navigate("/login");
+        navigate("/login", { replace: true });
     } catch {
       setError("User already exists");
     }

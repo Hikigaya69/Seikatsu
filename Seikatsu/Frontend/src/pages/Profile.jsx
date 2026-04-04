@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import StoreLayout from "../layouts/StoreLayout";
 import { ArrowLeft } from "lucide-react";
+import api from "../lib/api";
 
 export default function Profile() {
 
@@ -15,12 +16,12 @@ export default function Profile() {
 
     const loadProfile = async () => {
 
-      const profileRes = await axios.get(
+        const profileRes = await api.get(
         "/api/UserProfile/getprofile",
         { withCredentials: true }
       );
 
-      const overviewRes = await axios.get(
+        const overviewRes = await api.get(
         "/api/UserProfile/getorderview",
         { withCredentials: true }
       );
@@ -189,7 +190,7 @@ function OrdersTab() {
         ? `/api/Order/orderhistory/${selectedYear}`
         : "/api/Order/orderhistory";
 
-      const res = await axios.get(url, {
+        const res = await api.get(url, {
         withCredentials: true
       });
 
@@ -322,7 +323,7 @@ function AddressesTab() {
 
   useEffect(() => {
 
-    axios.get(
+      api.get(
       "/api/Address/getalladdress",
       { withCredentials: true }
     )
@@ -367,7 +368,7 @@ function PersonalInfoTab({ profile }) {
 
   const updateProfile = async () => {
 
-    await axios.post(
+      await api.post(
       "/api/UserProfile/updateprofile",
       form,
       { withCredentials: true }
