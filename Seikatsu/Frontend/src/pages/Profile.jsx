@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import StoreLayout from "../layouts/StoreLayout";
 import { ArrowLeft } from "lucide-react";
-import api from "../Utils/api";
-
+import api from "../Utils/api"; 
 export default function Profile() {
 
     const [activeTab, setActiveTab] = useState("overview");
@@ -16,15 +15,15 @@ export default function Profile() {
 
         const loadProfile = async () => {
 
-            const profileRes = await api.get(
-                "UserProfile/getprofile",
-                { withCredentials: true }
-            );
+        const profileRes = await api.get(
+        "/UserProfile/getprofile",
+        { withCredentials: true }
+      );
 
-            const overviewRes = await api.get(
-                "UserProfile/getorderview", { withCredentials: true }
-                
-            );
+        const overviewRes = await api.get(
+        "/UserProfile/getorderview",
+        { withCredentials: true }
+      );
 
             setProfile(profileRes.data.data);
             setOrdersOverview(overviewRes.data.data);
@@ -187,12 +186,12 @@ function OrdersTab() {
         try {
 
             const url = selectedYear
-                ? `Order/orderhistory/${selectedYear}`
-                : "Order/orderhistory";
+                ? `/Order/orderhistory/${selectedYear}`
+                : "/Order/orderhistory";
 
-            const res = await api.get(url, {
-                withCredentials: true
-            });
+        const res = await api.get(url, {
+        withCredentials: true
+      });
 
             setOrders(res.data.data);
 
@@ -300,7 +299,7 @@ function OrderCard({ order }) {
 
                 <button
                     onClick={() =>
-                        navigate(`/order-summary/${order.orderId}`)
+                        navigate(`/Order/order-summary/${order.orderId}`)
                     }
                     className="border px-4 py-1 rounded-lg hover:bg-gray-100"
                 >
@@ -323,11 +322,11 @@ function AddressesTab() {
 
     useEffect(() => {
 
-        api.get(
-            "Address/getalladdress",
-            { withCredentials: true }
-        )
-            .then(res => setAddresses(res.data.data));
+      api.get(
+      "/Address/getalladdress",
+      { withCredentials: true }
+    )
+    .then(res => setAddresses(res.data.data));
 
     }, []);
 
@@ -368,11 +367,11 @@ function PersonalInfoTab({ profile }) {
 
     const updateProfile = async () => {
 
-        await api.post(
-            "UserProfile/updateprofile",
-            form,
-            { withCredentials: true }
-        );
+      await api.post(
+      "/UserProfile/updateprofile",
+      form,
+      { withCredentials: true }
+    );
 
         alert("Profile updated successfully");
 

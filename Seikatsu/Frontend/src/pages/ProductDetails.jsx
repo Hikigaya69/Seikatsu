@@ -14,6 +14,16 @@ export default function ProductDetails() {
     const increaseQty = () => setQuantity((prev) => prev + 1);
     const decreaseQty = () => { if (quantity > 1) setQuantity((prev) => prev - 1); };
 
+    // ← moved outside useEffect, at component level
+    const addToCart = async () => {
+        try {
+            await api.post("/Cart/additem", { productId: product.id, quantity });
+            setAddedMessage(true);
+        } catch (err) {
+            console.error("Error response:", err.response?.data);
+        }
+    };
+
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -23,17 +33,9 @@ export default function ProductDetails() {
                 console.error(err);
             }
         };
-        fetchProduct();
-    }, [id]);
 
-    const addToCart = async () => {
-        try {
-            await api.post("/Cart/additem", { productId: product.id, quantity });
-            setAddedMessage(true);
-        } catch (err) {
-            console.error("Error response:", err.response?.data);
-        }
-    };
+        fetchProduct();
+    }, [id]); // ← id as dependency
 
     if (!product) {
         return (

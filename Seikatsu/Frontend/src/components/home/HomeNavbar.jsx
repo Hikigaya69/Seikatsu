@@ -1,6 +1,7 @@
 ﻿import { ShoppingCart, User, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+
 import api from "../../Utils/api";
 
 export default function HomeNavbar() {
@@ -10,7 +11,9 @@ export default function HomeNavbar() {
     useEffect(() => {
         const fetchCartSummary = async () => {
             try {
-                const res = await api.get("/Cart/cartsummary");
+                const res = await api.get("/Cart/cartsummary", {
+                    withCredentials: true
+                });
                 setCartCount(res.data.data.totalItems);
             } catch (err) {
                 console.error(err);
@@ -21,7 +24,9 @@ export default function HomeNavbar() {
 
     const handleLogout = async () => {
         try {
-            await api.post("/Auth/logout", {});
+            await api.post("/Auth/logout", {}, {
+                withCredentials: true
+            });
             navigate("/login");
         } catch (err) {
             console.error(err);

@@ -5,6 +5,7 @@ import StoreLayout from "../layouts/StoreLayout";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+
 export default function OrderSummary() {
 
     const { orderId } = useParams();
@@ -15,10 +16,10 @@ export default function OrderSummary() {
 
         const fetchSummary = async () => {
 
-            const res = await api.get(
-                `Order/ordersummarybyOrderId?orderId=${orderId}`,
-                { withCredentials: true }
-            );
+      const res = await api.get(
+        `/Order/ordersummarybyOrderId?orderId=${orderId}`,
+        { withCredentials: true }
+      );
 
             setSummary(res.data.data);
 

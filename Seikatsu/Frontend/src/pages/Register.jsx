@@ -10,19 +10,19 @@ export default function Register() {
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        try {
-            await api.post("/Auth/register", {
-                FullName: username,
-                Password: password,
-                Email: email
-            });
-            navigate("/login");
-        } catch {
-            setError("User already exists");
-        }
-    };
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    try {
+      await api.post(
+          "/Auth/register",
+          { FullName: username, Password: password, Email: email }
+      );
+        navigate("/login", { replace: true });
+    } catch {
+      setError("User already exists");
+    }
+  };
 
     return (
         <div className="auth-container">

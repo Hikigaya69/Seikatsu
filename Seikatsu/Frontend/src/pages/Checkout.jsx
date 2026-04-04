@@ -4,6 +4,7 @@ import api from "../Utils/api";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, CheckCircle } from "lucide-react";
 
+
 const loadRazorpayScript = () => {
     return new Promise((resolve) => {
         if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
@@ -33,7 +34,11 @@ export default function Checkout() {
 
     const fetchCart = async () => {
         try {
-            const res = await api.post("/Cart/getcart", {});
+            const res = await api.get(
+                `/Cart/getcart`,
+                {},
+                { withCredentials: true }
+            );
             setCart(res.data.data);
         } catch (err) {
             console.error(err);
@@ -42,7 +47,10 @@ export default function Checkout() {
 
     const fetchAddresses = async () => {
         try {
-            const res = await api.get("/Address/getalladdress");
+            const res = await api.get(
+                `/Address/getalladdress`,
+                { withCredentials: true }
+            );
             const data = res.data.data;
             setAddresses(data);
             const defaultAddr = data.find((a) => a.isDefault);
@@ -75,10 +83,15 @@ export default function Checkout() {
                 return;
             }
 
-            const orderRes = await api.post("/Order/initiateorder", {
-                CartId: cart.cartid,
-                AddressId: selectedAddressId,
-            });
+            // create order on backend
+            const orderRes = await api.post(
+                `/Order/initiateorder`,
+                {
+                    CartId: cart.cartid,
+                    AddressId: selectedAddressId,
+                },
+                { withCredentials: true }
+            );
 
             const { orderId, razorpayOrderId, amount, currency, keyId } =
                 orderRes.data.data;
@@ -93,11 +106,15 @@ export default function Checkout() {
 
                 handler: async function (response) {
                     try {
-                        const verifyRes = await api.post("/Order/verifyorder", {
-                            razorpayOrderId: response.razorpay_order_id,
-                            razorpayPaymentId: response.razorpay_payment_id,
-                            razorpaySignature: response.razorpay_signature,
-                        });
+                        const verifyRes = await api.post(
+                            `/Order/verifyorder`,
+                            {
+                                razorpayOrderId: response.razorpay_order_id,
+                                razorpayPaymentId: response.razorpay_payment_id,
+                                razorpaySignature: response.razorpay_signature,
+                            },
+                            { withCredentials: true }
+                        );
 
                         if (verifyRes.status === 200) {
                             navigate(`/order-success/${orderId}`);

@@ -55,10 +55,7 @@ namespace Seikatsu.Backend.Services
               
             };
             Response.Cookies.Delete("access_token", cookieOptions);
-            Response.Cookies.Delete("refresh_token", new CookieOptions
-            {
-                Path = "/api/auth/refresh-token"
-            });
+            Response.Cookies.Delete("refresh_token", cookieOptions);
         }
 
         public string? GetAccessToken() => Request.Cookies["access_token"];

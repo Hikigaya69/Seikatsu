@@ -14,7 +14,7 @@ export default function Cart() {
 
     const fetchCart = async () => {
         try {
-            const res = await api.post("/Cart/getcart", {});
+            const res = await api.get("/Cart/getcart");
             setCart(res.data.data);
         } catch (err) {
             console.error(err);
@@ -129,7 +129,7 @@ export default function Cart() {
                                         </button>
                                     </div>
 
-                                    <span className="font-bold">₹{item.itemTotal}</span>
+                                    <span className="font-bold">¥{item.itemTotal}</span>
 
                                     <button
                                         onClick={() => removeItem(item.cartItemId)}
