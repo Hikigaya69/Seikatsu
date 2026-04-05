@@ -6,6 +6,7 @@ const PUBLIC_ROUTES = [
     '/Auth/refresh-token',
     '/Auth/forgot-password',
     '/Auth/reset-password',
+    '/Auth/check',
 ];
 
 const isPublicRoute = (url) => {

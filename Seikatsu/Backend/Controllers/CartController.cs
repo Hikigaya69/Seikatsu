@@ -109,7 +109,7 @@ namespace Seikatsu.Backend.Controllers
             }
             
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("cartsummary")]
         public async Task<ActionResult<APIResponse<CartSummaryDTO>>> GetCartSummary()
         {
