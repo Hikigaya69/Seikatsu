@@ -6,6 +6,7 @@ const PUBLIC_ROUTES = [
     '/api/Auth/refresh-token',
     '/api/Auth/forgot-password',
     '/api/Auth/reset-password',
+    'api/Auth/check'
 ];
 
 const isPublicRoute = (url) => {
@@ -53,7 +54,7 @@ api.interceptors.response.use(
                 return api(originalRequest);
             } catch (refreshError) {
                 processQueue(refreshError);
-                window.location.href = '/api/Auth/login';
+                window.location.href = '/login';
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;
