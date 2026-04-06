@@ -1,14 +1,10 @@
-﻿using Seikatsu.Backend.Entity;
+﻿
 using Seikatsu.Backend.Models;
 
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+
+using Microsoft.AspNetCore.Mvc;
+
 using Seikatsu.Backend.CommonAPIRespone;
 using Seikatsu.Backend.Services;
 using Microsoft.AspNetCore.Cors;
@@ -26,7 +22,7 @@ namespace Seikatsu.Backend.Controllers
         // APIResponse object that indicates success and includes the data or an appropriate message if no products are found.
         //https://localhost:7115/api/Product/GetRandomProducts this is the endpoint which the frontend will call to get the random products for the index page.     
 
-        public async Task<ActionResult<APIResponse<IEnumerable<ProductDTOforIndexPage>>>> GetRandomProducts(int count = 10)
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductDTOforIndexPage>>>> GetRandomProducts(int count)
         {
             var products = await productService.GetRandomProductsAsync(count);
             var response = new APIResponse<IEnumerable<ProductDTOforIndexPage>>

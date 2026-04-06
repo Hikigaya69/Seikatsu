@@ -1,4 +1,4 @@
-import heroBg from "../../assets/auth-bg.jpg";
+import heroBg from "../../assets/trail1.jpg";
 
 export default function HeroBanner() {
   return (

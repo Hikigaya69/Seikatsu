@@ -32,7 +32,8 @@ function Hero() {
           to Korean snacks, delivered right to your door anywhere in 日本.
         </p>
 
-        <div className="hero-buttons">
+              <div className="hero-buttons">
+         <Link to ="/home">
                   <Button variant="outline" className="px-10 py-6 text-lg rounded-xl border-gray-300 bg-rose-500
     shadow-[0_6px_0_rgba(0,0,0,0.2)]
     hover:shadow-[0_10px_20px_rgba(0,0,0,0.2)]
@@ -41,7 +42,7 @@ function Hero() {
     transition-all duration-1500">
                       Explore Products
                   </Button>
-
+                  </Link>
                   <Link to="/login">
                       <Button variant="outline" className="px-10 py-6 text-lg rounded-xl border-gray-300
     shadow-[0_6px_0_rgba(0,0,0,0.2)]

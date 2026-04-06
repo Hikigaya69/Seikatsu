@@ -11,65 +11,59 @@ export default function ProductDetails() {
     const navigate = useNavigate();
     const [addedMessage, setAddedMessage] = useState(false);
     const [quantity, setQuantity] = useState(1);
-    const increaseQty = () => {
-        setQuantity((prev) => prev + 1);
-    };
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    const increaseQty = () => setQuantity((prev) => prev + 1);
 
     const decreaseQty = () => {
-        if (quantity > 1) {
-            setQuantity((prev) => prev - 1);
-        }
+        if (quantity > 1) setQuantity((prev) => prev - 1);
     };
-    ; const addToCart = async () => {
+
+    const addToCart = async () => {
+        if (!isLoggedIn) {
+            navigate("/login");
+            return;
+        }
 
         try {
-
             await api.post(
                 "/Cart/additem",
                 { productId: product.id, quantity },
                 { withCredentials: true }
             );
-
             setAddedMessage(true);
-
-
-
         } catch (err) {
-
             console.error("Error response:", err.response?.data);
-
         }
-
     };
+
     useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                await api.get("/Auth/check", { withCredentials: true });
+                setIsLoggedIn(true);
+            } catch {
+                setIsLoggedIn(false);
+            }
+        };
 
         const fetchProduct = async () => {
-
             try {
-
-                const res = await api.get(
-                    `/Product/productview/${id}`
-
-                );
-                console.log("API Response:", res.data);
-
+                const res = await api.get(`/Product/productview/${id}`);
                 setProduct(res.data.data);
-
             } catch (err) {
                 console.error(err);
             }
-
         };
 
+        checkAuth();
         fetchProduct();
-
     }, [id]);
 
     if (!product) {
         return (
             <StoreLayout>
                 <div className="max-w-7xl mx-auto px-6 pt-6">
-
                     <button
                         onClick={() => navigate(-1)}
                         className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-50 transition"
@@ -77,7 +71,6 @@ export default function ProductDetails() {
                         <ArrowLeft size={18} />
                         Go Back
                     </button>
-
                 </div>
                 <div className="p-10 text-gray-500">
                     Product not found.
@@ -89,7 +82,6 @@ export default function ProductDetails() {
     return (
         <StoreLayout>
             <div className="max-w-7xl mx-auto px-6 pt-6">
-
                 <button
                     onClick={() => navigate(-1)}
                     className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-50 transition"
@@ -97,25 +89,21 @@ export default function ProductDetails() {
                     <ArrowLeft size={18} />
                     Go Back
                 </button>
-
             </div>
-            <div className="max-w-7xl mx-auto px-6 py-10">
 
+            <div className="max-w-7xl mx-auto px-6 py-10">
                 <div className="grid grid-cols-2 gap-10">
 
                     {/* IMAGE */}
                     <div className="bg-white p-6 rounded-xl shadow">
-
                         <img
                             src={product.productImageUrl || "/ramen.jpg"}
                             className="w-full h-100 object-cover rounded-lg"
                         />
-
                     </div>
 
                     {/* INFO */}
                     <div>
-
                         <h1 className="text-3xl font-bold mb-4">
                             {product.name}
                         </h1>
@@ -138,27 +126,23 @@ export default function ProductDetails() {
 
                         <div className="flex items-center gap-4 mt-6">
 
-                            {/* Quantity select */}
+                            {/* Quantity selector */}
                             <div className="flex items-center border rounded-lg overflow-hidden">
-
                                 <button
                                     onClick={decreaseQty}
                                     className="px-4 py-2 bg-gray-200 hover:bg-gray-300"
                                 >
                                     −
                                 </button>
-
                                 <span className="px-6 py-2 font-medium">
                                     {quantity}
                                 </span>
-
                                 <button
                                     onClick={increaseQty}
                                     className="px-4 py-2 bg-gray-200 hover:bg-gray-300"
                                 >
                                     +
                                 </button>
-
                             </div>
 
                             {/* Cart button */}
@@ -167,22 +151,20 @@ export default function ProductDetails() {
                                 disabled={addedMessage}
                                 className="flex-1 bg-[#3c6e71] text-white px-6 py-3 rounded-lg hover:bg-[#2f5557] transition disabled:opacity-60"
                             >
-                                Add to Cart
+                                {isLoggedIn ? "Add to Cart" : "Login to Add to Cart"}
                             </button>
-                            {addedMessage && (
-                                <p className="text-green-600 mt-3">
-                                    ✅ Item added to cart successfully
-                                </p>
-                            )}
-
 
                         </div>
 
+                        {addedMessage && (
+                            <p className="text-green-600 mt-3">
+                                ✅ Item added to cart successfully
+                            </p>
+                        )}
+
                     </div>
-
                 </div>
-
-            </div></StoreLayout>
-
+            </div>
+        </StoreLayout>
     );
 }

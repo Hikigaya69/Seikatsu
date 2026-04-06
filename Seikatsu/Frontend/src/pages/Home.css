@@ -1,10 +1,10 @@
 .hero-modern {
-  height: 450px;
-  background-image: url("https://images.unsplash.com/photo-1606787366850-de6330128bfc");
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  align-items: center;
+    height: 450px;
+    background-image: url("https://images.pexels.com/photos/21582444/pexels-photo-21582444.jpeg");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
 }
 
 .hero-content-modern {
