@@ -25,6 +25,7 @@ export default function Checkout() {
     const [addresses, setAddresses] = useState([]);
     const [selectedAddressId, setSelectedAddressId] = useState(null);
     const [showAddresses, setShowAddresses] = useState(false);
+    
     const [paying, setPaying] = useState(false);
     const navigate = useNavigate();
 
@@ -54,9 +55,14 @@ export default function Checkout() {
             );
             const data = res.data.data;
             setAddresses(data);
-            // auto-select default address
+            // if default address exists, select it. otherwise select first one if exists
             const defaultAddr = data.find((a) => a.isDefault);
-            if (defaultAddr) setSelectedAddressId(defaultAddr.id);
+
+if (defaultAddr) {
+    setSelectedAddressId(defaultAddr.id);
+} else if (data.length > 0) {
+    setSelectedAddressId(data[0].id);
+}
         } catch (err) {
             console.error(err);
         }
@@ -211,14 +217,30 @@ export default function Checkout() {
                         {/* ADDRESS SECTION */}
                         <div className="bg-white rounded-xl shadow p-6">
                             <div className="flex justify-between items-center">
-                                <h2 className="font-semibold text-lg">Delivering to</h2>
-                                <button
-                                    onClick={() => setShowAddresses(!showAddresses)}
-                                    className="text-[#284b63] text-sm font-medium hover:underline"
-                                >
-                                    {showAddresses ? "Cancel" : "Change"}
-                                </button>
-                            </div>
+  <h2 className="font-semibold text-lg">Delivering to</h2>
+
+  <div className="flex gap-3">
+    {addresses.some(a => a.isDefault) && (
+      <button
+        onClick={() => {
+          const defaultAddr = addresses.find(a => a.isDefault);
+          setSelectedAddressId(defaultAddr.id);
+          setShowAddresses(false);
+        }}
+        className="text-green-600 text-sm font-medium hover:underline"
+      >
+        Use Default Address
+      </button>
+    )}
+
+    <button
+      onClick={() => setShowAddresses(!showAddresses)}
+      className="text-[#284b63] text-sm font-medium hover:underline"
+    >
+      {showAddresses ? "Cancel" : "Change"}
+    </button>
+  </div>
+</div>
 
                             {/* selected address display */}
                             {selectedAddress && !showAddresses && (
@@ -243,12 +265,19 @@ export default function Checkout() {
 
                             {/* address picker list */}
                             {showAddresses && (
-                                <div className="mt-4 space-y-3">
+  <div className="mt-4 border rounded-xl p-4 bg-gray-50 shadow-inner space-y-3">
                                     {addresses.length === 0 ? (
-                                        <p className="text-sm text-gray-500">
-                                            No saved addresses. Please add one in your profile.
-                                        </p>
-                                    ) : (
+  <div className="text-sm text-gray-500">
+    No saved addresses found.
+
+    <button
+      onClick={() => navigate("/profile")}
+      className="block mt-2 text-[#284b63] hover:underline font-medium"
+    >
+      + Add new address
+    </button>
+  </div>
+) : (
                                         addresses.map((addr) => (
                                             <div
                                                 key={addr.id}
@@ -256,7 +285,7 @@ export default function Checkout() {
                                                     setSelectedAddressId(addr.id);
                                                     setShowAddresses(false);
                                                 }}
-                                                className={`border rounded-lg p-4 cursor-pointer transition ${selectedAddressId === addr.id
+                                                className={`border rounded-lg p-4 cursor-pointer transition relative ${selectedAddressId === addr.id
                                                         ? "border-[#284b63] bg-blue-50"
                                                         : "hover:border-gray-400"
                                                     }`}
@@ -277,13 +306,22 @@ export default function Checkout() {
                                                     )}
                                                 </div>
                                                 {addr.isDefault && (
-                                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full mt-2 inline-block">
-                                                        Default
-                                                    </span>
-                                                )}
+  <span className="absolute top-3 right-3 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+    Default
+  </span>
+)}
                                             </div>
                                         ))
                                     )}
+                                    {/*  go to profile */}
+    <div className="pt-2">
+      <button
+        onClick={() => navigate("/profile")}
+        className="text-sm text-[#284b63] hover:underline font-medium"
+      >
+        + Add new address
+      </button>
+    </div>
                                 </div>
                             )}
                         </div>

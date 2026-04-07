@@ -320,41 +320,227 @@ function OrderCard({ order }) {
 function AddressesTab() {
 
   const [addresses, setAddresses] = useState([]);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState({
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    postalCode: "",
+    country: ""
+  });
+
+  const fetchAddresses = async () => {
+
+    const res = await axios.get(
+      "/api/Address/getalladdress",
+      { withCredentials: true }
+    );
+
+    setAddresses(res.data.data);
+
+  };
 
   useEffect(() => {
 
-      api.get(
-      "/api/Address/getalladdress",
-      { withCredentials: true }
-    )
-    .then(res => setAddresses(res.data.data));
+    fetchAddresses();
 
   }, []);
 
+  const saveAddress = async () => {
+
+  if (editingId) {
+
+    await axios.put(
+      `/api/Address/updateAddress${editingId}`,
+      formData,
+      { withCredentials: true }
+    );
+
+  } else {
+
+    await axios.post(
+      "/api/Address/addAddress",
+      formData,
+      { withCredentials: true }
+    );
+
+  }
+
+  setFormOpen(false);
+  setEditingId(null);
+
+  fetchAddresses();
+
+};
+
+  const deleteAddress = async (id) => {
+
+    await axios.delete(
+      `/api/Address/deleteAddress${id}`,
+      { withCredentials: true }
+    );
+
+    fetchAddresses();
+
+  };
+
   return (
 
-    <div className="space-y-4">
+    <div>
 
-      {addresses.map(addr => (
+      {/* ADD BUTTON */}
+      <button
+        onClick={() => setFormOpen(true)}
+        className="mb-6 bg-[#3c6e71] text-white px-4 py-2 rounded"
+      >
+        + Add Address
+      </button>
 
-        <div
-          key={addr.id}
-          className="bg-white shadow rounded-xl p-4"
-        >
 
-          <p>{addr.fullName}</p>
-          <p>{addr.addressLine1}</p>
-          <p>{addr.city}</p>
-          <p>{addr.postalCode}</p>
+      {/* ADDRESS LIST */}
+      <div className="space-y-4">
 
-          {addr.isDefault &&
-            <span className="text-green-600 text-sm">
-              Default Address
-            </span>}
+        {addresses.map(addr => (
+
+          <div
+            key={addr.id}
+            className="bg-white shadow rounded-xl p-4"
+          >
+
+            <p className="font-semibold">
+              {addr.fullName}
+            </p>
+
+            <p>{addr.addressLine1}</p>
+
+            <p>{addr.city}</p>
+
+            <p>{addr.postalCode}</p>
+
+            <p>{addr.country}</p>
+
+            {addr.isDefault && (
+
+              <span className="text-green-600 text-sm">
+                Default Address
+              </span>
+
+            )}
+
+            <div className="flex gap-4 mt-3">
+
+              <div className="flex gap-4 mt-3">
+
+  <button
+    onClick={() => {
+
+      setFormData(addr);
+      setEditingId(addr.id);
+      setFormOpen(true);
+
+    }}
+    className="text-blue-600"
+  >
+    Edit
+  </button>
+
+  <button
+    onClick={() => deleteAddress(addr.id)}
+    className="text-red-500"
+  >
+    Delete
+  </button>
+
+</div>
+
+            </div>
+
+          </div>
+
+        ))}
+
+      </div>
+
+
+      {/* ADD ADDRESS MODAL */}
+      {formOpen && (
+
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
+
+          <div className="bg-white p-6 rounded-xl shadow w-96">
+
+            <h2 className="text-lg font-semibold mb-4">
+              {editingId ? "Edit Address" : "Add Address"}
+            </h2>
+
+            <input
+              placeholder="Address Line 1"
+              className="border p-2 w-full mb-2"
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  addressLine1: e.target.value
+                })
+              }
+            />
+
+            <input
+              placeholder="City"
+              className="border p-2 w-full mb-2"
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  city: e.target.value
+                })
+              }
+            />
+
+            <input
+              placeholder="Postal Code"
+              className="border p-2 w-full mb-2"
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  postalCode: e.target.value
+                })
+              }
+            />
+
+            <input
+              placeholder="Country"
+              className="border p-2 w-full mb-4"
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  country: e.target.value
+                })
+              }
+            />
+
+            <div className="flex justify-end gap-3">
+
+              <button
+                onClick={() => setFormOpen(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={saveAddress}
+                className="px-4 py-2 bg-[#3c6e71] text-white rounded"
+              >
+                Save
+              </button>
+
+            </div>
+
+          </div>
 
         </div>
 
-      ))}
+      )}
 
     </div>
 
