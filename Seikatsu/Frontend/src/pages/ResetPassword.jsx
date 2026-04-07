@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import HomeNavbar from "../components/home/HomeNavbar";
+import Navbar from "@/components/Navbar";
 import api from "../lib/api";
 
 export default function ResetPassword() {
@@ -22,7 +22,7 @@ export default function ResetPassword() {
   if (!email || !token) {
     return (
       <div className="min-h-screen">
-      <HomeNavbar />
+      <Navbar />
 
         <div className="max-w-md mx-auto mt-20 bg-white shadow rounded-xl p-8 text-center">
 
@@ -89,7 +89,7 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen">
-    <HomeNavbar />
+    <Navbar />
 
       <div className="max-w-md mx-auto mt-20 bg-white shadow rounded-xl p-8">
 

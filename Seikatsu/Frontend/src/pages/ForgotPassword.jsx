@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import HomeNavbar from "../components/home/HomeNavbar";
+import Navbar from "@/components/Navbar";
 import api from "../lib/api";
 
 export default function ForgotPassword() {
@@ -36,7 +36,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen">
-    <HomeNavbar />
+    <Navbar />
       <div className="max-w-md mx-auto mt-20 bg-white shadow rounded-xl p-8">
 
         <h2 className="text-2xl font-bold text-center text-[#284b63] mb-4">
