@@ -60,6 +60,19 @@ export default function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
+                    {/* forgot password link */}
+                    <div className="text-right text-sm mb-2">
+
+                        <Link
+                            to="/forgot-password"
+                            className="text-[#284b63] hover:underline"
+                        >
+                            Forgot Password?
+                        </Link>
+
+                    </div>
+
+
                     <Button variant="outline" className="px-110 py-110 text-lg text-white rounded-xl border-gray-300 bg-rose-500
     shadow-[0_6px_0_rgba(0,0,0,0.2)]
     hover:shadow-[0_10px_20px_rgba(0,0,0,0.2)]
