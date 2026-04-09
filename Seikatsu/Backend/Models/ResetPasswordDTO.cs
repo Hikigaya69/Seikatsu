@@ -12,7 +12,7 @@ namespace Seikatsu.Backend.Models
         public string Token { get; set; } = string.Empty;
 
         [Required]
-        [MinLength(6)]
+        [MinLength(8)]
         public string NewPassword { get; set; } = string.Empty;
 
         [Compare("NewPassword", ErrorMessage = "Passwords do not match")]

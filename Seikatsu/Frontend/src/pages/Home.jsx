@@ -26,7 +26,7 @@ export default function Home() {
         setLoading(true);
         const endpoint = categoryId
             ? `/Product/category/${categoryId}`
-            : "/Product/productforindex";
+            : "/Product/productforindex?count=12";
 
         api.get(endpoint)
             .then((res) => setProducts(res.data.data))

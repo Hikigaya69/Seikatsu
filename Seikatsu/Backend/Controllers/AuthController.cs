@@ -118,7 +118,7 @@ namespace Seikatsu.Backend.Controllers
             
 
             await authService.ForgotPasswordAsync(dto);
-            await authService.ForgotPasswordAsync(dto);
+           
             return Ok(new APIResponse<object>
             {
                 Success = true,

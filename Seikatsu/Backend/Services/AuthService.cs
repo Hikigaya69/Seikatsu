@@ -236,7 +236,7 @@ namespace Seikatsu.Backend.Services
 
             // Read frontend URL from appsettings.json
             var clientUrl = configuration.GetValue<string>("AppSettings:ClientUrl");
-            var resetLink = $"{clientUrl}/reset-password?email={request.Email}&token={encodedToken}";
+            var resetLink = $"{clientUrl}/reset-password?email={Uri.EscapeDataString(request.Email)}&token={Uri.EscapeDataString(encodedToken)}";
 
             try
             {
