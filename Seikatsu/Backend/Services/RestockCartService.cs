@@ -5,10 +5,11 @@ using Seikatsu.Backend.Enums;
 using Seikatsu.Backend.Exceptions;
 using Seikatsu.Backend.Helpers;
 using Seikatsu.Backend.Models;
+using Seikatsu.Migrations;
 
 namespace Seikatsu.Backend.Services
 {
-    public class RestockCartService(Data.UserContext context) : IRestockCartService
+    public class RestockCartService(Data.UserContext context,IOrderService orderService, ILogger<RestockCartService> logger) : IRestockCartService
     {
 
         public async Task CreateRestockCartAsync(Guid customerId)
@@ -207,7 +208,43 @@ namespace Seikatsu.Backend.Services
             };
 
 
-        }
+        } //experimental method to process restock orders, to be called by a scheduled job (e.g., daily) to check for due restock items and create orders accordingly
+        public async Task ProcessRestockOrdersAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+            var dueItems = await context.RestockCartItems
+                .Include(r => r.RestockCart)
+                    .ThenInclude(re => re.Customer)
+                .Include(r => r.Product)                    // need price
+                .Where(r => r.NextOrderDate.Date == today)
+                .ToListAsync();
 
+            foreach (var item in dueItems)
+            {
+                try
+                {
+                    var customerId = item.RestockCart.CustomerId;
+
+                    // 1. Place the order directly (confirmed, no payment flow)
+                    var order = await orderService.CreateRestockOrderAsync(
+                        customerId,
+                        item
+                    );
+                    item.LastOrderedAt = item.NextOrderDate;
+                    // 2. Update NextOrderDate based on frequency
+                    item.NextOrderDate = RestockFrequencyHelper.ComputeNextOrderDate(item.Frequency?? RestockFrequency.Monthly, DateTime.UtcNow);     // if null use month by default 
+                   
+                    logger.LogInformation(
+                        "Restock order placed for Customer {CustomerId}, next on {NextDate}",
+                        customerId, item.NextOrderDate);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed restock for item {ItemId}", item.Id);
+                }
+            }
+
+            await context.SaveChangesAsync();             // saves all NextOrderDate updates
+        }
     }
 }

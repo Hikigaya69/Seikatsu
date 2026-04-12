@@ -3,9 +3,9 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
-public class EmailService(IConfiguration config, ILogger<EmailService> logger) : IEmailService
+public class EmailService(HttpClient _httpClient,IConfiguration config, ILogger<EmailService> logger) : IEmailService
 {
-    private readonly HttpClient _httpClient = new();
+   
 
     public async Task SendAsync(string to, string subject, string body)
     {

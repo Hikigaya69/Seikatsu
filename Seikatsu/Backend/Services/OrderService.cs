@@ -129,6 +129,78 @@ namespace Seikatsu.Backend.Services
 
 
         }
+
+        public async Task<CreateRestockOrderResponseDTO> CreateRestockOrderAsync(Guid customerId, RestockCartItem item) {
+            var address = await context.Addresses
+          .Include(a => a.Customer)
+          .FirstOrDefaultAsync(a => a.CustomerId == customerId && a.IsDefault);
+
+            if (address == null)
+                throw new NotFoundException($"No default address for customer {customerId}");
+
+            var addressSnapshot = JsonSerializer.Serialize(new AddressSnapshotDTO
+            {
+                FullName = address.Customer!.FullName,
+                PhoneNumber = address.Customer!.PhoneNumber,
+                AddressLine1 = address.AddressLine1,
+                AddressLine2 = address.AddressLine2,
+                City = address.City,
+                Country = address.Country,
+                PostalCode = address.PostalCode
+            });
+
+            var orderId = Guid.NewGuid();
+            var priceAtPurchase = item.Product!.Price;
+            var subTotal = item.Quantity * priceAtPurchase;
+            var deliveryCharge = subTotal > 500 ? 0m : 49m;
+            var tax = Math.Round(subTotal * 0.18m, 2);
+            var grandTotal = subTotal + deliveryCharge + tax;
+
+            var order = new Entity.Order
+            {
+                Id = orderId,
+                CustomerId = customerId,
+                AddressSnapshot = addressSnapshot,
+                TotalAmount = grandTotal,
+                OrderStatus = "Confirmed",              // no payment flow
+                CreatedAt = DateTime.UtcNow,
+                OrderItems = new List<Entity.OrderItem>
+        {
+            new()
+            {
+                Id              = Guid.NewGuid(),
+                OrderId         = orderId,
+                ProductId       = item.ProductId,
+                Quantity        = item.Quantity,
+                PriceAtPurchase = priceAtPurchase
+            }
+        }
+            };
+
+            var payment = new Entity.Payment
+            {
+                Id = Guid.NewGuid(),
+                OrderId = orderId,
+                RazorpayOrderId = $"restock_{orderId}",    // dummy
+                Amount = grandTotal,
+                Currency = "INR",
+                Status = "Paid",
+                CreatedAt = DateTime.UtcNow,
+                PaidAt = DateTime.UtcNow
+            };
+
+            context.Orders.Add(order);
+            context.Payments.Add(payment);
+            await context.SaveChangesAsync();
+
+            return new CreateRestockOrderResponseDTO
+            {
+                OrderId = order.Id,
+                Amount = payment.Amount,
+                PayemntID = payment.Id
+            };
+
+        }
         //get all orders of a customer in last 5 months, sorted by order date desc. This will be used in order history page.
         //can also add pagination later if needed.
         public async Task<IEnumerable<OrderItemsResponseDTO>> GetOrdersByCustomerIdAsync(Guid customerId)

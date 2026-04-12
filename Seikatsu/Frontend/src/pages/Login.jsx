@@ -5,6 +5,7 @@ import api from "../Utils/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
+import { useEffect } from "react";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -12,6 +13,22 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [checking, setChecking] = useState(true);
+
+    useEffect(() => {
+        api.get("/Auth/check", { withCredentials: true })
+            .then(() => {
+                navigate("/home", { replace: true });
+            })
+            .catch((err) => {
+                if (err.response?.status !== 401) {
+                    console.error(err);
+                }
+            })
+            .finally(() => {
+                setChecking(false);
+            });
+    }, []);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -34,6 +51,10 @@ export default function Login() {
         }
     };
 
+    if (checking) {
+        return null;
+    }
+
     return (
         <div className="auth-container">
             <div className="auth-left">
@@ -52,17 +73,20 @@ export default function Login() {
                     {error && <p className="error">{error}</p>}
 
                     {/* Email */}
-                    <input
-                        type="text"
-                        placeholder="Email"
+                  
+                    <Input
+                        className="bg-background pr-10 h-15"
+                        id="password-toggle"
+                        placeholder="Enter your Email"
+                       
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                     />
 
-                    <div className="relative w-full px-10 py-10">
+                    <div className="relative w-full">
                         <Input
-                            className="bg-background pr-10"
+                            className="bg-background pr-10 h-15"
                             id="password-toggle"
                             placeholder="Enter your password"
                             type={showPassword ? "text" : "password"}
@@ -71,7 +95,7 @@ export default function Login() {
                             required
                         />
                         <button
-                            className="absolute inset-y-0 right-2 flex items-center justify-center text-muted-foreground hover:text-foreground"
+                            className="eye-toggle"
                             onClick={() => setShowPassword(!showPassword)}
                             type="button"
                         >

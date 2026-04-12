@@ -11,7 +11,7 @@ namespace Seikatsu.Backend.Services
 
         Task DeleteItemFormRestockCartAsync(Guid customerid, Guid restockCartitemid);
         Task ClearRestockCartAsync(Guid customerId);
-
+        Task ProcessRestockOrdersAsync();
         Task<UpdateRestockCartResponseDTO> UpdateRestockCartItemAysnc(Guid customerid, UpdateRestockCartRequestDTO request);
     }
 }

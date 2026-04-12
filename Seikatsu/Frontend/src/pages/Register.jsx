@@ -2,15 +2,19 @@ import { useState } from "react";
 import api from "../Utils/api";
 import { useNavigate, Link } from "react-router-dom";
 import "./Auth.css";
- import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Register() {
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
-
+  
   const handleRegister = async (e) => {
     e.preventDefault();
 
@@ -43,28 +47,48 @@ export default function Register() {
 
           {error && <p className="error">{error}</p>}
 
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
+          
+                  <Input
+                      className="bg-background pr-10 h-15"
+                      id="username"
+                      placeholder="Username"
+
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
                   />
-                  <input
-                      type="text"
-                      placeholder="email@gmail.com"
+                  <Input
+                      className="bg-background pr-10 h-15"
+                      id="email"
+                      placeholder="Email"
+
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                   />
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+                  <div className="relative w-full">
+                      <Input
+                          className="bg-background pr-10 h-15"
+                          id="password-toggle"
+                          placeholder="Password"
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                      />
+                      <button
+                          className="eye-toggle"
+                          onClick={() => setShowPassword(!showPassword)}
+                          type="button"
+                      >
+                          {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                          ) : (
+                              <Eye className="h-4 w-4" />
+                          )}
+                      </button>
+                  </div>
 
                   <Button variant="outline" className="px-110 py-110 text-lg text-white rounded-xl border-gray-300 bg-rose-500
     shadow-[0_6px_0_rgba(0,0,0,0.2)]

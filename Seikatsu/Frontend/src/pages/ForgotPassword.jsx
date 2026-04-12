@@ -26,8 +26,10 @@ export default function ForgotPassword() {
         setError("");
 
         try {
+            console.log("Calling forgot-password API");
             await api.post("/Auth/forgot-password", { email });
             setSent(true);
+            console.log("email sent");
         } catch (err) {
             console.error(err);
             setError("Something went wrong. Please try again.");

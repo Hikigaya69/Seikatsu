@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Hangfire;
+using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -22,19 +24,27 @@ builder.Services.AddCors(options =>
                           .AllowCredentials();
                       });
 });
+
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-;
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+ .UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddHangfireServer();
 builder.Services.AddTransient<GlobalExceptionHandler>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IRestockCartService,RestockCartService>();
 builder.Services.AddHttpContextAccessor();        // needed by CookieService
 builder.Services.AddScoped<CookieService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.AddHttpClient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
@@ -72,6 +82,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 var app = builder.Build();
+app.UseHangfireDashboard("/hangfire"); // visit /hangfire to see dashboard
+
+// Schedule restock job to run every day at midnight
+RecurringJob.AddOrUpdate<IRestockCartService>(
+    "restock-job",
+    service => service.ProcessRestockOrdersAsync(),
+    Cron.Daily // midnight UTC
+);
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
