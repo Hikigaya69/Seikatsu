@@ -1,4 +1,5 @@
 ﻿import { ShoppingCart, User, LogOut, LogIn } from "lucide-react";
+import { ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../../Utils/api";
@@ -7,18 +8,26 @@ export default function HomeNavbar() {
     const navigate = useNavigate();
     const [cartCount, setCartCount] = useState(0);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [checklistCount, setChecklistCount] = useState(0);
 
     useEffect(() => {
         const checkAuthAndCart = async () => {
-            try {
-                await api.get("/Auth/check", { withCredentials: true });
-                setIsLoggedIn(true);
-                const res = await api.get("/Cart/cartsummary", { withCredentials: true });
-                setCartCount(res.data.data.totalItems);
-            } catch {
-                setIsLoggedIn(false);
-            }
-        };
+    try {
+
+        await api.get("/Auth/check");
+
+        setIsLoggedIn(true);
+
+        const cartRes = await api.get("/Cart/cartsummary");
+        setCartCount(cartRes.data.data.totalItems);
+
+        const checklistRes = await api.get("/Checklist/getchecklist");
+        setChecklistCount(checklistRes.data.data.items.length);
+
+    } catch {
+        setIsLoggedIn(false);
+    }
+};
         checkAuthAndCart();
     }, []);
 
@@ -77,6 +86,20 @@ export default function HomeNavbar() {
                             onClick={() => navigate("/profile")}
                         />
                     )}
+                    {isLoggedIn && (
+    <div
+        className="relative cursor-pointer"
+        onClick={() => navigate("/checklist")}
+    >
+        <ClipboardList className="text-white hover:opacity-70 transition" />
+
+        {checklistCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {checklistCount}
+            </span>
+        )}
+    </div>
+)}
 
                     <div className="relative cursor-pointer" onClick={handleCartClick}>
                         <ShoppingCart className="text-white hover:opacity-70 transition" />

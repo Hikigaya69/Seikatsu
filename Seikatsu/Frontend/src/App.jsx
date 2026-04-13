@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import OrderSummary from "./pages/OrderSummary";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Checklist from "./pages/Checklist";
 function App() {
     return (
         <BrowserRouter>
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/order-summary/:orderId" element={<OrderSummary />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/checklist" element={<Checklist />} />
             </Routes>
         </BrowserRouter>
     );
