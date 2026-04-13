@@ -1,5 +1,6 @@
 ﻿import { ShoppingCart, User, LogOut, LogIn } from "lucide-react";
 import { ClipboardList } from "lucide-react";
+import { Repeat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../../Utils/api";
@@ -98,6 +99,16 @@ export default function HomeNavbar() {
                 {checklistCount}
             </span>
         )}
+    </div>
+)}
+
+{isLoggedIn && (
+    <div
+        title="Restock Cart"
+        className="cursor-pointer"
+        onClick={() => navigate("/restock-cart")}
+    >
+        <Repeat className="text-white hover:opacity-70 transition" />
     </div>
 )}
 

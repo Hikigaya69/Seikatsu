@@ -11,6 +11,8 @@ import OrderSummary from "./pages/OrderSummary";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Checklist from "./pages/Checklist";
+import RestockCart from "./pages/RestockCart";
+
 function App() {
     return (
         <BrowserRouter>
@@ -27,6 +29,8 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/checklist" element={<Checklist />} />
+                <Route path="/restock-cart" element={<RestockCart />} />
+                
             </Routes>
         </BrowserRouter>
     );
