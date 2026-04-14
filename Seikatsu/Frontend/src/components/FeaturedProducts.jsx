@@ -52,7 +52,7 @@ export default function FeaturedProducts() {
                             <div className="product-info">
                                 <h3>{product.name}</h3>
                                 <p>{product.description}</p>
-                                <div className="price">¥{product.price}</div>
+                                <div className="price">₹{product.price}</div>
                                 <Button variant="outline" className="px-10 py-6 text-lg text-white rounded-xl border-gray-300 bg-rose-500
     shadow-[0_6px_0_rgba(0,0,0,0.2)]
     hover:shadow-[0_10px_20px_rgba(0,0,0,0.2)]

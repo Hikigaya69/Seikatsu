@@ -100,7 +100,7 @@ export default function OrderSummary() {
                             </div>
 
                             <p className="font-semibold">
-                                ¥{item.lineTotal}
+                                ₹{item.lineTotal}
                             </p>
 
                         </div>
@@ -113,14 +113,14 @@ export default function OrderSummary() {
                 {/* BILL SUMMARY */}
                 <div className="bg-white shadow rounded-xl p-6 mt-6">
 
-                    <p>Subtotal: ¥{summary.subTotal}</p>
-                    <p>Delivery: ¥{summary.deliveryCharge}</p>
-                    <p>Tax: ¥{summary.tax}</p>
+                    <p>Subtotal: ₹{summary.subTotal}</p>
+                    <p>Delivery: ₹{summary.deliveryCharge}</p>
+                    <p>Tax: ₹{summary.tax}</p>
 
                     <hr className="my-2" />
 
                     <p className="font-bold text-lg">
-                        Total: ¥{summary.totalAmount}
+                        Total: ₹{summary.totalAmount}
                     </p>
 
                     <p className="text-sm text-gray-500 mt-2">

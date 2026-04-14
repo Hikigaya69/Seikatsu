@@ -350,7 +350,7 @@ export default function Checkout() {
                             {cart.items.map((item) => (
                                 <div key={item.cartItemId} className="flex justify-between text-sm">
                                     <span className="text-gray-700">{item.productName} ×{item.quantity}</span>
-                                    <span className="font-medium">¥{item.itemTotal}</span>
+                                    <span className="font-medium">₹{item.itemTotal}</span>
                                 </div>
                             ))}
                         </div>
@@ -361,19 +361,19 @@ export default function Checkout() {
                         <div className="space-y-2 text-sm text-gray-600 mb-4">
                             <div className="flex justify-between">
                                 <span>Subtotal</span>
-                                <span>¥{subTotal.toFixed(2)}</span>
+                                <span>₹{subTotal.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Delivery</span>
                                 <span>
                                     {deliveryCharge === 0
                                         ? <span className="text-green-600 font-medium">Free</span>
-                                        : `¥${deliveryCharge}`}
+                                        : `₹${deliveryCharge}`}
                                 </span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Tax (18%)</span>
-                                <span>¥{tax.toFixed(2)}</span>
+                                <span>₹{tax.toFixed(2)}</span>
                             </div>
                         </div>
 
@@ -381,7 +381,7 @@ export default function Checkout() {
 
                         <div className="flex justify-between font-bold text-lg mb-6">
                             <span>Total</span>
-                            <span>¥{grandTotal.toFixed(2)}</span>
+                            <span>₹{grandTotal.toFixed(2)}</span>
                         </div>
 
                         <button
@@ -400,7 +400,7 @@ export default function Checkout() {
 
                         {subTotal <= 500 && (
                             <p className="text-xs text-gray-400 text-center mt-3">
-                                Add items worth ¥{(5000 - subTotal).toFixed(2)} more for free delivery
+                                Add items worth ₹{(5000 - subTotal).toFixed(2)} more for free delivery
                             </p>
                         )}
                     </div>
