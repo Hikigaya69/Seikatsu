@@ -15,11 +15,15 @@ namespace Seikatsu.Backend.Models
         public decimal TotalPrice { get; set; }  // ProductPrice * Quantity
 
         // Frequency
-        public RestockFrequency? Frequency { get; set; }  // null = using cart default
-        public RestockFrequency EffectiveFrequency { get; set; }  // what actually runs 
+        public RestockFrequency? Frequency { get; set; }  // null = using cart default user didnt choose anything
 
-      
-        public DateTime NextOrderDate { get; set; }
+        public RestockFrequency EffectiveFrequency { get; set; }  // what actually runs (user choose a frequency)
+
+        public RestockItemsStatus? Status { get; set; } //user didnt choose anything so defalut "Live status is set"
+        public RestockItemsStatus EffectiveStatus { get; set; } // what actually runs (user choose a status)    
+
+
+        public DateTime?NextOrderDate { get; set; }
         public DateTime? LastOrderedAt { get; set; }
     }
 }

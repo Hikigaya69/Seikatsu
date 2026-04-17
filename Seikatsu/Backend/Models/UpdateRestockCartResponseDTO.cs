@@ -11,6 +11,9 @@ namespace Seikatsu.Backend.Models
         public decimal ItemTotal { get; set; }
         public decimal CartTotal { get; set; }
 
-        public DateTime NextOrderDate { get; set; }
+
+        public RestockItemsStatus EffectiveStatus { get; set; } // what actually runs (user choose a status)    
+
+        public DateTime?NextOrderDate { get; set; }
     }
 }

@@ -111,6 +111,7 @@ export default function Checkout() {
             // open razorpay popup
             const options = {
                 key: keyId,
+                upi: true,
                 amount: amount * 100, // paise but the 
                 currency: currency,
                 name: "Seikatsu",

@@ -56,7 +56,8 @@ namespace Seikatsu.Backend.Services
                 ProductPrice = rci.Product.Price,
                 Quantity = rci.Quantity,
                 TotalPrice = rci.Product.Price * rci.Quantity,
-                Frequency = rci.Frequency,    
+                Frequency = rci.Frequency,   
+                Status= rci.Status,
                 NextOrderDate = rci.NextOrderDate,                       
                 LastOrderedAt = rci.LastOrderedAt                        
             })
@@ -200,7 +201,7 @@ namespace Seikatsu.Backend.Services
                 RestockCartItemId = cartItem.Id,
                 RestockCartId = restockcart.Id,
                 Quantity = cartItem.Quantity,
-            
+                
                 EffectiveFrequency = (RestockFrequency)request.Frequency,
                 ItemTotal=cartItem.ProductPrice,
                 CartTotal= restockcart.TotalPrice,
@@ -209,14 +210,40 @@ namespace Seikatsu.Backend.Services
 
 
         } //experimental method to process restock orders, to be called by a scheduled job (e.g., daily) to check for due restock items and create orders accordingly
+       
         public async Task ProcessRestockOrdersAsync()
         {
             var today = DateTime.UtcNow.Date;
+            var skippedItems = await context.RestockCartItems
+               .Include(r => r.RestockCart)
+                   .ThenInclude(re => re.Customer)
+               .Include(r => r.Product)                    // check if products active date is today and then proceed to find the due items
+               .Where(r => r.NextOrderDate.HasValue &&
+               r.NextOrderDate.Value.Date == today &&
+               r.Status == RestockItemsStatus.Skip)
+               .ToListAsync();
+            foreach (var item in skippedItems)
+            {
+                try
+                {
+                   // item.NextOrderDate = RestockFrequencyHelper.ComputeNextOrderDate(item.Frequency ?? RestockFrequency.Monthly, DateTime.UtcNow);
+                    item.Status = RestockItemsStatus.Live; // set it back to live for the next cycle
+                   ;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to update skipped restock item {ItemId}", item.Id);
+                }
+            }
+            await context.SaveChangesAsync();
+
             var dueItems = await context.RestockCartItems
                 .Include(r => r.RestockCart)
                     .ThenInclude(re => re.Customer)
                 .Include(r => r.Product)                    // need price
-                .Where(r => r.NextOrderDate.Date == today)
+                .Where(r => r.NextOrderDate.HasValue &&
+                r.NextOrderDate.Value.Date == today &&
+                r.Status == RestockItemsStatus.Live)
                 .ToListAsync();
 
             foreach (var item in dueItems)
@@ -224,16 +251,14 @@ namespace Seikatsu.Backend.Services
                 try
                 {
                     var customerId = item.RestockCart.CustomerId;
-
-                    // 1. Place the order directly (confirmed, no payment flow)
+                    //  Place the order directly (confirmed, no payment flow)
                     var order = await orderService.CreateRestockOrderAsync(
                         customerId,
                         item
                     );
                     item.LastOrderedAt = item.NextOrderDate;
-                    // 2. Update NextOrderDate based on frequency
-                    item.NextOrderDate = RestockFrequencyHelper.ComputeNextOrderDate(item.Frequency?? RestockFrequency.Monthly, DateTime.UtcNow);     // if null use month by default 
-                   
+                    //  Update NextOrderDate based on frequency
+                    item.NextOrderDate = RestockFrequencyHelper.ComputeNextOrderDate(item.Frequency ?? RestockFrequency.Monthly, DateTime.UtcNow);     // if null use month by default 
                     logger.LogInformation(
                         "Restock order placed for Customer {CustomerId}, next on {NextDate}",
                         customerId, item.NextOrderDate);
@@ -243,8 +268,51 @@ namespace Seikatsu.Backend.Services
                     logger.LogError(ex, "Failed restock for item {ItemId}", item.Id);
                 }
             }
-
             await context.SaveChangesAsync();             // saves all NextOrderDate updates
+        }
+
+        public async Task<UpdateRestockCartStatusResponseDTO> SetRestockItemStatusAsync(Guid customerId, RestockItemStatusRequestDTO request)
+        { //one bug might exsist will fix
+            
+            var restockCartItem = await context.RestockCartItems
+                .Include(ri => ri.RestockCart)
+                .FirstOrDefaultAsync(ri =>
+                    ri.Id == request.RestockCartItemId &&
+                    ri.RestockCart.CustomerId == customerId);
+
+            if (restockCartItem == null)
+                throw new NotFoundException("Cart item not found for the specified customer.");
+
+            if (request.Status == RestockItemsStatus.Paused)
+            {
+                restockCartItem.NextOrderDate = null;
+            }
+            else if (request.Status == RestockItemsStatus.Live)
+            {
+                // recalculate next order date when resuming
+                restockCartItem.NextOrderDate = RestockFrequencyHelper.ComputeNextOrderDate(restockCartItem.Frequency ?? RestockFrequency.Monthly, DateTime.UtcNow); ; 
+            }else if(request.Status == RestockItemsStatus.Skip && restockCartItem.Status==RestockItemsStatus.Live )
+            {
+               
+                restockCartItem.NextOrderDate = RestockFrequencyHelper.ComputeNextOrderDate(restockCartItem.Frequency ?? RestockFrequency.Monthly, DateTime.UtcNow);
+            }
+            else if (request.Status == RestockItemsStatus.Live && restockCartItem.Status == RestockItemsStatus.Skip)
+            {
+              
+                restockCartItem.NextOrderDate = RestockFrequencyHelper.ComputeNextOrderDate(restockCartItem.Frequency ?? RestockFrequency.Monthly, DateTime.UtcNow);
+            }
+
+
+
+            restockCartItem.Status = request.Status;
+            restockCartItem.RestockCart.UpdatedAt = DateTime.UtcNow;
+
+            await context.SaveChangesAsync();
+            return new UpdateRestockCartStatusResponseDTO
+            {
+                EffectiveStatus = restockCartItem.Status ?? RestockItemsStatus.Live
+
+            };
         }
     }
 }

@@ -107,6 +107,20 @@ namespace Seikatsu.Backend.Controllers
             return Ok(response);
         }
 
+        [Authorize]
+        [HttpPatch("updaterestockstatus")]
+        public async Task<ActionResult<APIResponse<UpdateRestockCartStatusResponseDTO>>> UpdateRestockItemStatus([FromBody] RestockItemStatusRequestDTO request)
+        {
+            var customerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+           var result= await restockCartService.SetRestockItemStatusAsync(customerId, request);
+            var response = new APIResponse<UpdateRestockCartStatusResponseDTO>
+            {
+                Success = true,
+                Data = result,
+                Message = "Cart item updated successfully."
+            };
+            return Ok(response);
 
+        }
     }
 }

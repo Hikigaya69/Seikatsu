@@ -3,12 +3,12 @@ import StoreLayout from "../layouts/StoreLayout";
 import api from "../Utils/api";
 
 import {
-  Trash2,
-  ArrowLeft,
-  Repeat,
-  Package,
-  Clock,
-  Plus
+    Trash2,
+    ArrowLeft,
+    Repeat,
+    Package,
+    Clock,
+    Plus
 } from "lucide-react";
 
 import { motion } from "framer-motion";
@@ -19,448 +19,454 @@ import patternBg from "../assets/restock_pattern.jpg";
 
 // mapping
 const frequencyMap = {
-  0: "Weekly",
-  1: "Biweekly",
-  2: "Monthly"
+    0: "Daily",
+    1: "Weekly",
+    2: "BiWeekly",
+    3: "Monthly",
+    4: "Quarterly"
+
 };
 
 // reverse
 const reverseFrequencyMap = {
-  Weekly: 0,
-  Biweekly: 1,
-  Monthly: 2
+    Daily: 0,
+    Weekly: 1,
+    Biweekly: 2,
+    Monthly: 3,
+    Quarterly: 4
 };
 
 export default function RestockCart() {
 
-const navigate = useNavigate();
+    const navigate = useNavigate();
 
 
-const [cart,setCart]=useState(null);
-const [loading,setLoading]=useState(true);
+    const [cart, setCart] = useState(null);
+    const [loading, setLoading] = useState(true);
 
 
 
-useEffect(()=>{
-fetchRestockCart();
-},[]);
+    useEffect(() => {
+        fetchRestockCart();
+    }, []);
 
 
 
-const fetchRestockCart = async()=>{
+    const fetchRestockCart = async () => {
 
-try{
+        try {
 
-const res =
-await api.post("/RestockCart/getrestockcart");
+            const res =
+                await api.post("/RestockCart/getrestockcart");
 
-setCart(res.data.data);
+            setCart(res.data.data);
 
-}catch(err){
+        } catch (err) {
 
-console.error(err);
+            console.error(err);
 
-}finally{
+        } finally {
 
-setLoading(false);
+            setLoading(false);
 
-}
+        }
 
-};
+    };
 
 
-// update
-const updateItem = async(
-itemId,
-quantity,
-frequency
-)=>{
+    // update
+    const updateItem = async (
+        itemId,
+        quantity,
+        frequency
+    ) => {
 
-await api.patch(
-"/RestockCart/updaterestockcart",
-{
-restockCartItemId:itemId,
-quantity,
-frequency
-}
-);
+        await api.patch(
+            "/RestockCart/updaterestockcart",
+            {
+                RestockCartItemId: itemId,
+                Quantity: quantity,
+                Frequency:frequency
+            }
+        );
 
-fetchRestockCart();
+        fetchRestockCart();
 
-};
+    };
 
 
-// delete
-const deleteItem = async(itemId)=>{
+    // delete
+    const deleteItem = async (itemId) => {
 
-await api.delete(
-`/RestockCart/items/${itemId}`
-);
+        await api.delete(
+            `/RestockCart/items/${itemId}`
+        );
 
-fetchRestockCart();
+        fetchRestockCart();
 
-};
+    };
 
 
-// clear
-const clearCart = async()=>{
+    // clear
+    const clearCart = async () => {
 
-if(!confirm("Clear all items?")) return;
+        if (!confirm("Clear all items?")) return;
 
-await api.delete(
-"/RestockCart/clearrestockcart"
-);
+        await api.delete(
+            "/RestockCart/clearrestockcart"
+        );
 
-fetchRestockCart();
+        fetchRestockCart();
 
-};
+    };
 
 
-// next-date
-const nextUpcomingDate =
-cart?.items?.length
-? cart.items
-.map(i=>new Date(i.nextOrderDate))
-.sort((a,b)=>a-b)[0]
-:null;
+    // next-date
+    const nextUpcomingDate =
+        cart?.items?.length
+            ? cart.items
+                .map(i => new Date(i.nextOrderDate))
+                .sort((a, b) => a - b)[0]
+            : null;
 
 
-// estimate
-const estimatedMonthlySpend =
-cart?.items?.reduce((total,item)=>{
+    // estimate
+    const estimatedMonthlySpend =
+        cart?.items?.reduce((total, item) => {
 
-const multiplier =
-item.frequency===0?4:
-item.frequency===1?2:
-1;
+            const multiplier =
+                item.frequency === 0 ? 4 :
+                    item.frequency === 1 ? 2 :
+                        1;
 
-return total +
-(item.productPrice *
-item.quantity *
-multiplier);
+            return total +
+                (item.productPrice *
+                    item.quantity *
+                    multiplier);
 
-},0);
+        }, 0);
 
 
-return(
+    return (
 
-<StoreLayout>
+        <StoreLayout>
 
-<div
-className="min-h-screen pt-24 pb-32"
-style={{
-backgroundImage:`url(${patternBg})`,
-backgroundRepeat:"repeat",
-backgroundSize:"260px",
-backgroundColor:"#f1f5f9"
-}}
->
+            <div
+                className="min-h-screen pt-24 pb-32"
+                style={{
+                    backgroundImage: `url(${patternBg})`,
+                    backgroundRepeat: "repeat",
+                    backgroundSize: "260px",
+                    backgroundColor: "#f1f5f9"
+                }}
+            >
 
 
-<div className="max-w-7xl mx-auto px-6 mb-8 flex justify-between">
+                <div className="max-w-7xl mx-auto px-6 mb-8 flex justify-between">
 
-<button
-onClick={()=>navigate(-1)}
-className="flex items-center gap-2 bg-black text-white px-5 py-2 rounded-lg shadow hover:bg-gray-900 transition"
->
-<ArrowLeft size={18}/>
-Go Back
-</button>
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="flex items-center gap-2 bg-black text-white px-5 py-2 rounded-lg shadow hover:bg-gray-900 transition"
+                    >
+                        <ArrowLeft size={18} />
+                        Go Back
+                    </button>
 
-</div>
+                </div>
 
 
-<div className="flex justify-center">
+                <div className="flex justify-center">
 
-<motion.div
-initial={{opacity:0,y:40}}
-animate={{opacity:1,y:0}}
-className="bg-white w-[1300px] rounded-3xl shadow-xl px-16 py-14"
-style={{fontFamily:"Plus Jakarta Sans"}}
->
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-white w-[1300px] rounded-3xl shadow-xl px-16 py-14"
+                        style={{ fontFamily: "Plus Jakarta Sans" }}
+                    >
 
 
-{/* header */}
+                        {/* header */}
 
-<div className="mb-10 flex justify-between items-center">
+                        <div className="mb-10 flex justify-between items-center">
 
-<div>
+                            <div>
 
-<h1 className="text-4xl font-semibold text-gray-800">
-Restock Cart
-</h1>
+                                <h1 className="text-4xl font-semibold text-gray-800">
+                                    Restock Cart
+                                </h1>
 
-{cart?.items?.length > 0 &&(
+                                {cart?.items?.length > 0 && (
 
-<p className="text-gray-500 mt-2 flex items-center gap-2">
-<Repeat size={16}/>
-Auto-restock active for
-<b>{cart.totalItemsCount}</b>
-items
-</p>
+                                    <p className="text-gray-500 mt-2 flex items-center gap-2">
+                                        <Repeat size={16} />
+                                        Auto-restock active for
+                                        <b>{cart.totalItemsCount}</b>
+                                        items
+                                    </p>
 
-)}
+                                )}
 
-</div>
+                            </div>
 
 
-{cart?.items?.length === 0 &&(
+                            {cart?.items?.length === 0 && (
 
-<button
-onClick={()=>navigate("/home")}
-className="flex items-center gap-2 border border-gray-300 px-5 py-2 rounded-lg hover:bg-gray-100 transition"
->
-<Plus size={18}/>
-Browse Products
-</button>
+                                <button
+                                    onClick={() => navigate("/home")}
+                                    className="flex items-center gap-2 border border-gray-300 px-5 py-2 rounded-lg hover:bg-gray-100 transition"
+                                >
+                                    <Plus size={18} />
+                                    Browse Products
+                                </button>
 
-)}
+                            )}
 
-</div>
+                        </div>
 
 
-{/* summary */}
+                        {/* summary */}
 
-{cart &&(
+                        {cart && (
 
-<div className="grid grid-cols-4 gap-6 mb-10">
+                            <div className="grid grid-cols-4 gap-6 mb-10">
 
-<SummaryCard
-title="Items"
-value={cart.totalItemsCount}
-/>
+                                <SummaryCard
+                                    title="Items"
+                                    value={cart.totalItemsCount}
+                                />
 
-<SummaryCard
-title="Cart Total"
-value={`₹${cart.totalPrice}`}
-/>
+                                <SummaryCard
+                                    title="Cart Total"
+                                    value={`₹${cart.totalPrice}`}
+                                />
 
-<SummaryCard
-title="Next Delivery"
-value={
-nextUpcomingDate
-? nextUpcomingDate.toDateString()
-:"—"
-}
-/>
+                                <SummaryCard
+                                    title="Next Delivery"
+                                    value={
+                                        nextUpcomingDate
+                                            ? nextUpcomingDate.toDateString()
+                                            : "—"
+                                    }
+                                />
 
-<SummaryCard
-title="Monthly Estimate"
-value={`₹${estimatedMonthlySpend || 0}`}
-/>
+                                <SummaryCard
+                                    title="Monthly Estimate"
+                                    value={`₹${estimatedMonthlySpend || 0}`}
+                                />
 
-</div>
+                            </div>
 
-)}
+                        )}
 
 
-{/* content */}
+                        {/* content */}
 
-{loading ? (
+                        {loading ? (
 
-<p className="text-gray-400">
-Loading restock items...
-</p>
+                            <p className="text-gray-400">
+                                Loading restock items...
+                            </p>
 
-): cart?.items?.length===0 ? (
+                        ) : cart?.items?.length === 0 ? (
 
-<EmptyState/>
+                            <EmptyState />
 
-):( 
+                        ) : (
 
-<>
+                            <>
 
-<div className="space-y-6 max-h-[520px] overflow-y-auto pr-2">
+                                <div className="space-y-6 max-h-[520px] overflow-y-auto pr-2">
 
-{cart.items.map(item=>(
+                                    {cart.items.map(item => (
 
-<RestockItemRow
-key={item.id}
-item={item}
-updateItem={updateItem}
-deleteItem={deleteItem}
-/>
+                                        <RestockItemRow
+                                            key={item.id}
+                                            item={item}
+                                            updateItem={updateItem}
+                                            deleteItem={deleteItem}
+                                        />
 
-))}
+                                    ))}
 
-</div>
+                                </div>
 
 
-<button
-onClick={clearCart}
-className="mt-12 text-sm text-red-500 hover:underline"
->
-Clear restock cart
-</button>
+                                <button
+                                    onClick={clearCart}
+                                    className="mt-12 text-sm text-red-500 hover:underline"
+                                >
+                                    Clear restock cart
+                                </button>
 
-</>
+                            </>
 
-)}
+                        )}
 
-</motion.div>
+                    </motion.div>
 
-</div>
+                </div>
 
-</div>
+            </div>
 
-</StoreLayout>
+        </StoreLayout>
 
-);
+    );
 
 }
 
 
 // card
-function SummaryCard({title,value}){
+function SummaryCard({ title, value }) {
 
-return(
+    return (
 
-<div className="bg-gray-50 rounded-xl p-5">
+        <div className="bg-gray-50 rounded-xl p-5">
 
-<p className="text-sm text-gray-500">
-{title}
-</p>
+            <p className="text-sm text-gray-500">
+                {title}
+            </p>
 
-<p className="text-2xl font-semibold">
-{value}
-</p>
+            <p className="text-2xl font-semibold">
+                {value}
+            </p>
 
-</div>
+        </div>
 
-);
+    );
 
 }
 
 
 // empty
-function EmptyState(){
+function EmptyState() {
 
-return(
+    return (
 
-<div className="flex flex-col items-center py-20 text-gray-400">
+        <div className="flex flex-col items-center py-20 text-gray-400">
 
-<Package size={48}/>
+            <Package size={48} />
 
-<p className="mt-4 text-lg">
-Your restock cart is empty
-</p>
+            <p className="mt-4 text-lg">
+                Your restock cart is empty
+            </p>
 
-<p className="text-sm">
-Add items to automate repeat purchases 🛒
-</p>
+            <p className="text-sm">
+                Add items to automate repeat purchases 🛒
+            </p>
 
-</div>
+        </div>
 
-);
+    );
 
 }
 
 
 // row
 function RestockItemRow({
-item,
-updateItem,
-deleteItem
-}){
+    item,
+    updateItem,
+    deleteItem
+}) {
 
-return(
+    return (
 
-<div className="flex justify-between items-center border rounded-xl px-6 py-4 hover:bg-gray-50 transition shadow-sm">
-
-
-{/* info */}
-
-<div className="flex items-center gap-6">
-
-<img
-src={item.productImageUrl}
-alt={item.productName}
-className="w-20 h-20 rounded-xl object-cover shadow"
-/>
+        <div className="flex justify-between items-center border rounded-xl px-6 py-4 hover:bg-gray-50 transition shadow-sm">
 
 
-<div>
+            {/* info */}
 
-<p className="text-xl font-medium text-gray-800">
-{item.productName}
-</p>
+            <div className="flex items-center gap-6">
 
-
-<p className="text-sm text-gray-400 flex items-center gap-2">
-<Clock size={14}/>
-Next order:
-{new Date(item.nextOrderDate).toDateString()}
-</p>
+                <img
+                    src={item.productImageUrl}
+                    alt={item.productName}
+                    className="w-20 h-20 rounded-xl object-cover shadow"
+                />
 
 
-{item.lastOrderedAt &&(
+                <div>
 
-<p className="text-xs text-gray-400">
-Last ordered:
-{new Date(item.lastOrderedAt).toDateString()}
-</p>
-
-)}
+                    <p className="text-xl font-medium text-gray-800">
+                        {item.productName}
+                    </p>
 
 
-<span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded mt-1 inline-block">
-{frequencyMap[item.frequency]}
-</span>
-
-</div>
-
-</div>
+                    <p className="text-sm text-gray-400 flex items-center gap-2">
+                        <Clock size={14} />
+                        Next order:
+                        {new Date(item.nextOrderDate).toDateString()}
+                    </p>
 
 
-{/* controls */}
+                    {item.lastOrderedAt && (
 
-<div className="flex items-center gap-4">
+                        <p className="text-xs text-gray-400">
+                            Last ordered:
+                            {new Date(item.lastOrderedAt).toDateString()}
+                        </p>
 
-
-<input
-type="number"
-min="1"
-value={item.quantity}
-onChange={(e)=>
-updateItem(
-item.id,
-Number(e.target.value),
-item.frequency
-)
-}
-className="w-16 border rounded px-2 py-1"
-/>
+                    )}
 
 
-<select
-value={frequencyMap[item.frequency]}
-onChange={(e)=>
-updateItem(
-item.id,
-item.quantity,
-reverseFrequencyMap[e.target.value]
-)
-}
-className="border rounded px-2 py-1 text-sm"
->
+                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded mt-1 inline-block">
+                        {frequencyMap[item.frequency]}
+                    </span>
 
-<option>Weekly</option>
-<option>Biweekly</option>
-<option>Monthly</option>
+                </div>
 
-</select>
+            </div>
 
 
-<Trash2
-size={20}
-onClick={()=>deleteItem(item.id)}
-className="text-gray-400 hover:text-red-500 cursor-pointer"
-/>
+            {/* controls */}
 
-</div>
+            <div className="flex items-center gap-4">
 
-</div>
 
-);
+                <input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={(e) =>
+                        updateItem(
+                            item.id,
+                            Number(e.target.value),
+                            item.frequency
+                        )
+                    }
+                    className="w-16 border rounded px-2 py-1"
+                />
+
+
+                <select
+                    value={frequencyMap[item.frequency]}
+                    onChange={(e) =>
+                        updateItem(
+                            item.id,
+                            item.quantity,
+                            reverseFrequencyMap[e.target.value]
+                        )
+                    }
+                    className="border rounded px-2 py-1 text-sm"
+                >
+                    <option>Daily</option>
+                    <option>Weekly</option>
+                    <option>Biweekly</option>
+                    <option>Monthly</option>
+                    <option>Quarterly</option>
+
+                </select>
+
+
+                <Trash2
+                    size={20}
+                    onClick={() => deleteItem(item.id)}
+                    className="text-gray-400 hover:text-red-500 cursor-pointer"
+                />
+
+            </div>
+
+        </div>
+
+    );
 
 }

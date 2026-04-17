@@ -18,7 +18,9 @@ namespace Seikatsu.Backend.Entity
 
         public RestockFrequency? Frequency { get; set; } = RestockFrequency.Monthly;
 
-        public DateTime NextOrderDate { get; set; }
+        public RestockItemsStatus? Status { get; set; } = RestockItemsStatus.Live;
+
+        public DateTime?NextOrderDate { get; set; }
         public DateTime? LastOrderedAt { get; set; }
     }
 }

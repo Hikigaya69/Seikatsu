@@ -62,7 +62,7 @@ export default function ProductDetails() {
                 {
                     productId: product.id,
                     quantity: 1,
-                    frequency
+                    Frequency: frequency
                 },
                 { withCredentials: true }
             );
@@ -249,15 +249,23 @@ export default function ProductDetails() {
                                     className="border px-3 py-2 rounded-lg"
                                 >
                                     <option value={0}>
-                                        Weekly
+                                          Daily
                                     </option>
 
                                     <option value={1}>
-                                        Biweekly
+                                        Weekly
                                     </option>
 
                                     <option value={2}>
+                                        BiWeekly
+                                    </option>
+
+                                    <option value={3}>
                                         Monthly
+                                    </option>
+
+                                    <option value={4}>
+                                        Quarterly
                                     </option>
 
                                 </select>
