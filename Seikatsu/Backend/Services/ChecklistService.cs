@@ -35,6 +35,7 @@ namespace Seikatsu.Backend.Services
             {
                 Id = Guid.NewGuid(),
                 ProductName = item.ProductName,
+                ProductId = item.ProductId, 
                 IsChecked = item.IsChecked,
                 CheckListId = checklist.Id
             }).ToList();
@@ -49,6 +50,7 @@ namespace Seikatsu.Backend.Services
                 {
                     Id = i.Id,
                     ProductName = i.ProductName,
+                    ProductId = i.ProductId,
                     IsChecked = i.IsChecked
                 }).ToList()
             };
@@ -69,6 +71,7 @@ namespace Seikatsu.Backend.Services
                 Id = Guid.NewGuid(),
                 ProductName = request.ProductName,
                 IsChecked = request.IsChecked,
+                ProductId = request.ProductId,  
                 CheckListId = checklist.Id
             };
             context.CheckListItems.Add(newItem);
@@ -77,6 +80,7 @@ namespace Seikatsu.Backend.Services
             {
                 Id = newItem.Id,
                 ProductName = newItem.ProductName,
+                ProductId = newItem.ProductId, 
                 IsChecked = newItem.IsChecked
             };
         }
@@ -128,6 +132,7 @@ namespace Seikatsu.Backend.Services
             {
                 Id = item.Id,
                 ProductName = item.ProductName,
+                ProductId = item.ProductId,
                 IsChecked = item.IsChecked
             };
         }
@@ -182,6 +187,7 @@ namespace Seikatsu.Backend.Services
                 {
                     Id = i.Id,
                     ProductName = i.ProductName,
+                    ProductId = i.ProductId,
                     IsChecked = i.IsChecked
                 }).ToList()
             };

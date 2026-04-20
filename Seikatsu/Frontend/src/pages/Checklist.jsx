@@ -66,7 +66,6 @@ export default function Checklist() {
                 ...i,
                 priority: "medium",
                 createdAt: new Date(),
-                existsInStore: true
             }));
 
             setItems(enriched);
@@ -77,8 +76,19 @@ export default function Checklist() {
 
 
     /*
-    FETCH SUGGESTIONS
+    FETCH SUGGESTIONS — with debounce 300ms after user stops typing
     */
+
+    useEffect(() => {
+
+        const timer = setTimeout(() => {
+            fetchSuggestions(newItem);
+        }, 300);
+
+        return () => clearTimeout(timer);
+
+    }, [newItem]);
+
 
     const fetchSuggestions = async (query) => {
 
@@ -101,14 +111,17 @@ export default function Checklist() {
 
     /*
     ADD ITEM
+    - productId comes from suggestion (has real id)
+    - productId is null when user types gibberish or clicks + directly
     */
 
-    const addItem = async (name, exists = true) => {
+    const addItem = async (name, productId = null) => {
 
         if (!name.trim()) return;
 
         const res = await api.post("/Checklist/additem", {
             productName: name,
+            productId: productId,       // null if gibberish, real id if from suggestion
             isChecked: false
         });
 
@@ -116,7 +129,6 @@ export default function Checklist() {
             ...res.data.data,
             priority: "medium",
             createdAt: new Date(),
-            existsInStore: exists
         };
 
         setItems(prev => [newEntry, ...prev]);
@@ -139,6 +151,9 @@ export default function Checklist() {
     };
 
 
+    /*
+    TOGGLE ITEM
+    */
 
     const toggleItem = async (item) => {
 
@@ -152,7 +167,7 @@ export default function Checklist() {
 
         const updated = items.map(i =>
             i.id === item.id
-                ? { ...res.data.data, priority: item.priority, existsInStore: item.existsInStore }
+                ? { ...res.data.data, priority: item.priority, productId: item.productId }
                 : i
         );
 
@@ -187,38 +202,33 @@ export default function Checklist() {
 
     /*
     ADD TO CART
+     if productId exists → add directly
+    if productId is null → redirect to home page .. this needs to be handled better
     */
 
     const addToCart = async (item) => {
 
-        if (!item.existsInStore) {
-
-            if (confirm("Product unavailable. Send request to admin?"))
-                requestProduct(item.productName);
-
+        // No productId = gibberish item, redirect to homepage and trigger the search api there?
+        if (!item.productId) {
+            alert(`No product found for "${item.productName}". Try searching manually.`);
+            navigate(`/home`);
             return;
-
         }
 
-        const search = await api.get(`/Product/search/${item.productName}`);
+        try {
 
-        if (search.data.data.length === 0) {
+            await api.post("/Cart/additem", {
+                productId: item.productId,
+                quantity: 1
+            });
 
-            if (confirm("Product missing. Send request?"))
-                requestProduct(item.productName);
+            alert(`${item.productName} added to cart`);
+            toggleItem(item);
 
-            return;
-
+        } catch (err) {
+            console.error(err);
+            alert("Failed to add to cart. Please try again.");
         }
-
-        await api.post("/Cart/additem", {
-            productId: search.data.data[0].id,
-            quantity: 1
-        });
-
-        alert(`${item.productName} added to cart`);
-
-        toggleItem(item);
 
     };
 
@@ -327,16 +337,13 @@ export default function Checklist() {
 
                                 <input
                                     value={newItem}
-                                    onChange={e => {
-                                        setNewItem(e.target.value);
-                                        fetchSuggestions(e.target.value);
-                                    }}
+                                    onChange={e => setNewItem(e.target.value)} 
                                     placeholder="Write something..."
                                     className="flex-1 border-b bg-transparent focus:outline-none"
                                 />
 
                                 <button
-                                    onClick={() => addItem(newItem, true)}
+                                    onClick={() => addItem(newItem, null)}   // + button = no productId
                                     className="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg"
                                 >
                                     <Plus size={18} />
@@ -352,7 +359,7 @@ export default function Checklist() {
                                             suggestions.map(s => (
                                                 <div
                                                     key={s.id}
-                                                    onClick={() => addItem(s.name, true)}
+                                                    onClick={() => addItem(s.name, s.id)}  // suggestion = pass productId
                                                     className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
                                                 >
                                                     {s.name}
@@ -363,7 +370,7 @@ export default function Checklist() {
 
                                             <>
                                                 <div
-                                                    onClick={() => addItem(newItem, false)}
+                                                    onClick={() => addItem(newItem, null)}  // no match = null
                                                     className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
                                                 >
                                                     Add "{newItem}"
@@ -465,12 +472,17 @@ ${item.isChecked ? "border-blue-400 bg-blue-100" : "border-blue-200"}
 
                     <span
                         className={`text-lg ${item.isChecked
-                                ? "line-through text-gray-400"
-                                : "text-gray-700"
+                            ? "line-through text-gray-400"
+                            : "text-gray-700"
                             }`}
                     >
                         {item.productName}
                     </span>
+
+                    {/* Visual indicator — no product linked */}
+                    {!item.productId && (
+                        <span className="text-xs text-gray-300">• custom</span>
+                    )}
 
                 </div>
 
@@ -491,7 +503,7 @@ ${item.isChecked ? "border-blue-400 bg-blue-100" : "border-blue-200"}
                     <ShoppingCart
                         size={16}
                         onClick={() => addToCart(item)}
-                        className="text-green-500 cursor-pointer"
+                        className={`cursor-pointer ${item.productId ? "text-green-500" : "text-gray-300"}`}
                     />
 
 
