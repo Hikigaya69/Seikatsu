@@ -228,7 +228,7 @@ namespace Seikatsu.Backend.Services
                 {
                    // item.NextOrderDate = RestockFrequencyHelper.ComputeNextOrderDate(item.Frequency ?? RestockFrequency.Monthly, DateTime.UtcNow);
                     item.Status = RestockItemsStatus.Live; // set it back to live for the next cycle
-                   ;
+                  
                 }
                 catch (Exception ex)
                 {

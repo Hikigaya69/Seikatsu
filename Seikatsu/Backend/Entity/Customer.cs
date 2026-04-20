@@ -16,6 +16,8 @@
         public string? RefreshToken { get; set; }
 
         public string? PasswordResetToken { get; set; }
+
+        public string Role { get; set; } = "customer"; //ddefault role is customer 
         public DateTime? PasswordResetTokenExpiry { get; set; }
 
         public Cart? Cart { get; set; }

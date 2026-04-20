@@ -20,7 +20,18 @@ namespace Seikatsu.Backend.Controllers
         [Authorize]
         [HttpGet("check")]
         public IActionResult Check() {
-            return Ok(new { success = true });
+
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            return Ok(new APIResponse<object>
+            {
+                Success = true,
+                Data = new
+                {
+                    Role = role,
+                    Email = email
+                }
+            });
         }
         // REGISTER 
         [HttpPost("register")]

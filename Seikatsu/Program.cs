@@ -46,6 +46,14 @@ builder.Services.AddScoped<CookieService>();
 
 builder.Services.AddHttpClient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<Supabase.Client>(_ =>
+    new Supabase.Client(
+        builder.Configuration["Supabase:Url"],
+        builder.Configuration["Supabase:Key"]
+    )
+);
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IStorageService, SupabaseStorageService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<ICategoryService,CategoryService>();

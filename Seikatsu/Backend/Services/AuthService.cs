@@ -421,7 +421,7 @@ namespace Seikatsu.Backend.Services
                 new Claim(ClaimTypes.Name,           customer.FullName.ToLower()),
                 new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString()),
                 new Claim(ClaimTypes.Email,          customer.Email.ToLower()),
-                // new Claim(ClaimTypes.Role,        customer.Role)
+                new Claim(ClaimTypes.Role,        customer.Role)
             };
 
             var key = new SymmetricSecurityKey(
