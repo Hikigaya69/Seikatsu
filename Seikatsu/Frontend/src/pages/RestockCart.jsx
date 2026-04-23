@@ -31,7 +31,7 @@ const frequencyMap = {
 const reverseFrequencyMap = {
     Daily: 0,
     Weekly: 1,
-    Biweekly: 2,
+    BiWeekly: 2,
     Monthly: 3,
     Quarterly: 4
 };
@@ -450,7 +450,7 @@ function RestockItemRow({
                 >
                     <option>Daily</option>
                     <option>Weekly</option>
-                    <option>Biweekly</option>
+                    <option>BiWeekly</option>
                     <option>Monthly</option>
                     <option>Quarterly</option>
 

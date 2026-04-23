@@ -36,5 +36,23 @@ namespace Seikatsu.Backend.Controllers
 
 
         }
+        [HttpGet("admingetproductview/{id}")]
+
+        public async Task<ActionResult<APIResponse<ProductDTO>>> GetProductbyID([FromRoute] Guid id)
+        {
+
+
+            var product = await adminService.GetProductByIdAsync(id);
+            var response = new APIResponse<ProductDTO>
+            {
+                Success = true,
+                Data = product,
+                Message = "prodcut detail is sent"
+            };
+
+            return Ok(response);
+
+        }
+
     }
 }

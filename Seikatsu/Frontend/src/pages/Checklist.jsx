@@ -144,11 +144,11 @@ export default function Checklist() {
     REQUEST PRODUCT
     */
 
-    const requestProduct = (name) => {
+    //const requestProduct = (name) => {
 
-        alert(`Request sent for "${name}" to admin`);
+    //    alert(`Request sent for "${name}" to admin`);
 
-    };
+    //};
 
 
     /*
@@ -376,12 +376,7 @@ export default function Checklist() {
                                                     Add "{newItem}"
                                                 </div>
 
-                                                <div
-                                                    onClick={() => requestProduct(newItem)}
-                                                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-blue-500"
-                                                >
-                                                    Request this product
-                                                </div>
+
                                             </>
 
                                         )}
