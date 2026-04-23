@@ -17,13 +17,13 @@ namespace Seikatsu.Backend.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "admin")]
-    public class AdminController(IAdminService adminService, IConfiguration configuration) : ControllerBase 
+    public class AdminController(IAdminService adminService, IConfiguration configuration) : ControllerBase
     {
         [HttpPost("adminaddproducts")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<APIResponse<ProductAddResponseDTO>>> AddProduct(ProductAddRequestDTO request)
         {
-           
+
 
             var result = await adminService.AddProductAsync(request);
             var response = new APIResponse<ProductAddResponseDTO>
@@ -54,5 +54,157 @@ namespace Seikatsu.Backend.Controllers
 
         }
 
+        [HttpPatch("editproduct/{id}")]
+        public async Task<ActionResult<APIResponse<ProductDTO>>> EditProduct([FromRoute] Guid id, EditProductRequestDTO request)
+        {
+            var result = await adminService.EditProductAsync(id, request);
+            var response = new APIResponse<ProductDTO>
+            {
+                Success = true,
+                Data = result,
+                Message = "product is edited"
+            };
+            return Ok(response);
+        }
+
+        [HttpDelete("deleteproduct/{id}")]
+        public async Task<ActionResult<APIResponse<object>>> DeleteProduct([FromRoute] Guid id)
+        {
+            var result = await adminService.DeleteProductAsync(id);
+            var response = new APIResponse<object>
+            {
+                Success = result,
+                Data = null,
+                Message = result ? "product is deleted" : "product not found"
+            };
+            return Ok(response);
+
+        }
+        [HttpPost("createcategory")]
+        public async Task<ActionResult<APIResponse<CreateCategoryResponseDTO>>> CreateCategory([FromBody] string categoryName)
+        {
+            var result = await adminService.CreateCategoryAsync(categoryName);
+            var response = new APIResponse<CreateCategoryResponseDTO>
+            {
+                Success = true,
+                Data = result,
+                Message = "category is created"
+            };
+            return Ok(response);
+        }
+        [HttpDelete("deletecategory/{id}")]
+        public async Task<ActionResult<APIResponse<object>>> DeleteCategory([FromRoute] Guid id)
+        {
+            var result = await adminService.DeleteCategoryAsync(id);
+            var response = new APIResponse<object>
+            {
+                Success = result,
+                Data = null,
+                Message = result ? "category is deleted" : "category not found"
+            };
+            return Ok(response);
+        }
+        [HttpGet("customerscount")]
+        public async Task<ActionResult<APIResponse<int>>> CountCustomers()
+        {
+            var result = await adminService.CountCustomersAsync();
+            var response = new APIResponse<int>
+            {
+                Success = true,
+                Data = result,
+                Message = "total customers count is sent"
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("totalrevenue")]
+        public async Task<ActionResult<APIResponse<decimal>>> TotalRevenue()
+        {
+            var result = await adminService.TotalRevenueEarnedAsync();
+            var response = new APIResponse<decimal>
+            {
+                Success = true,
+                Data = result,
+                Message = "total revenue is sent"
+            };
+            return Ok(response);
+        }
+        [HttpGet("revenuedaterange")]
+        public async Task<ActionResult<APIResponse<decimal>>> RevenueinRange([FromBody] DateRequestDTO request)
+        {
+            var result = await adminService.GetRevenueAsync(request);
+            var response = new APIResponse<decimal>
+            {
+                Success = true,
+                Data = result,
+                Message = "revenue in the date range is sent"
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("totalorders")]
+        public async Task<ActionResult<APIResponse<OrderCountResponseDTO>>> TotalOrders()
+        {
+            var result = await adminService.TotalOrdersAsync();
+            var response = new APIResponse<OrderCountResponseDTO>
+            {
+                Success = true,
+                Data = result,
+                Message = "total orders count is sent"
+            };
+            return Ok(response);
+        }
+        [HttpGet("ordersinrange")]
+        public async Task<ActionResult<APIResponse<OrderCountResponseDTO>>> OrdersinRange([FromBody] DateRequestDTO request)
+        {
+            var result = await adminService.TotalOrdersinRangeAsync(request);
+            var response = new APIResponse<OrderCountResponseDTO>
+            {
+                Success = true,
+                Data = result,
+                Message = "orders count in the date range is sent"
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("getallcats")]
+        public async Task<ActionResult<APIResponse<IEnumerable<CategoryResponseDTO>>>> GetAllCategories()
+        {
+            var result = await adminService.GetAllCategoriesAsync();
+            var response = new APIResponse<IEnumerable<CategoryResponseDTO>>
+            {
+                Success = true,
+                Data = result,
+                Message = "all categories are sent"
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("getproductsbycat/{id}")]
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductDTOforIndexPage>>>> GetProductsByCategory([FromRoute] Guid id)
+        {
+            var result = await adminService.GetProductByCategory(id);
+            var response = new APIResponse<IEnumerable<ProductDTOforIndexPage>>
+            {
+                Success = true,
+                Data = result,
+                Message = "products in the category are sent"
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("getproductsbycountry")]
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductCountryDTO>>>> GetProductsByCountry([FromQuery] string countryname)
+        {
+            var result = await adminService.GetProductbyCountryAsync(countryname);
+            var response = new APIResponse<IEnumerable<ProductCountryDTO>>
+            {
+                Success = true,
+                Data = result,
+                Message = "products in the country are sent"
+            };
+            return Ok(response);
+        }
     }
-}
+
+    }
