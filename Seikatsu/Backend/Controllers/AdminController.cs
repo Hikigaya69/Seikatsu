@@ -205,6 +205,83 @@ namespace Seikatsu.Backend.Controllers
             };
             return Ok(response);
         }
+
+        //this for plotting graphs.. If categoryId can be null also.. if choosen the analysis will be for that perticular category
+        [HttpGet("revenueforperiod")]
+        public async Task<ActionResult<APIResponse<RevenueResponseDTO>>> RevenueForPeriod([FromBody] RevenuePeriodRequestDTO request)
+        {
+            var result = await adminService.GetRevenueForPeriodAsync(request);
+            var response = new APIResponse<RevenueResponseDTO>
+            {
+                Success = true,
+                Data = result,
+                Message = "revenue for the period is sent"
+            };
+            return Ok(response);
+        }
+        //this for plotting graphs... here ddont mind the request dto name.. fileds are same
+        [HttpGet("ordersforperiod")]
+        public async Task<ActionResult<APIResponse<OrderAnalysisResponseDTO>>> OrdersForPeriod([FromBody] RevenuePeriodRequestDTO request)
+        {
+            var result = await adminService.GetOrderForPeriodAsync(request);
+            var response = new APIResponse<OrderAnalysisResponseDTO>
+            {
+                Success = true,
+                Data = result,
+                Message = "orders for the period is sent"
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("categorywiseproductssold/{id}")]
+        public async Task<ActionResult<APIResponse<int>>> CategorywiseProductsSold([FromRoute] Guid id)
+        {
+            var result = await adminService.CategorywiseProductsSoldAsync(id);
+            var response = new APIResponse<int>
+            {
+                Success = true,
+                Data = result,
+                Message = "total products sold in the category is sent"
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("countrywiseproductssold")]
+        public async Task<ActionResult<APIResponse<int>>> CountrywiseProductsSold([FromQuery] string countryName)
+        {
+            var result = await adminService.CountrywiseProductsSoldAsync(countryName);
+            var response = new APIResponse<int>
+            {
+                Success = true,
+                Data = result,
+                Message = "total products sold in the country is sent"
+            };
+            return Ok(response);
+        }
+        [HttpGet("categoryitemcount")]
+        public async Task<ActionResult<APIResponse<IEnumerable<CategoryDetailResponseDTO>>>> CategoryItemCount()
+        {
+            var result = await adminService.ShowCategoryItemCount();
+            var response = new APIResponse<IEnumerable<CategoryDetailResponseDTO>>
+            {
+                Success = true,
+                Data = result,
+                Message = "item count for each category is sent"
+            };
+            return Ok(response);
+        }
+        [HttpGet("countryitemcount")]
+        public async Task<ActionResult<APIResponse<IEnumerable<CountryCountResponseDTO>>>> CountryItemCount()
+        {
+            var result = await adminService.ShowCountryItemCount();
+            var response = new APIResponse<IEnumerable<CountryCountResponseDTO>>
+            {
+                Success = true,
+                Data = result,
+                Message = "item count for each country is sent"
+            };
+            return Ok(response);
+        }
     }
 
-    }
+}

@@ -30,5 +30,21 @@ namespace Seikatsu.Backend.Services
         Task<IEnumerable<ProductDTOforIndexPage>> GetProductByCategory(Guid categoryId);
 
         Task<IEnumerable<ProductCountryDTO>> GetProductbyCountryAsync(string countryname);
+
+        //this for plotting graphs.. If categoryId can be null also.. if choosen the analysis will be for that perticular category
+        Task<RevenueResponseDTO> GetRevenueForPeriodAsync(RevenuePeriodRequestDTO request);
+
+        //this for plotting graphs... here ddont mind the request dto name.. fileds are same
+        Task<OrderAnalysisResponseDTO> GetOrderForPeriodAsync(RevenuePeriodRequestDTO request);
+
+        //for single category sales count.. suitable for tile in dashboard
+        Task<int>CategorywiseProductsSoldAsync(Guid categoryId);
+
+        Task<int> CountrywiseProductsSoldAsync(string countryName);
+
+        Task<IEnumerable<CategoryDetailResponseDTO>> ShowCategoryItemCount();
+       Task<IEnumerable<CountryCountResponseDTO>> ShowCountryItemCount();
+
+        
     }
 }
