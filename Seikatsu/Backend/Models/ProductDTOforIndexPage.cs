@@ -12,5 +12,7 @@
         public string? ProductImageUrl { get; set; }
         public string CountryName { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
+
+        public DateTime CreatedAt { get; set; }
     }
 }

@@ -4,7 +4,8 @@ namespace Seikatsu.Backend.Services
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductDTOforIndexPage>> GetRandomProductsAsync(int count);
+        Task<PagedResult<ProductDTOforIndexPage>> GetRandomProductsAsync(
+      int pageSize, DateTime? cursorDate);
         Task<ProductDTO> GetPrductbyIdAsync(Guid id);
 
         Task<IEnumerable<ProductCountryDTO>> GetProductbyCountryAsync(string countryname);
@@ -13,7 +14,7 @@ namespace Seikatsu.Backend.Services
 
         Task<IEnumerable<ProductDTOforIndexPage>> GetProductsbySearchAsync(string query);
 
-        Task<IEnumerable<ProductDTOforIndexPage>> GetProductbyCategoty(Guid categoryId);
+        Task<PagedResult<ProductDTOforIndexPage>> GetProductByCategoryAsync(Guid categoryId, int pageSize, DateTime? cursorDate);
 
 
     }

@@ -22,16 +22,19 @@ namespace Seikatsu.Backend.Controllers
         // APIResponse object that indicates success and includes the data or an appropriate message if no products are found.
         //https://localhost:7115/api/Product/GetRandomProducts this is the endpoint which the frontend will call to get the random products for the index page.     
 
-        public async Task<ActionResult<APIResponse<IEnumerable<ProductDTOforIndexPage>>>> GetRandomProducts(int count=12)
+       
+        public async Task<ActionResult<APIResponse<PagedResult<ProductDTOforIndexPage>>>> GetRandomProducts(
+    [FromQuery] int pageSize = 20,
+    [FromQuery] DateTime? cursorDate = null,
+    [FromQuery] Guid? cursorId = null)
         {
-            var products = await productService.GetRandomProductsAsync(count);
-            var response = new APIResponse<IEnumerable<ProductDTOforIndexPage>>
+            var result = await productService.GetRandomProductsAsync(pageSize, cursorDate);
+            var response = new APIResponse<PagedResult<ProductDTOforIndexPage>>
             {
                 Success = true,
-                Data = products,
-                Message = products.Any() ? "prodcuts are sent" : "No products found."
+                Data = result,
+                Message = result.Items.Any() ? "Products are sent." : "No products found."
             };
-
             return Ok(response);
         }
 
@@ -94,15 +97,17 @@ namespace Seikatsu.Backend.Controllers
         }
 
         [HttpGet("category/{categoryId}")]
-
-        public async Task<ActionResult<APIResponse<IEnumerable<ProductDTOforIndexPage>>>> GetProductbyCategory([FromRoute] Guid categoryId)
+        public async Task<ActionResult<APIResponse<PagedResult<ProductDTOforIndexPage>>>> GetProductByCategory(
+    Guid categoryId,
+    [FromQuery] int pageSize = 20,
+    [FromQuery] DateTime? cursorDate = null)
         {
-            var products = await productService.GetProductbyCategoty(categoryId);
-            var response = new APIResponse<IEnumerable<ProductDTOforIndexPage>>
+            var result = await productService.GetProductByCategoryAsync(categoryId, pageSize, cursorDate);
+            var response = new APIResponse<PagedResult<ProductDTOforIndexPage>>
             {
                 Success = true,
-                Data = products,
-                Message = products.Any() ? "products for requested category are sent" : "No products found."
+                Data = result,
+                Message = result.Items.Any() ? "Products are sent." : "No products found."
             };
             return Ok(response);
         }

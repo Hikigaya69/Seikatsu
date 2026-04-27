@@ -22,10 +22,11 @@ namespace Seikatsu.Backend.Data
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Product>()
+    .HasIndex(p => new { p.CreatedAt, p.Id });
 
-            
             // Customer → Address (1:M)
-           
+
             modelBuilder.Entity<Address>()
                 .HasOne(a => a.Customer)
                 .WithMany(c => c.Addresses)

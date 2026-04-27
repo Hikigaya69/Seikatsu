@@ -17,7 +17,7 @@
         public string? ProductImageUrl { get; set; }
 
         public string CountryName { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }=DateTime.Now;
 
         public Guid CategoryId { get; set; }
         public Category? Category { get; set; }

@@ -7,12 +7,21 @@ namespace Seikatsu.Backend.Services
 {
     public class ProductService(Data.UserContext context) : IProductService
     {
-        public async Task<IEnumerable<Models.ProductDTOforIndexPage>> GetRandomProductsAsync(int count)
+        public async Task<PagedResult<ProductDTOforIndexPage>> GetRandomProductsAsync(
+    int pageSize, DateTime? cursorDate)
         {
-            var products = await context.Products
-                .OrderBy(p => Guid.NewGuid()) // Randomize the order of products
-                .Take(count) // Take the specified number of products
-                .Select(p => new Models.ProductDTOforIndexPage
+            var query = context.Products
+                .OrderBy(p => p.CreatedAt)
+                .ThenBy(p => p.Id);
+
+            if (cursorDate != null)
+                query = context.Products
+                    .Where(p => p.CreatedAt > cursorDate)
+                    .OrderBy(p => p.CreatedAt)
+                    .ThenBy(p => p.Id);
+            var rows = await query
+                .Take(pageSize + 1)
+                .Select(p => new ProductDTOforIndexPage
                 {
                     Id = p.Id,
                     Name = p.Name,
@@ -20,14 +29,23 @@ namespace Seikatsu.Backend.Services
                     Price = p.Price,
                     ProductImageUrl = p.ProductImageUrl,
                     Category = p.Category!.CategoryName,
-                    CountryName = p.CountryName
+                    CountryName = p.CountryName,
+                    CreatedAt = p.CreatedAt  // needed to set next cursor
                 })
                 .ToListAsync();
-            if(products.Count == 0)
+
+            if (rows.Count == 0 && cursorDate == null)
+                throw new NotFoundException("No products found.");
+
+            var hasMore = rows.Count > pageSize;
+            var items = hasMore ? rows.Take(pageSize).ToList() : rows;
+
+            return new PagedResult<ProductDTOforIndexPage>
             {
-                throw new NotFoundException("products are not found.");
-            }
-            return products;
+                Items = items,
+                NextCursorDate = hasMore ? items.Last().CreatedAt : null,
+               
+            };
         }
 
         public async Task<ProductDTO> GetPrductbyIdAsync(Guid id)
@@ -112,11 +130,24 @@ namespace Seikatsu.Backend.Services
             return products;
         }
 
-        public async Task<IEnumerable<Models.ProductDTOforIndexPage>> GetProductbyCategoty(Guid categoryId)
+        public async Task<PagedResult<ProductDTOforIndexPage>> GetProductByCategoryAsync(
+      Guid categoryId, int pageSize, DateTime? cursorDate)
         {
-            var products = await context.Products
+            var query = context.Products
                 .Where(p => p.CategoryId == categoryId)
-                .Select(p => new Models.ProductDTOforIndexPage
+                .OrderBy(p => p.CreatedAt)
+                .ThenBy(p => p.Id);
+
+            if (cursorDate != null)
+                query = context.Products
+                    .Where(p => p.CategoryId == categoryId)
+                    .Where(p => p.CreatedAt > cursorDate)
+                    .OrderBy(p => p.CreatedAt)
+                    .ThenBy(p => p.Id);
+
+            var rows = await query
+                .Take(pageSize + 1)
+                .Select(p => new ProductDTOforIndexPage
                 {
                     Id = p.Id,
                     Name = p.Name,
@@ -124,15 +155,22 @@ namespace Seikatsu.Backend.Services
                     Price = p.Price,
                     ProductImageUrl = p.ProductImageUrl,
                     Category = p.Category!.CategoryName,
-                    CountryName = p.CountryName
+                    CountryName = p.CountryName,
+                    CreatedAt = p.CreatedAt
                 })
                 .ToListAsync();
-            if(products.Count == 0)
-            {
-                throw new NotFoundException($"products are not found for category.");
-            }
-            return products;
 
+            if (rows.Count == 0 && cursorDate == null)
+                throw new NotFoundException("No products found for this category.");
+
+            var hasMore = rows.Count > pageSize;
+            var items = hasMore ? rows.Take(pageSize).ToList() : rows;
+
+            return new PagedResult<ProductDTOforIndexPage>
+            {
+                Items = items,
+                NextCursorDate = hasMore ? items.Last().CreatedAt : null
+            };
         }
     }
 }
