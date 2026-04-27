@@ -14,6 +14,7 @@ namespace Seikatsu.Backend.Services
                 .OrderBy(p => p.CreatedAt)
                 .ThenBy(p => p.Id);
 
+
             if (cursorDate != null)
                 query = context.Products
                     .Where(p => p.CreatedAt > cursorDate)

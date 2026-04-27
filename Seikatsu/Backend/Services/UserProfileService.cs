@@ -21,7 +21,7 @@ namespace Seikatsu.Backend.Services
                 .FirstOrDefault(a => a.IsDefault)
                 ?? customer.Addresses.FirstOrDefault();
 
-           
+
 
             return new UserProfileResponseDTO
             {
@@ -50,7 +50,7 @@ namespace Seikatsu.Backend.Services
                 .FirstOrDefault(a => a.IsDefault)
                 ?? customer.Addresses.FirstOrDefault();
 
-           
+
 
             customer.FullName = request.FullName;
             customer.PhoneNumber = request.PhoneNumber;
@@ -60,7 +60,7 @@ namespace Seikatsu.Backend.Services
             {
                 address.AddressLine1 = request.AddressLine1;
                 address.AddressLine2 = request.AddressLine2;
-               
+
                 address.PostalCode = request.PostalCode;
                 address.Country = request.Country;
                 address.IsDefault = request.IsDefault;
@@ -75,14 +75,19 @@ namespace Seikatsu.Backend.Services
                 PhoneNumber = customer.PhoneNumber,
                 AddressLine1 = address?.AddressLine1 ?? string.Empty,
                 AddressLine2 = address?.AddressLine2,
-              
+
                 PostalCode = address.PostalCode,
                 Country = address.Country,
                 IsDefault = address.IsDefault
 
 
-            };  
+            };
         }
+
+      
+
+
+        
         public async Task<OrderOverviewDTO> OrderStatusAsync(Guid userId)
         {
             var customer = await context.Customers
@@ -131,7 +136,7 @@ namespace Seikatsu.Backend.Services
                 PendingOrders = pendingItems,
 
                 DeliveredOrders = deliveredItems,
-                CancelledOrders  = cancelledItems
+                CancelledOrders = cancelledItems
             };
 
         }

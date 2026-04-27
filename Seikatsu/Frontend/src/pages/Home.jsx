@@ -1,5 +1,4 @@
-﻿
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import HomeNavbar from "../components/home/HomeNavbar";
 import HeroBanner from "../components/home/HeroBanner";
 import ProductGrid from "../components/home/ProductGrid";
@@ -18,20 +17,29 @@ export default function Home() {
     const [hasNextPage, setHasNextPage] = useState(false);
     const [totalVisible, setTotalVisible] = useState(0);
 
-    // Universal extractor (handles all API shapes)
+    // ✅ Robust universal extractor
     const extractItems = (data) => {
+        if (!data) return [];
         if (Array.isArray(data)) return data;
-        if (Array.isArray(data?.items)) return data.items;
+        if (Array.isArray(data.items)) return data.items;
+        if (Array.isArray(data.categories)) return data.categories;
+        if (Array.isArray(data.results)) return data.results;
         return [];
     };
 
     useEffect(() => {
         api.get("/Category/getallcategories")
             .then((res) => {
-                const data = res.data.data;
-                setCategories(Array.isArray(data) ? data : []);
+                console.log(" RAW CATEGORY RESPONSE:", res.data);
+
+                const items = extractItems(res.data.data);
+
+                console.log(" EXTRACTED CATEGORIES:", items);
+                console.log(" CATEGORY COUNT:", items.length);
+
+                setCategories(items);
             })
-            .catch(console.error);
+            .catch((err) => console.error("❌ CATEGORY ERROR:", err));
 
         fetchProducts(null, null);
     }, []);
@@ -40,7 +48,7 @@ export default function Home() {
         setLoading(true);
 
         const endpoint = categoryId
-            ? `/Product/category/${ categoryId } `
+            ? `/Product/category/${categoryId}`
             : `/Product/productforindex`;
 
         const params = { pageSize: 12 };
@@ -51,7 +59,6 @@ export default function Home() {
         api.get(endpoint, { params })
             .then((res) => {
                 const data = res.data.data;
-
                 const items = extractItems(data);
 
                 setProducts(items);
@@ -69,7 +76,7 @@ export default function Home() {
         setLoadingMore(true);
 
         const endpoint = selectedCategory
-            ? `/Product/category/${ selectedCategory } `
+            ? `/Product/category/${selectedCategory}`
             : `/Product/productforindex`;
 
         const params = {
@@ -80,7 +87,6 @@ export default function Home() {
         api.get(endpoint, { params })
             .then((res) => {
                 const data = res.data.data;
-
                 const items = extractItems(data);
 
                 setProducts((prev) => [...prev, ...items]);
@@ -99,7 +105,7 @@ export default function Home() {
             fetchProducts(null, null);
         } else {
             setSelectedCategory(category.id);
-            setSelectedCategoryName(category.categoryName);
+            setSelectedCategoryName(category.categoryName || "Unnamed");
             fetchProducts(category.id, null);
         }
         setDropdownOpen(false);
@@ -115,44 +121,60 @@ export default function Home() {
 
             <div className="max-w-7xl mx-auto px-6">
 
-                {/* Category Dropdown + Counter */}
+                {/* Dropdown */}
                 <div className="flex items-center justify-between mb-6">
                     <div className="relative inline-block">
+
                         <button
                             onClick={() => setDropdownOpen((prev) => !prev)}
                             className="flex items-center gap-2 bg-white border border-gray-300 px-5 py-2.5 rounded-lg shadow-sm hover:shadow-md transition text-sm font-medium text-gray-700"
                         >
                             🗂 {selectedCategoryName}
                             <svg
-                                className={`w - 4 h - 4 transition - transform ${ dropdownOpen ? "rotate-180" : "" } `}
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                className={`w-4 h-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
                             >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
 
                         {dropdownOpen && (
-                            <div className="absolute z-50 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+                            <div className="absolute z-50 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+
+                                {/* All Categories */}
                                 <button
                                     onClick={() => handleCategorySelect("all")}
-                                    className={`w - full text - left px - 4 py - 2.5 text - sm hover: bg - gray - 50 transition
-                                        ${ selectedCategory === null ? "font-semibold text-[#3c6e71]" : "text-gray-700" } `}
+                                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 transition flex items-center gap-2
+                                        ${selectedCategory === null ? "font-semibold text-[#3c6e71]" : "text-gray-700"}`}
                                 >
-                                    🛒 All Categories
+                                    🛒 <span>All Categories</span>
                                 </button>
 
                                 <div className="border-t border-gray-100" />
 
-                                {categories.map((cat) => (
+                                {/* Categories */}
+                                {categories.map((cat, index) => (
                                     <button
-                                        key={cat.id}
+                                        key={`${cat.id}-${index}`}
                                         onClick={() => handleCategorySelect(cat)}
-                                        className={`w - full text - left px - 4 py - 2.5 text - sm hover: bg - gray - 50 transition
-                                            ${ selectedCategory === cat.id ? "font-semibold text-[#3c6e71] bg-gray-50" : "text-gray-700" } `}
+                                        className={`w-full text-left px-4 py-2.5 text-sm transition hover:bg-gray-100
+                                            ${selectedCategory === cat.id
+                                                ? "font-semibold text-[#3c6e71] bg-gray-50"
+                                                : "text-gray-700"
+                                            }`}
                                     >
-                                        {cat.categoryName}
+                                        {cat.categoryName || "Unnamed Category"}
                                     </button>
                                 ))}
+
+                                {/* Debug info in UI */}
+                                {categories.length === 0 && (
+                                    <div className="p-4 text-sm text-gray-400">
+                                        No categories found
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -179,13 +201,12 @@ export default function Home() {
                     <>
                         <ProductGrid products={products} />
 
-                        {/* Load More */}
                         <div className="flex flex-col items-center gap-2 mt-10 mb-6">
                             {hasNextPage ? (
                                 <button
                                     onClick={loadMore}
                                     disabled={loadingMore}
-                                    className="px-8 py-2.5 bg-[#3c6e71] text-white text-sm font-medium rounded-lg hover:bg-[#2f5a5c] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-8 py-2.5 bg-[#3c6e71] text-white text-sm font-medium rounded-lg hover:bg-[#2f5a5c] transition disabled:opacity-50"
                                 >
                                     {loadingMore ? "Loading..." : "Load more"}
                                 </button>
@@ -201,4 +222,3 @@ export default function Home() {
         </div>
     );
 }
-

@@ -7,7 +7,8 @@ namespace Seikatsu.Backend.Services
         Task<UserProfileResponseDTO> GetUserDetailsAsync(Guid userId);
 
         Task<UserProfileResponseDTO> UpdateUserInfoAsync(Guid userId, UserProfileUpdateDTO request);
+        
 
-        Task<OrderOverviewDTO> OrderStatusAsync(Guid userId);
+       Task<OrderOverviewDTO> OrderStatusAsync(Guid userId);
     }
 }

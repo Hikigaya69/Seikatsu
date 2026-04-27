@@ -8,8 +8,10 @@ namespace Seikatsu.Backend.Services
     {
        Task<CreateOrderResponseDTO> CreateOrderAsync(Guid customerID,CreateOrderDTO request);
         Task<CreateRestockOrderResponseDTO> CreateRestockOrderAsync(Guid customerId, RestockCartItem item);
-        Task<IEnumerable<OrderItemsResponseDTO>> GetOrdersByCustomerIdAsync(Guid customerId);
-        Task<IEnumerable<OrderItemsResponseDTO>> GetOrderByYearAsync(Guid customerId,int year);
+        Task<PagedResult<OrderItemsResponseDTO>> GetOrdersByCustomerIdAsync(Guid customerId,int pageSize, DateTime? cursorDate);
+ 
+        Task<PagedResult<OrderItemsResponseDTO>> GetOrderByYearAsync(Guid customerId, int year,int pageSize, DateTime? cursorDate);
+     
         Task<OrderSummaryResponseDTO> GetOrderSummaryAsync(Guid customerId, Guid addressId);
         Task<OrderSummaryResponseDTO> GetOrderSummaryByOrderIdAsync(Guid customerId, Guid orderId);
 

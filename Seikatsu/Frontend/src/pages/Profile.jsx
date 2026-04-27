@@ -183,36 +183,73 @@ function OrdersTab() {
     const [orders, setOrders] = useState([]);
     const [year, setYear] = useState("");
 
-    const fetchOrders = async (selectedYear = "") => {
+    const [nextCursorDate, setNextCursorDate] = useState(null);
+    const [hasNextPage, setHasNextPage] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
+
+    // ✅ Universal extractor
+    const extractItems = (data) => {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.items)) return data.items;
+        return [];
+    };
+
+    const fetchOrders = async (selectedYear = "", cursorDate = null, isLoadMore = false) => {
 
         try {
 
-            const url = selectedYear
+            const baseUrl = selectedYear
                 ? `/Order/orderhistory/${selectedYear}`
                 : "/Order/orderhistory";
 
-            const res = await api.get(url, {
+            const res = await api.get(baseUrl, {
+                params: {
+                    pageSize: 6,
+                    cursorDate: cursorDate
+                },
                 withCredentials: true
             });
 
-            setOrders(res.data.data);
+            console.log(" RAW ORDERS:", res.data);
+
+            const data = res.data.data;
+            const items = extractItems(data);
+
+            console.log(" ITEMS:", items);
+            console.log(" NEXT CURSOR:", data?.nextCursorDate);
+            console.log(" HAS NEXT:", data?.hasNextPage);
+
+            if (isLoadMore) {
+                setOrders(prev => [...prev, ...items]);
+            } else {
+                setOrders(items);
+            }
+
+            setNextCursorDate(data?.nextCursorDate || null);
+            setHasNextPage(data?.hasNextPage || false);
 
         } catch (err) {
-
-            console.error(err);
-
+            console.error(" ORDER FETCH ERROR:", err);
         }
-
     };
 
+    // Initial load
     useEffect(() => {
-
         fetchOrders();
-
     }, []);
 
-    return (
+    // Load more handler
+    const loadMore = () => {
+        if (!hasNextPage || loadingMore) return;
 
+        setLoadingMore(true);
+
+        fetchOrders(year, nextCursorDate, true)
+            .finally(() => setLoadingMore(false));
+    };
+
+    return (
         <div>
 
             {/* YEAR FILTER */}
@@ -221,41 +258,57 @@ function OrdersTab() {
                 <select
                     value={year}
                     onChange={(e) => {
+                        const selected = e.target.value;
+                        setYear(selected);
 
-                        setYear(e.target.value);
-                        fetchOrders(e.target.value);
+                        // Reset state
+                        setOrders([]);
+                        setNextCursorDate(null);
 
+                        fetchOrders(selected, null, false);
                     }}
                     className="border px-4 py-2 rounded-lg"
                 >
-
                     <option value="">Last 5 Months</option>
                     <option value="2026">2026</option>
                     <option value="2025">2025</option>
                     <option value="2024">2024</option>
-
                 </select>
 
             </div>
-
 
             {/* ORDER LIST */}
             <div className="space-y-4">
 
                 {orders.map(order => (
-
                     <OrderCard key={order.orderItemId} order={order} />
-
                 ))}
 
             </div>
 
+            {/* LOAD MORE */}
+            <div className="flex justify-center mt-6">
+
+                {hasNextPage ? (
+                    <button
+                        onClick={loadMore}
+                        disabled={loadingMore}
+                        className="px-6 py-2 bg-[#3c6e71] text-white rounded-lg hover:bg-[#2f5a5c] transition disabled:opacity-50"
+                    >
+                        {loadingMore ? "Loading..." : "Load More"}
+                    </button>
+                ) : (
+                    orders.length > 0 &&
+                    <p className="text-gray-400 text-sm">
+                        You reached the end
+                    </p>
+                )}
+
+            </div>
+
         </div>
-
     );
-
 }
-
 
 function OrderCard({ order }) {
 

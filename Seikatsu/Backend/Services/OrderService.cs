@@ -130,7 +130,8 @@ namespace Seikatsu.Backend.Services
 
         }
 
-        public async Task<CreateRestockOrderResponseDTO> CreateRestockOrderAsync(Guid customerId, RestockCartItem item) {
+        public async Task<CreateRestockOrderResponseDTO> CreateRestockOrderAsync(Guid customerId, RestockCartItem item)
+        {
             var address = await context.Addresses
           .Include(a => a.Customer)
           .FirstOrDefaultAsync(a => a.CustomerId == customerId && a.IsDefault);
@@ -203,56 +204,110 @@ namespace Seikatsu.Backend.Services
         }
         //get all orders of a customer in last 5 months, sorted by order date desc. This will be used in order history page.
         //can also add pagination later if needed.
-        public async Task<IEnumerable<OrderItemsResponseDTO>> GetOrdersByCustomerIdAsync(Guid customerId)
+
+        public async Task<PagedResult<OrderItemsResponseDTO>> GetOrdersByCustomerIdAsync(Guid customerId, int pageSize, DateTime? cursorDate)
         {
-            var fiveMonthsAgo = DateTime.UtcNow.AddMonths(-5);
-
-            var orders = await context.Orders
-                .Where(o => o.CustomerId == customerId && o.CreatedAt >= fiveMonthsAgo)
-                .OrderByDescending(o => o.CreatedAt)
-                .SelectMany(o => o.OrderItems, (o, oi) => new OrderItemsResponseDTO
-                {
-                    OrderId = o.Id,
-                    OrderItemId = oi.Id,
-                    OrderStatus = o.OrderStatus,
-                    ProductId = oi.ProductId,
-                    ProductName = oi.Product!.Name,
-                    ProductImageUrl = oi.Product!.ProductImageUrl,
-                    Quantity = oi.Quantity,
-                    OrderedDate = o.CreatedAt
-                })
-                .ToListAsync();
-            if (!orders.Any())
-                throw new NotFoundException("No orders found in the last 5 months.");
-            return orders;
-        }
-        //get all orders of a customer in a specific year, sorted by order date desc.
-        //This will be used in order history page when user clicks on a specific year.
-        public async Task<IEnumerable<OrderItemsResponseDTO>> GetOrderByYearAsync(Guid customerId, int year)
+            var query = context.OrderItems
+        .Where(oi => oi.Order.CustomerId == customerId)
+        .Select(oi => new OrderItemsResponseDTO
         {
+            ProductId = oi.ProductId,
+            OrderItemId = oi.Id,
+            ProductName = oi.Product.Name,
+            ProductImageUrl = oi.Product.ProductImageUrl,
+            Quantity = oi.Quantity,
+            OrderedDate = oi.Order.CreatedAt,
+            OrderId = oi.OrderId,
+            OrderStatus = oi.Order.OrderStatus
+        });
 
+            if (cursorDate.HasValue)
+            {
+                query = query.Where(x => x.OrderedDate < cursorDate.Value);
+            }
 
-            var orders = await context.Orders
-                .Where(o => o.CustomerId == customerId && o.CreatedAt.Year == year)
-                .OrderByDescending(o => o.CreatedAt)
-                .SelectMany(o => o.OrderItems, (o, oi) => new OrderItemsResponseDTO
-                {
-                    OrderId = o.Id,
-                    OrderItemId = oi.Id,
-                    OrderStatus = o.OrderStatus,
-                    ProductId = oi.ProductId,
-                    ProductName = oi.Product!.Name,
-                    ProductImageUrl = oi.Product!.ProductImageUrl,
-                    Quantity = oi.Quantity,
-                    OrderedDate = o.CreatedAt
-                })
+            
+            query = query
+                .OrderByDescending(x => x.OrderedDate)
+                .ThenByDescending(x => x.OrderItemId);
+
+           
+            var items = await query
+                .Take(pageSize + 1)
                 .ToListAsync();
-            if (!orders.Any())
-                throw new NotFoundException($"No orders found in the {year}.");
-            return orders;
+
+            var hasNextPage = items.Count > pageSize;
+
+            if (hasNextPage)
+            {
+                items.RemoveAt(items.Count - 1);
+            }
+
+            var nextCursorDate = hasNextPage
+                ? items.Last().OrderedDate
+                : (DateTime?)null;
+
+            return new PagedResult<OrderItemsResponseDTO>
+            {
+                Items = items,
+                NextCursorDate = nextCursorDate,
+                
+            };
+
         }
-        //before placing the order, we can show the summary of the order to the user,
-        //so that they can confirm before placing the order. This will be based on the cart and address they have selected.
+      
+
+        public async Task<PagedResult<OrderItemsResponseDTO>> GetOrderByYearAsync(Guid customerId, int year, int pageSize, DateTime? cursorDate)
+        {
+            var query = context.OrderItems
+        .Where(oi => oi.Order.CustomerId == customerId && oi.Order.CreatedAt.Year == year)
+        .Select(oi => new OrderItemsResponseDTO
+        {
+            ProductId = oi.ProductId,
+            OrderItemId = oi.Id,
+            ProductName = oi.Product.Name,
+            ProductImageUrl = oi.Product.ProductImageUrl,
+            Quantity = oi.Quantity,
+            OrderedDate = oi.Order.CreatedAt,
+            OrderId = oi.OrderId,
+            OrderStatus = oi.Order.OrderStatus
+        });
+
+            if (cursorDate.HasValue)
+            {
+                query = query.Where(x => x.OrderedDate < cursorDate.Value);
+            }
+
+
+            query = query
+                .OrderByDescending(x => x.OrderedDate)
+                .ThenByDescending(x => x.OrderItemId);
+
+
+            var items = await query
+                .Take(pageSize + 1)
+                .ToListAsync();
+
+            var hasNextPage = items.Count > pageSize;
+
+            if (hasNextPage)
+            {
+                items.RemoveAt(items.Count - 1);
+            }
+
+            var nextCursorDate = hasNextPage
+                ? items.Last().OrderedDate
+                : (DateTime?)null;
+
+            return new PagedResult<OrderItemsResponseDTO>
+            {
+                Items = items,
+                NextCursorDate = nextCursorDate,
+
+            };
+
+        }
+      
         public async Task<OrderSummaryResponseDTO> GetOrderSummaryAsync(Guid customerId, Guid addressId)
         {
             // 1. fetch cart
@@ -329,7 +384,7 @@ namespace Seikatsu.Backend.Services
                 .FirstOrDefaultAsync();
 
             if (order == null)
-                throw new NotFoundException("Order not found for the customer.");   
+                throw new NotFoundException("Order not found for the customer.");
 
             var items = order.OrderItems.Select(oi => new OrderSummaryItemDTO
             {
@@ -341,7 +396,7 @@ namespace Seikatsu.Backend.Services
                 LineTotal = oi.Quantity * oi.PriceAtPurchase
             }).ToList();
 
-            if(!items.Any())
+            if (!items.Any())
                 throw new BadRequestException("Order has no items.");
 
             var subTotal = items.Sum(i => i.LineTotal);
@@ -414,7 +469,8 @@ namespace Seikatsu.Backend.Services
 
             var razrorpayscretet = configuration["Razorpay:KeySecret"];
 
-            try {
+            try
+            {
                 Dictionary<string, string> options = new Dictionary<string, string>();
                 options.Add("razorpay_order_id", request.RazorpayOrderId);
                 options.Add("razorpay_payment_id", request.RazorpayPaymentId);
@@ -449,5 +505,7 @@ namespace Seikatsu.Backend.Services
             return true;
 
         }
+
+       
     }
 }
