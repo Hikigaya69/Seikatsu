@@ -38,6 +38,8 @@ namespace Seikatsu.Backend.Services
         Task<OrderAnalysisResponseDTO> GetOrderForPeriodAsync(RevenuePeriodRequestDTO request);
 
         //for single category sales count.. suitable for tile in dashboard
+
+        Task<PagedResult<ProductDTOforIndexPage>> GetProductByFilterAdminAsync(ProductFilterRequestDTO request, int pageSize, DateTime? cursorDate);
         Task<int>CategorywiseProductsSoldAsync(Guid categoryId);
 
         Task<int> CountrywiseProductsSoldAsync(string countryName);

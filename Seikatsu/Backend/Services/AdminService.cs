@@ -573,5 +573,59 @@ namespace Seikatsu.Backend.Services
                 .ToListAsync();
 
         }
+        public async Task<PagedResult<ProductDTOforIndexPage>> GetProductByFilterAdminAsync(
+                                      ProductFilterRequestDTO request, int pageSize, DateTime? cursorDate)
+        {
+            var query = _context.Products.AsQueryable();
+
+            // filters
+            if (request.CategoryId.HasValue)
+                query = query.Where(p => p.CategoryId == request.CategoryId.Value);
+
+            if (!string.IsNullOrEmpty(request.CountryName))
+                query = query.Where(p => p.CountryName == request.CountryName);
+
+            if (request.MinPrice.HasValue)
+                query = query.Where(p => p.Price >= request.MinPrice.Value);
+
+            if (request.MaxPrice.HasValue)
+                query = query.Where(p => p.Price <= request.MaxPrice.Value);
+
+            if (!string.IsNullOrEmpty(request.StorageType))
+                query = query.Where(p => p.StorageType == request.StorageType);
+
+            // cursor — just another chained Where
+            if (cursorDate.HasValue)
+                query = query.Where(p => p.CreatedAt > cursorDate.Value);
+
+            var rows = await query
+                .OrderBy(p => p.CreatedAt)
+                .ThenBy(p => p.Id)
+                .Take(pageSize + 1)
+                .Select(p => new ProductDTOforIndexPage
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    ProductImageUrl = p.ProductImageUrl,
+                    Category = p.Category!.CategoryName,
+                    CountryName = p.CountryName,
+                    CreatedAt = p.CreatedAt
+                })
+                .ToListAsync();
+
+            if (rows.Count == 0 && !cursorDate.HasValue)
+                throw new NotFoundException("No products found.");
+
+            var hasMore = rows.Count > pageSize;
+            var items = hasMore ? rows.Take(pageSize).ToList() : rows;
+
+            return new PagedResult<ProductDTOforIndexPage>
+            {
+                Items = items,
+                NextCursorDate = hasMore ? items.Last().CreatedAt : null
+            };
+        }
     }
 }

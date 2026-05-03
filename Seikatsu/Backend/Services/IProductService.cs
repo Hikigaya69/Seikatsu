@@ -15,6 +15,7 @@ namespace Seikatsu.Backend.Services
         Task<IEnumerable<ProductDTOforIndexPage>> GetProductsbySearchAsync(string query);
 
         Task<PagedResult<ProductDTOforIndexPage>> GetProductByCategoryAsync(Guid categoryId, int pageSize, DateTime? cursorDate);
+        Task<PagedResult<ProductDTOforIndexPage>> GetProductByFilterAsync(ProductFilterRequestDTO request, int pageSize, DateTime? cursorDate);
 
 
     }

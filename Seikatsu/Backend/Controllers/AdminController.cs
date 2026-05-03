@@ -282,6 +282,23 @@ namespace Seikatsu.Backend.Controllers
             };
             return Ok(response);
         }
+
+        [HttpGet("adminfilter")]
+        public async Task<ActionResult<APIResponse<PagedResult<ProductDTOforIndexPage>>>> GetProductByFilter(
+       [FromQuery] ProductFilterRequestDTO request,
+       [FromQuery] int pageSize = 20,
+       [FromQuery] DateTime? cursorDate = null)
+        {
+            var result = await adminService.GetProductByFilterAdminAsync(request, pageSize, cursorDate);
+
+            var response = new APIResponse<PagedResult<ProductDTOforIndexPage>>
+            {
+                Success = true,
+                Data = result,
+                Message = result.Items.Any() ? "Products are sent." : "No products found."
+            };
+            return Ok(response);
+        }
     }
 
 }

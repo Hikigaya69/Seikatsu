@@ -132,7 +132,7 @@ export default function Checkout() {
                         );
 
                         if (verifyRes.status === 200) {
-                            navigate(`/order-success/${orderId}`); // this page needs to be created
+                            navigate(`/profile`); // this page needs to be created
                         } else {
                             alert("Payment verification failed. Please contact support.");
                         }

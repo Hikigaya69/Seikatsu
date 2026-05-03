@@ -22,7 +22,7 @@ namespace Seikatsu.Backend.Controllers
         // APIResponse object that indicates success and includes the data or an appropriate message if no products are found.
         //https://localhost:7115/api/Product/GetRandomProducts this is the endpoint which the frontend will call to get the random products for the index page.     
 
-       
+
         public async Task<ActionResult<APIResponse<PagedResult<ProductDTOforIndexPage>>>> GetRandomProducts(
     [FromQuery] int pageSize = 20,
     [FromQuery] DateTime? cursorDate = null,
@@ -48,7 +48,7 @@ namespace Seikatsu.Backend.Controllers
             {
                 Success = true,
                 Data = product,
-                Message ="prodcut detail is sent" 
+                Message = "prodcut detail is sent"
             };
 
             return Ok(response);
@@ -57,7 +57,7 @@ namespace Seikatsu.Backend.Controllers
 
         [HttpGet("productbycountry/{countryname}")]
 
-        public async Task<ActionResult<APIResponse<IEnumerable<ProductCountryDTO>>>>GetProductbyCountry(string countryname)
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductCountryDTO>>>> GetProductbyCountry(string countryname)
         {
             var products = await productService.GetProductbyCountryAsync(countryname);
             var response = new APIResponse<IEnumerable<ProductCountryDTO>>
@@ -103,6 +103,23 @@ namespace Seikatsu.Backend.Controllers
     [FromQuery] DateTime? cursorDate = null)
         {
             var result = await productService.GetProductByCategoryAsync(categoryId, pageSize, cursorDate);
+            var response = new APIResponse<PagedResult<ProductDTOforIndexPage>>
+            {
+                Success = true,
+                Data = result,
+                Message = result.Items.Any() ? "Products are sent." : "No products found."
+            };
+            return Ok(response);
+        }
+    
+
+    [HttpGet("filter")]
+        public async Task<ActionResult<APIResponse<PagedResult<ProductDTOforIndexPage>>>> GetProductByFilter(
+        [FromQuery] ProductFilterRequestDTO request,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] DateTime? cursorDate = null)
+        {
+            var result = await productService.GetProductByFilterAsync(request, pageSize, cursorDate);
             var response = new APIResponse<PagedResult<ProductDTOforIndexPage>>
             {
                 Success = true,
