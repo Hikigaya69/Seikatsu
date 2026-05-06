@@ -12,6 +12,11 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Checklist from "./pages/Checklist";
 import RestockCart from "./pages/RestockCart";
+import AdminLayout from "./layouts/AdminLayout";
+import Dashboard from "./pages/admin/Dashboard";
+import Products from "./pages/admin/Products";
+import Categories from "./pages/admin/Categories";
+import Analytics from "./pages/admin/Analytics";
 
 function App() {
     return (
@@ -30,7 +35,24 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/checklist" element={<Checklist />} />
                 <Route path="/restock-cart" element={<RestockCart />} />
-                
+                <Route path="/admin" element={<AdminLayout />}>
+
+  <Route index element={<Dashboard />} />
+
+  <Route path="products" element={<Products />} />
+
+  <Route path="categories" element={<Categories />} />
+
+  <Route path="inventory" element={<Inventory />} />
+
+  <Route
+    path="restock-management"
+    element={<RestockManagement />}
+  />
+
+  <Route path="analytics" element={<Analytics />} />
+
+</Route>
             </Routes>
         </BrowserRouter>
     );
