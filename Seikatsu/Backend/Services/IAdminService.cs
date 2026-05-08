@@ -47,6 +47,10 @@ namespace Seikatsu.Backend.Services
         Task<IEnumerable<CategoryDetailResponseDTO>> ShowCategoryItemCount();
        Task<IEnumerable<CountryCountResponseDTO>> ShowCountryItemCount();
 
-        
+        Task<IEnumerable<RestockStatusResponseDTO>> RestockStatusAsync();
+
+        Task<RestockFrequncyCountResponseDTO>RestockFrequencyCount();
+
+
     }
 }

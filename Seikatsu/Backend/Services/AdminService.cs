@@ -91,18 +91,18 @@ namespace Seikatsu.Backend.Services
             {
                 product.ProductImageUrl = await _storage.UploadImageAsync(request.Image, "products");
             }
-            product.CountryName= request.CountryName ?? product.CountryName;
-            product.Description= request.Description ?? product.Description;
-            product.IsFood= request.IsFood ?? product.IsFood;   
-                product.Name= request.Name ?? product.Name;
-            product.Price= request.Price ?? product.Price;
-                product.StorageType= request.StorageType ?? product.StorageType;
+            product.CountryName = request.CountryName ?? product.CountryName;
+            product.Description = request.Description ?? product.Description;
+            product.IsFood = request.IsFood ?? product.IsFood;
+            product.Name = request.Name ?? product.Name;
+            product.Price = request.Price ?? product.Price;
+            product.StorageType = request.StorageType ?? product.StorageType;
             product.CategoryId = request.CategoryId;
 
-           if (request.Image != null && request.Image.Length > 0)
-{
-    product.ProductImageUrl = await _storage.UploadImageAsync(request.Image, "products");
-}
+            if (request.Image != null && request.Image.Length > 0)
+            {
+                product.ProductImageUrl = await _storage.UploadImageAsync(request.Image, "products");
+            }
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
             return new ProductDTO
@@ -646,5 +646,42 @@ namespace Seikatsu.Backend.Services
                 NextCursorDate = hasMore ? items.Last().CreatedAt : null
             };
         }
+
+        public async Task<IEnumerable<RestockStatusResponseDTO>> RestockStatusAsync()
+        {
+            var now = DateTime.UtcNow;
+
+            var result = await _context.RestockCartItems
+                .GroupBy(_ => 1)
+                .Select(g => new RestockStatusResponseDTO
+                {
+                    activeRestockItemCount = g.Count(i => i.Status == RestockItemsStatus.Live),
+                    pausedRestockItemCount = g.Count(i => i.Status == RestockItemsStatus.Paused),
+                    upcomingOrderCount = g.Count(i => i.NextOrderDate.HasValue && i.NextOrderDate.Value > now)
+                })
+                .FirstOrDefaultAsync();
+
+            return new List<RestockStatusResponseDTO> { result ?? new RestockStatusResponseDTO() };
+        }
+
+        public async Task<RestockFrequncyCountResponseDTO>RestockFrequencyCount()
+        {
+            var counts = await _context.RestockCartItems
+                .Where(i => i.Status == RestockItemsStatus.Live)
+                .GroupBy(i => i.Frequency)
+                .Select(g => new { Frequency = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            return new RestockFrequncyCountResponseDTO
+            {
+                DailyCount = counts.FirstOrDefault(c => c.Frequency == RestockFrequency.Daily)?.Count ?? 0,
+                WeeklyCount = counts.FirstOrDefault(c => c.Frequency == RestockFrequency.Weekly)?.Count ?? 0,
+                MonthlyCount = counts.FirstOrDefault(c => c.Frequency == RestockFrequency.Monthly)?.Count ?? 0,
+                BiWeeklyCount = counts.FirstOrDefault(c => c.Frequency == RestockFrequency.BiWeekly)?.Count ?? 0,
+                QuarterlyCount = counts.FirstOrDefault(c => c.Frequency == RestockFrequency.Quarterly)?.Count ?? 0
+            };
+        }
+
+        
     }
 }
