@@ -109,7 +109,7 @@ export default function Inventory() {
                 </td>
 
                 <td>
-                  ¥{product.price}
+                  ₹{product.price}
                 </td>
 
                 <td>

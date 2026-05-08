@@ -87,16 +87,33 @@ namespace Seikatsu.Backend.Services
             {
                 throw new NotFoundException("Product not found.");
             }
-            var imageUrl = await _storage.UploadImageAsync(request.Image, "products");
+            if (request.Image != null && request.Image.Length > 0)
+            {
+                product.ProductImageUrl = await _storage.UploadImageAsync(request.Image, "products");
+            }
+            product.CountryName= request.CountryName ?? product.CountryName;
+            product.Description= request.Description ?? product.Description;
+            product.IsFood= request.IsFood ?? product.IsFood;   
+                product.Name= request.Name ?? product.Name;
+            product.Price= request.Price ?? product.Price;
+                product.StorageType= request.StorageType ?? product.StorageType;
+            product.CategoryId = request.CategoryId;
+
+           if (request.Image != null && request.Image.Length > 0)
+{
+    product.ProductImageUrl = await _storage.UploadImageAsync(request.Image, "products");
+}
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
             return new ProductDTO
             {
                 Id = product.Id,
                 Name = request.Name,
                 Description = request.Description,
-                Price = request.Price,
-                IsFood = request.IsFood,
+                Price = (decimal)request.Price,
+                IsFood = (bool)request.IsFood,
                 StorageType = request.StorageType,
-                ProductImageUrl = imageUrl,        //URL from Supabase, not from request
+                ProductImageUrl = product.ProductImageUrl,        //URL from Supabase, not from request
                 CountryName = request.CountryName,
                 Category = (await _context.Categories.FindAsync(request.CategoryId))?.CategoryName ?? "Unknown"
             };

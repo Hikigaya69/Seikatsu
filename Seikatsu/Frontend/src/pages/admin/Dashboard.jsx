@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 
 import api from "../../Utils/api";
 
@@ -82,7 +82,7 @@ export default function Dashboard() {
 
         <StatsCard
           title="Revenue"
-          value={`¥${revenue}`}
+                  value={`₹${revenue}`}
           subtitle="Total revenue"
         />
 

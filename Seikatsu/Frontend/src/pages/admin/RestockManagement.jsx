@@ -93,7 +93,7 @@ export default function RestockManagement() {
           </p>
 
           <h2 className="text-3xl font-bold mt-3">
-            ¥280k
+            ?280k
           </h2>
 
         </div>
