@@ -17,6 +17,9 @@ import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
 import Categories from "./pages/admin/Categories";
 import Analytics from "./pages/admin/Analytics";
+import Inventory from "./pages/admin/Inventory";
+import RestockManagement from "./pages/admin/RestockManagement";
+
 
 function App() {
     return (

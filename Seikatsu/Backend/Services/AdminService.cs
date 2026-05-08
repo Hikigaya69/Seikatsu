@@ -298,13 +298,14 @@ namespace Seikatsu.Backend.Services
                     break;
 
                 case RevenuePeriod.Monthly:
-                    start = new DateTime(now.Year, now.Month, 1);
+
+                    start = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
                     end = now;
                     labelFormat = "MMM dd";
                     break;
 
                 case RevenuePeriod.Yearly:
-                    start = new DateTime(now.Year, 1, 1);
+                    start = new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                     end = now;
                     labelFormat = "MMM";
                     break;
@@ -319,8 +320,9 @@ namespace Seikatsu.Backend.Services
                     if (request.EndDate > now)
                         throw new BadRequestException("EndDate cannot be in the future.");
 
-                    start = request.StartDate.Value.Date;
-                    end = request.EndDate.Value.Date.AddDays(1).AddTicks(-1);
+
+                    start = DateTime.SpecifyKind(request.StartDate.Value.Date, DateTimeKind.Utc);
+                    end = DateTime.SpecifyKind(request.EndDate.Value.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
                     labelFormat = "MMM dd";
                     break;
 
@@ -364,7 +366,7 @@ namespace Seikatsu.Backend.Services
                 dataPoints = Enumerable.Range(1, now.Month)  // up to current month only
                     .Select(m => new RevenueDatePointResponseDTO
                     {
-                        Label = new DateTime(now.Year, m, 1).ToString("MMM"),
+                        Label = new DateTime(now.Year, m, 1, 0, 0, 0, DateTimeKind.Utc).ToString("MMM"),
                         Revenue = orders
                             .Where(o => o.CreatedAt.Month == m)
                             .Sum(o => o.TotalAmount)
@@ -420,14 +422,14 @@ namespace Seikatsu.Backend.Services
                     break;
 
                 case RevenuePeriod.Monthly:
-                    start = new DateTime(now.Year, now.Month, 1);
+                    start = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
                     end = now;
                     labelFormat = "MMM dd";
                     totalDays = (int)(end.Date - start.Date).TotalDays + 1;
                     break;
 
                 case RevenuePeriod.Yearly:
-                    start = new DateTime(now.Year, 1, 1);
+                    start = new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                     end = now;
                     labelFormat = "MMM";
                     break;
@@ -442,8 +444,8 @@ namespace Seikatsu.Backend.Services
                     if (request.EndDate > now)
                         throw new BadRequestException("EndDate cannot be in the future.");
 
-                    start = request.StartDate.Value.Date;
-                    end = request.EndDate.Value.Date.AddDays(1).AddTicks(-1);
+                    start = DateTime.SpecifyKind(request.StartDate.Value.Date, DateTimeKind.Utc);
+                    end = DateTime.SpecifyKind(request.EndDate.Value.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
                     labelFormat = "MMM dd";
                     break;
 

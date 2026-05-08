@@ -207,7 +207,7 @@ namespace Seikatsu.Backend.Controllers
         }
 
         //this for plotting graphs.. If categoryId can be null also.. if choosen the analysis will be for that perticular category
-        [HttpGet("revenueforperiod")]
+        [HttpPost("revenueforperiod")]
         public async Task<ActionResult<APIResponse<RevenueResponseDTO>>> RevenueForPeriod([FromBody] RevenuePeriodRequestDTO request)
         {
             var result = await adminService.GetRevenueForPeriodAsync(request);
@@ -219,8 +219,8 @@ namespace Seikatsu.Backend.Controllers
             };
             return Ok(response);
         }
-        //this for plotting graphs... here ddont mind the request dto name.. fileds are same
-        [HttpGet("ordersforperiod")]
+        //this for plotting graphs... here ddont mind the request dto name.. fileds are same.. post method due to complex request body..
+        [HttpPost("ordersforperiod")]
         public async Task<ActionResult<APIResponse<OrderAnalysisResponseDTO>>> OrdersForPeriod([FromBody] RevenuePeriodRequestDTO request)
         {
             var result = await adminService.GetOrderForPeriodAsync(request);

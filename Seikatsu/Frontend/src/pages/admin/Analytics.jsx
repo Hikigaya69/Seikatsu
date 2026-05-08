@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import RevenueChart from "../../components/admin/RevenueChart";
+import OrderChart from "../../components/admin/OrderChart";
 
 import api from "../../Utils/api";
 
@@ -36,18 +38,18 @@ export default function Analytics() {
         orderRes
       ] = await Promise.all([
 
-        api.get(
+        api.post(
           "/Admin/revenueforperiod",
-          {
-            data:requestBody
-          }
+          
+            requestBody
+          
         ),
 
-        api.get(
+        api.post(
           "/Admin/ordersforperiod",
-          {
-            data:requestBody
-          }
+          
+            requestBody
+          
         )
 
       ]);
@@ -190,7 +192,8 @@ export default function Analytics() {
         </div>
 
       </div>
-
+          <RevenueChart data={revenue?.dataPoints || []} />
+          <OrderChart data={orders?.dataPoints || []} />       
 
       <div className="grid grid-cols-2 gap-6">
 
@@ -214,7 +217,7 @@ export default function Analytics() {
                 </span>
 
                 <span className="font-semibold">
-                  ¥{point.revenue}
+                        ₹{point.revenue}
                 </span>
 
               </div>

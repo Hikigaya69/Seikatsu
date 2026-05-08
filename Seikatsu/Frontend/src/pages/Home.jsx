@@ -17,7 +17,7 @@ export default function Home() {
     const [hasNextPage, setHasNextPage] = useState(false);
     const [totalVisible, setTotalVisible] = useState(0);
 
-    // ✅ Robust universal extractor
+
     const extractItems = (data) => {
         if (!data) return [];
         if (Array.isArray(data)) return data;
@@ -222,3 +222,4 @@ export default function Home() {
         </div>
     );
 }
+
