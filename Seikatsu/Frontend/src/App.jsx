@@ -40,7 +40,7 @@ function App() {
                 <Route path="/checklist" element={<Checklist />} />
                 <Route path="/restock-cart" element={<RestockCart />} />
                 <Route path="/admin" element={<AdminLayout />}>
-                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/payment-success/:orderId" element={<PaymentSuccess />} />
 
   <Route index element={<Dashboard />} />
 
