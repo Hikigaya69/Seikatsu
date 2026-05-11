@@ -682,6 +682,40 @@ namespace Seikatsu.Backend.Services
             };
         }
 
-        
+        public async Task<PagedResult<RestockViewResponseDTO>> RestockItemsStatusAsync(int pageSize, DateTime? cursorDate)
+        {
+            var query = _context.RestockCartItems
+                .OrderBy(i => i.NextOrderDate)
+                .ThenBy(i => i.Id)
+                .AsQueryable();
+
+            if (cursorDate.HasValue)
+            {
+                query = query.Where(i => i.NextOrderDate > cursorDate.Value);
+            }
+
+            var items = await query
+                .Take(pageSize + 1)
+                .Select(i => new RestockViewResponseDTO
+                {
+                    productName = i.Product!.Name,
+                    Frequency = (RestockFrequency)i.Frequency,
+                    NextOrderDate = i.NextOrderDate,
+                    Status = i.Status
+                   
+                })
+                .ToListAsync();
+
+            var hasMore = items.Count > pageSize;
+            var resultItems = hasMore ? items.Take(pageSize).ToList() : items;
+
+            return new PagedResult<RestockViewResponseDTO>
+            {
+                Items = resultItems,
+                NextCursorDate = hasMore ? resultItems.Last().NextOrderDate : null
+            };
+        }
+
+
     }
 }

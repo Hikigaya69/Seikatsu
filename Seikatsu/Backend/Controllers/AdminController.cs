@@ -299,6 +299,47 @@ namespace Seikatsu.Backend.Controllers
             };
             return Ok(response);
         }
-    }
 
+        [HttpGet("restockstatus")]
+
+        public async Task<ActionResult<APIResponse<IEnumerable<RestockStatusResponseDTO>>>> RestockStatus()
+        {
+            var result = await adminService.RestockStatusAsync();
+            var response = new APIResponse<IEnumerable<RestockStatusResponseDTO>>
+            {
+                Success = true,
+                Data = result,
+                Message = "restock status for products is sent"
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("restockfrequency")]
+        public async Task<ActionResult<APIResponse<RestockFrequncyCountResponseDTO>>> RestockFrequency()
+        {
+            var result = await adminService.RestockFrequencyCount();
+            var response = new APIResponse<RestockFrequncyCountResponseDTO>
+            {
+                Success = true,
+                Data = result,
+                Message = "restock frequency count is sent"
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("restockaadminview")]
+        public async Task<ActionResult<APIResponse<PagedResult<RestockViewResponseDTO>>>> RestockAdminView([FromQuery] int pageSize = 8,
+       [FromQuery] DateTime? cursorDate = null)
+        {
+            var result = await adminService.RestockItemsStatusAsync(pageSize, cursorDate);
+            var response = new APIResponse<PagedResult<RestockViewResponseDTO>>
+            {
+                Success = true,
+                Data = result,
+                Message = "restock items status for admin view is sent"
+            };
+            return Ok(response);
+
+        }
+    }
 }

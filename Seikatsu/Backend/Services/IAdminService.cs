@@ -50,7 +50,7 @@ namespace Seikatsu.Backend.Services
         Task<IEnumerable<RestockStatusResponseDTO>> RestockStatusAsync();
 
         Task<RestockFrequncyCountResponseDTO>RestockFrequencyCount();
-
+        Task<PagedResult<RestockViewResponseDTO>> RestockItemsStatusAsync(int pageSize, DateTime? cursorDate);
 
     }
 }
