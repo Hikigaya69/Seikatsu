@@ -19,6 +19,7 @@ import Categories from "./pages/admin/Categories";
 import Analytics from "./pages/admin/Analytics";
 import Inventory from "./pages/admin/Inventory";
 import RestockManagement from "./pages/admin/RestockManagement";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
                 <Route path="/checklist" element={<Checklist />} />
                 <Route path="/restock-cart" element={<RestockCart />} />
                 <Route path="/admin" element={<AdminLayout />}>
+                <Route path="/payment-success" element={<PaymentSuccess />} />
 
   <Route index element={<Dashboard />} />
 
