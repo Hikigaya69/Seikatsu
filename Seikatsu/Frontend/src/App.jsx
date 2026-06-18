@@ -34,16 +34,17 @@ function App() {
                  <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/payment-success/:orderId" element={<PaymentSuccess />} />
                 <Route path="/order-summary/:orderId" element={<OrderSummary />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/checklist" element={<Checklist />} />
                 <Route path="/restock-cart" element={<RestockCart />} />
                 <Route path="/admin" element={<AdminLayout />}>
-                <Route path="/payment-success/:orderId" element={<PaymentSuccess />} />
+                
 
   <Route index element={<Dashboard />} />
-
+                    
   <Route path="products" element={<Products />} />
 
   <Route path="categories" element={<Categories />} />

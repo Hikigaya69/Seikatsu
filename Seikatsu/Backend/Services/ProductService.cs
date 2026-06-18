@@ -228,5 +228,15 @@ namespace Seikatsu.Backend.Services
                 NextCursorDate = hasMore ? items.Last().CreatedAt : null
             };
         }
+
+        public async Task<IEnumerable<CountryDTO>> GetAllCountryAsync()
+        {
+            var countries = await context.Products
+                .Select(p => p.CountryName)
+                .Distinct()
+                .Select(c => new CountryDTO { CountryName = c })
+                .ToListAsync();
+            return countries;
+        }
     }
 }

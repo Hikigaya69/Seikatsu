@@ -128,5 +128,18 @@ namespace Seikatsu.Backend.Controllers
             };
             return Ok(response);
         }
+
+        [HttpGet("allcountries")]
+        public async Task<ActionResult<APIResponse<IEnumerable<CountryDTO>>>> GetAllCountries()
+        {
+            var countries = await productService.GetAllCountryAsync();
+            var response = new APIResponse<IEnumerable<CountryDTO>>
+            {
+                Success = true,
+                Data = countries,
+                Message = countries.Any() ? "Countries are sent." : "No countries found."
+            };
+            return Ok(response);
+        }
     }
 }

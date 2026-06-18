@@ -98,11 +98,7 @@ namespace Seikatsu.Backend.Services
             // if any field failed — throw all errors at once
             if (errors.Any())
                 throw new BadRequestException(errors);
-            //if (await context.Customers.AnyAsync(
-            //u => u.FullName.ToLower() == request.FullName.ToLower()))
-            //    throw new ConflictException($"Full name '{request.FullName}' is already taken.");
-
-            // 3. check if email already taken
+           
             if (await context.Customers.AnyAsync(
                     u => u.Email.ToLower() == request.Email.ToLower()))
                 throw new ConflictException($"Email '{request.Email}' is already registered.");

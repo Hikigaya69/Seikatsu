@@ -16,7 +16,7 @@ export default function Home() {
     const [nextCursorDate, setNextCursorDate] = useState(null);
     const [hasNextPage, setHasNextPage] = useState(false);
     const [totalVisible, setTotalVisible] = useState(0);
-
+ 
 
     const extractItems = (data) => {
         if (!data) return [];
@@ -39,7 +39,8 @@ export default function Home() {
 
                 setCategories(items);
             })
-            .catch((err) => console.error("❌ CATEGORY ERROR:", err));
+            .catch((err) => console.error("CATEGORY ERROR:", err));
+
 
         fetchProducts(null, null);
     }, []);

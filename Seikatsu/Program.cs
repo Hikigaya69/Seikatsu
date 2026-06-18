@@ -38,6 +38,8 @@ builder.Services.AddHangfire(config => config
 
 builder.Services.AddHangfireServer();
 builder.Services.AddTransient<GlobalExceptionHandler>();
+//builder.Services.AddScoped<CustomerSeeder>();
+//builder.Services.AddScoped<OrderSeeder>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IRestockCartService,RestockCartService>();
@@ -104,12 +106,15 @@ app.MapScalarApiReference(options =>
     options.WithTitle("Seikatsu API");
     options.AddServer("https://seikatsu-api.onrender.com");
 });
-
-// Configure the HTTP request pipeline.
+//method which actually runs.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<Seikatsu.Backend.Data.UserContext>();
     db.Database.Migrate();
+    // var seeder = scope.ServiceProvider.GetRequiredService<CustomerSeeder>();
+    //await seeder.SeedAsync(100);  // this line actually does the work
+   // var orderSeeder = scope.ServiceProvider.GetRequiredService<OrderSeeder>();
+  //  await orderSeeder.SeedAsync();
 }
 
 

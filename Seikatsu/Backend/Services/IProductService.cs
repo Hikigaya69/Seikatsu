@@ -9,6 +9,7 @@ namespace Seikatsu.Backend.Services
         Task<ProductDTO> GetPrductbyIdAsync(Guid id);
 
         Task<IEnumerable<ProductCountryDTO>> GetProductbyCountryAsync(string countryname);
+        Task<IEnumerable<CountryDTO>> GetAllCountryAsync();
 
         Task<IEnumerable<ProductSuggestionDTO>> GetProductSuggestionAsync(string query);
 
