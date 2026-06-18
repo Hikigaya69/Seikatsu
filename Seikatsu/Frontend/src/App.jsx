@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -12,6 +13,9 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Checklist from "./pages/Checklist";
 import RestockCart from "./pages/RestockCart";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import SearchResults from "./pages/SearchResults";
+
 import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
@@ -19,19 +23,20 @@ import Categories from "./pages/admin/Categories";
 import Analytics from "./pages/admin/Analytics";
 import Inventory from "./pages/admin/Inventory";
 import RestockManagement from "./pages/admin/RestockManagement";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import SearchResults from "./pages/SearchResults";
 
 function App() {
     return (
         <BrowserRouter>
             <Routes>
+                {/* Public Routes */}
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                 <Route path="/home" element={<Home />} />
-                 <Route path="/product/:id" element={<ProductDetails />} />
-                 <Route path="/cart" element={<Cart />} />
+
+                {/* Store Routes */}
+                <Route path="/home" element={<Home />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
+                <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/payment-success/:orderId" element={<PaymentSuccess />} />
@@ -40,30 +45,20 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/checklist" element={<Checklist />} />
                 <Route path="/restock-cart" element={<RestockCart />} />
-                <Route path="/admin" element={<AdminLayout />}>
-<<<<<<< HEAD
-                
-
-=======
-                <Route path="/payment-success/:orderId" element={<PaymentSuccess />} />
                 <Route path="/search/:query" element={<SearchResults />} />
->>>>>>> 2b66c52a6a7cb28532ddc1b4e360a52e181d2329
-  <Route index element={<Dashboard />} />
-                    
-  <Route path="products" element={<Products />} />
 
-  <Route path="categories" element={<Categories />} />
-
-  <Route path="inventory" element={<Inventory />} />
-
-  <Route
-    path="restock-management"
-    element={<RestockManagement />}
-  />
-
-  <Route path="analytics" element={<Analytics />} />
-
-</Route>
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="products" element={<Products />} />
+                    <Route path="categories" element={<Categories />} />
+                    <Route path="inventory" element={<Inventory />} />
+                    <Route
+                        path="restock-management"
+                        element={<RestockManagement />}
+                    />
+                    <Route path="analytics" element={<Analytics />} />
+                </Route>
             </Routes>
         </BrowserRouter>
     );
