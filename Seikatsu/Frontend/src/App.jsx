@@ -20,7 +20,7 @@ import Analytics from "./pages/admin/Analytics";
 import Inventory from "./pages/admin/Inventory";
 import RestockManagement from "./pages/admin/RestockManagement";
 import PaymentSuccess from "./pages/PaymentSuccess";
-
+import SearchResults from "./pages/SearchResults";
 
 function App() {
     return (
@@ -41,8 +41,13 @@ function App() {
                 <Route path="/checklist" element={<Checklist />} />
                 <Route path="/restock-cart" element={<RestockCart />} />
                 <Route path="/admin" element={<AdminLayout />}>
+<<<<<<< HEAD
                 
 
+=======
+                <Route path="/payment-success/:orderId" element={<PaymentSuccess />} />
+                <Route path="/search/:query" element={<SearchResults />} />
+>>>>>>> 2b66c52a6a7cb28532ddc1b4e360a52e181d2329
   <Route index element={<Dashboard />} />
                     
   <Route path="products" element={<Products />} />
